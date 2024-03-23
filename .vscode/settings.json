@@ -3,5 +3,6 @@
   "editor.formatOnSave": true, // ファイル保存時にフォーマットする
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit" // ファイル保存時にESLintの自動修正を実行する
-  }
+  },
+  "cSpell.words": ["nextjs"]
 }
