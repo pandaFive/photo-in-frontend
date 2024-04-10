@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
@@ -24,14 +25,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Header />
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            {children}
+            <Box sx={{ display: 'flex' }}>
+              <Header />
+              {children}
+            </Box>
+            <Footer />
           </ThemeProvider>
         </AppRouterCacheProvider>
-        <Footer />
       </body>
     </html>
   );
