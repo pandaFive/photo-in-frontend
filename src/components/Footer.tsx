@@ -1,27 +1,22 @@
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import Link from 'next/link';
 import React from 'react';
 
 const Footer: React.FC = () => {
   return (
-    <AppBar
-      component="footer"
-      position="absolute"
-      sx={{
-        backgroundColor: '#000000',
-        bottom: 0,
-        height: '2rem',
-        marginTop: 'auto',
-      }}
+    <Typography
+      align="center"
+      color="text.secondary"
+      marginBottom={2}
+      variant="body2"
     >
-      <Container maxWidth="md">
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="caption">&copy;2024 propan</Typography>
-        </Box>
-      </Container>
-    </AppBar>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
   );
 };
 
