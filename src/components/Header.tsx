@@ -115,7 +115,7 @@ const Header = () => {
             sx={{ flexGrow: 1 }}
             variant="h6"
           >
-            Dashboard
+            管理者
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">
