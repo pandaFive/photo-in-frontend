@@ -1,5 +1,7 @@
 'use client';
 
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Button, styled } from '@mui/material';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -10,6 +12,18 @@ import * as React from 'react';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 
 export default function Dashboard() {
   return (
@@ -27,6 +41,18 @@ export default function Dashboard() {
       >
         <Toolbar />
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+          <Grid>
+            <Button
+              component="label"
+              role={undefined}
+              startIcon={<CloudUploadIcon />}
+              tabIndex={-1}
+              variant="contained"
+            >
+              Upload file
+              <VisuallyHiddenInput type="file" />
+            </Button>
+          </Grid>
           <Grid container spacing={3}>
             {/* Chart */}
             <Grid item lg={9} md={8} xs={12}>

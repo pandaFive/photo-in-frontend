@@ -40,8 +40,8 @@ const Uncompletes = () => {
         on {getCurrentTime()}
       </Typography>
       <div>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          View balance
+        <Link color="primary" href="task" onClick={preventDefault}>
+          View more
         </Link>
       </div>
     </React.Fragment>
