@@ -1,5 +1,5 @@
 export async function postLogin(name: string, password: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/user/login`, {
+  const res = await fetch(`${process.env.API_HOST}/account/login`, {
     method: 'POST',
     cache: 'no-store',
     headers: {

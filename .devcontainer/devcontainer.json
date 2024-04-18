@@ -12,7 +12,7 @@
   "containerEnv": {
     "TZ": "Asia/Tokyo"
   },
-  "forwardPorts": [3300],
+  "forwardPorts": [3000],
   "customizations": {
     "vscode": {
       "extensions": [

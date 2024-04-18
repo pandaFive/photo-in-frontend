@@ -1,17 +1,10 @@
 import { Box, Toolbar } from '@mui/material';
-import { redirect } from 'next/dist/server/api-utils';
-import React from 'react';
 
-import { getAccount } from '@/src/api/get-account';
-import { getTasks } from '@/src/api/get-tasks';
 import TaskAccordion from '@/src/components/TaskAccordion';
 
-const TaskData = async () => {
-  const data = await getTasks();
-  const currentAccount = await getAccount();
-  if (currentAccount.role !== '0') {
-    redirect('login');
-  }
+const Account = async ({ params }: { params: { id: string } }) => {
+  const id = params.id;
+  const data = await getAcountTasks(id);
   return (
     <Box
       sx={{
@@ -42,4 +35,4 @@ const TaskData = async () => {
   );
 };
 
-export default TaskData;
+export default Account;

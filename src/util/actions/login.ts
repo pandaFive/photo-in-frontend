@@ -13,6 +13,12 @@ export async function loginAction(formData: FormData) {
 
   if ('account' in result) {
     setCookies('token', result.account.token as string);
+    if (result.role === '0') {
+      redirect('dashboard');
+    } else {
+      redirect(`account/${result.id}`);
+    }
+  } else {
     redirect('dashboard');
   }
 }

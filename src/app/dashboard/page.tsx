@@ -1,40 +1,30 @@
-'use client';
-
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { Button, styled } from '@mui/material';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
+import { redirect } from 'next/navigation';
 import * as React from 'react';
 
+import { getAccount } from '@/src/api/get-account';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
+import UploadButton from '@/src/components/UploadButton';
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
+const Dashboard = async () => {
+  const currentAccount = await getAccount();
 
-export default function Dashboard() {
+  if (currentAccount.role !== '0') {
+    redirect('login');
+  }
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Box
         component="main"
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === 'light'
-              ? theme.palette.grey[100]
-              : theme.palette.grey[900],
+          backgroundColor: 'f9f9f9',
           flexGrow: 1,
           overflow: 'auto',
         }}
@@ -42,16 +32,7 @@ export default function Dashboard() {
         <Toolbar />
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
           <Grid>
-            <Button
-              component="label"
-              role={undefined}
-              startIcon={<CloudUploadIcon />}
-              tabIndex={-1}
-              variant="contained"
-            >
-              Upload file
-              <VisuallyHiddenInput type="file" />
-            </Button>
+            <UploadButton />
           </Grid>
           <Grid container spacing={3}>
             {/* Chart */}
@@ -67,7 +48,7 @@ export default function Dashboard() {
                 <Chart />
               </Paper>
             </Grid>
-            {/* Recent Deposits */}
+            {/* Recent Uncompletes */}
             <Grid item lg={3} md={4} xs={12}>
               <Paper
                 sx={{
@@ -91,4 +72,6 @@ export default function Dashboard() {
       </Box>
     </Box>
   );
-}
+};
+
+export default Dashboard;
