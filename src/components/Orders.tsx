@@ -1,3 +1,4 @@
+'use client';
 import { Title } from '@mui/icons-material';
 import {
   Table,

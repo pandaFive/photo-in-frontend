@@ -1,3 +1,4 @@
+'use client';
 import { Typography } from '@mui/material';
 import Link from '@mui/material/Link';
 import * as React from 'react';
@@ -40,8 +41,9 @@ const Uncompletes = () => {
         on {getCurrentTime()}
       </Typography>
       <div>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          View balance
+        {/* <Link color="primary" href="/task" onClick={preventDefault} > */}
+        <Link color="primary" href="/task">
+          View more
         </Link>
       </div>
     </React.Fragment>
