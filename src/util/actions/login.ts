@@ -1,5 +1,5 @@
 'use server';
-import { redirect } from 'next/navigation';
+import { redirect, RedirectType } from 'next/navigation';
 
 import { postLogin } from '@/src/api/post-login';
 
@@ -13,10 +13,10 @@ export async function loginAction(formData: FormData) {
 
   if ('account' in result) {
     setCookies('token', result.account.token as string);
-    if (result.role === '0') {
-      redirect('dashboard');
+    if (result.account.role === '0') {
+      redirect('dashboard', RedirectType.push);
     } else {
-      redirect(`account/${result.id}`);
+      redirect(`account/${result.account.id}`, RedirectType.push);
     }
   } else {
     redirect('dashboard');
