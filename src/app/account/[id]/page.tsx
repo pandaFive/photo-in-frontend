@@ -1,10 +1,19 @@
 import { Box, Toolbar } from '@mui/material';
+import { redirect, RedirectType } from 'next/navigation';
 
+import { getAccount } from '@/src/api/get-account';
+import getAccountTasks from '@/src/api/get-account-tasks';
 import TaskAccordion from '@/src/components/TaskAccordion';
 
 const Account = async ({ params }: { params: { id: string } }) => {
   const id = params.id;
-  const data = await getAcountTasks(id);
+
+  const currentAccount = await getAccount();
+  if (currentAccount === null || currentAccount.id !== parseInt(id)) {
+    redirect('/login', RedirectType.push);
+  }
+  const data = await getAccountTasks(id);
+
   return (
     <Box
       sx={{
