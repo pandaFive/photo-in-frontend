@@ -12,6 +12,7 @@
     "markuplint": "markuplint \"./**/*.tsx\""
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.556.0",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/server": "^11.11.0",
