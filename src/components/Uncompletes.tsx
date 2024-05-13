@@ -7,10 +7,6 @@ import { getUnfulfilledCount } from '@/src/api/get-unfulfilled-count';
 
 import getCurrentTime from '../util/get-current-time';
 
-function preventDefault(event: React.MouseEvent) {
-  event.preventDefault();
-}
-
 const Uncompletes = () => {
   const [count, setCount] = React.useState(0);
 
@@ -41,7 +37,6 @@ const Uncompletes = () => {
         on {getCurrentTime()}
       </Typography>
       <div>
-        {/* <Link color="primary" href="/task" onClick={preventDefault} > */}
         <Link color="primary" href="/task">
           View more
         </Link>

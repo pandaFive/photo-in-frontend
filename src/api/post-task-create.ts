@@ -1,19 +1,23 @@
-const postTaskCreate = async (name: string) => {
-  const res = await fetch(`${process.env.API_HOST}/tasks`, {
-    method: 'POST',
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      task: { task_title: name },
-    }),
-  });
+export interface Task {
+  [key: string]: string;
+}
 
-  if (res.ok) {
-    const result = await res.json();
+const postTaskCreate = async (name: string) => {
+  try {
+    const res = await fetch(`${process.env.API_HOST}/tasks`, {
+      method: 'POST',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        task: { task_title: name },
+      }),
+    });
+    const result: Task = (await res.json()) as Task;
     return result;
-  } else {
+  } catch (err) {
+    console.error(err);
     return {};
   }
 };

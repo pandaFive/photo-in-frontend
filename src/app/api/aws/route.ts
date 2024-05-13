@@ -20,7 +20,7 @@ export const POST = async (request: Request) => {
 
   const formData = await request.formData();
   const file = formData.get('file');
-  const name = file.name;
+  const name = file in name ? (file.name as string) : '';
 
   const buffer = Buffer.from(await file?.arrayBuffer());
 

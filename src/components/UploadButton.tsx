@@ -1,7 +1,7 @@
 'use client';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Button, styled, Box } from '@mui/material';
-import { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -23,20 +23,20 @@ const UploadButton = () => {
     return inputFiles ? [...Array.from(inputFiles)] : [];
   }, [inputFiles]);
 
-  const changeUploadFile = (event) => {
-    if (!event.target.files) return;
+  const changeUploadFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target: HTMLInputElement = event.target;
+    const files: FileList = target.files ? target.files : new FileList();
+
+    if (!files) return;
     if (!inputFileRef.current?.files) return;
-    const newFileArray = [
-      ...selectedFileArray,
-      ...Array.from(event.target.files),
-    ].filter(
+    const newFileArray = [...selectedFileArray, ...Array.from(files)].filter(
       (file, index, self) =>
         self.findIndex((f) => f.name === file.name) === index,
     );
     const dt = new DataTransfer();
     newFileArray.forEach((file) => dt.items.add(file));
     inputFileRef.current.files = dt.files;
-    setInputFiles(dt.files);
+    setInputFiles(Array.from(dt.files));
   };
 
   const handleDelete = (index: number) => {
@@ -44,7 +44,7 @@ const UploadButton = () => {
     const dt = new DataTransfer();
     selectedFileArray.forEach((file, i) => i !== index && dt.items.add(file));
     inputFileRef.current.files = dt.files;
-    setInputFiles(dt.files);
+    setInputFiles(Array.from(dt.files));
   };
 
   const sendData = async (): Promise<void> => {
@@ -52,33 +52,45 @@ const UploadButton = () => {
       throw new Error('No file selected');
     }
 
-    const file: File = inputFileRef.current.files[0];
-    const fileName: string = file.name;
+    const file: File = inputFileRef.current.files[0]
+      ? inputFileRef.current.files[0]
+      : new File(['foo'], 'foo.txt');
 
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch(`/api/aws`, {
+    await fetch(`/api/aws`, {
       method: 'POST',
       body: formData,
     });
     const dt = new DataTransfer();
     inputFileRef.current.files = dt.files;
-    setInputFiles(dt.files);
+    setInputFiles(Array.from(dt.files));
+  };
+
+  const onSend = () => {
+    sendData()
+      .then()
+      .catch((e) => alert(e));
   };
 
   return (
     <Box>
       <Button
         component="label"
-        onChange={changeUploadFile}
         role={undefined}
+        // onChange={changeUploadFile}
         startIcon={<CloudUploadIcon />}
         tabIndex={-1}
         variant="contained"
       >
         Upload file
-        <VisuallyHiddenInput multiple ref={inputFileRef} type="file" />
+        <VisuallyHiddenInput
+          multiple
+          onChange={changeUploadFile}
+          ref={inputFileRef}
+          type="file"
+        />
       </Button>
       <div>
         {selectedFileArray.map((file, index) => (
@@ -90,7 +102,7 @@ const UploadButton = () => {
           </div>
         ))}
       </div>
-      <Button onClick={sendData} variant="contained">
+      <Button onClick={onSend} variant="contained">
         送信
       </Button>
     </Box>
