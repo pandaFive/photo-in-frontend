@@ -8,6 +8,8 @@ import {
   Paper,
   Button,
 } from '@mui/material';
+import Link from 'next/link';
+import { useState } from 'react';
 
 type Props = {
   title: string;
@@ -18,6 +20,7 @@ type Props = {
 };
 
 const TaskAccordion = (props: Props) => {
+  const [fileUrl, setFileUrl] = useState('');
   const changeNG = async () => {
     await fetch(`/api/task/${String(props.id)}/ng`, {
       method: 'PUT',
@@ -43,6 +46,25 @@ const TaskAccordion = (props: Props) => {
       .then()
       .catch((e) => alert(e));
   };
+
+  const fetchFile = async () => {
+    try {
+      const res = await fetch(`/api/aws?key=${props.title}`, {
+        method: 'GET',
+      });
+      const url = await res.json();
+      setFileUrl(url);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const onFetchFile = () => {
+    fetchFile()
+      .then()
+      .catch((e) => alert(e));
+  };
+
   return (
     <Grid>
       <Paper
@@ -59,11 +81,15 @@ const TaskAccordion = (props: Props) => {
             aria-controls="task content"
             expandIcon={<ArrowDropDownIcon />}
             id="task header"
+            onClick={onFetchFile}
           >
             <Typography>{props.title}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography>{props.body}</Typography>
+            <Link href={fileUrl} target="_blank">
+              {'Open File in New Tab'}
+            </Link>
             {props.type ? (
               <>
                 <Button
