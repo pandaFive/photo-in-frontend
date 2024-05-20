@@ -84,10 +84,11 @@ const TaskList = (props: Props) => {
         <Suspense fallback={<div>loading...</div>}>
           {data?.map((task: Task) => (
             <TaskAccordion
-              body={task.area as string}
+              body={task.area_name as string}
               id={task.history_id as string}
               key={task.id}
               reload={onUpdate}
+              time={task.created_at as string}
               title={task.title as string}
               type={props.type === 'photographer'}
             />

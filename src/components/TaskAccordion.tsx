@@ -7,6 +7,7 @@ import {
   Grid,
   Paper,
   Button,
+  Divider,
 } from '@mui/material';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -16,6 +17,7 @@ type Props = {
   body: string;
   type: boolean;
   id: string;
+  time: string;
   reload: () => void;
 };
 
@@ -60,10 +62,14 @@ const TaskAccordion = (props: Props) => {
   };
 
   const onFetchFile = () => {
-    fetchFile()
-      .then()
-      .catch((e) => alert(e));
+    if (fileUrl === '') {
+      fetchFile()
+        .then()
+        .catch((e) => alert(e));
+    }
   };
+
+  const date = new Date(props.time);
 
   return (
     <Grid>
@@ -83,13 +89,19 @@ const TaskAccordion = (props: Props) => {
             id="task header"
             onClick={onFetchFile}
           >
-            <Typography>{props.title}</Typography>
+            <Typography mx={2} width={100}>{`地域：${props.body}`}</Typography>
+            <Divider
+              flexItem
+              orientation="vertical"
+              sx={{ borderRightWidth: 1, borderColor: 'gray' }}
+            />
+            <Typography mx={2}>{props.title}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>{props.body}</Typography>
             <Link href={fileUrl} target="_blank">
               {'Open File in New Tab'}
             </Link>
+            <Typography>{`振り分け日時：${date.toLocaleDateString()}`}</Typography>
             {props.type ? (
               <>
                 <Button
