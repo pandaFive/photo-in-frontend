@@ -18,6 +18,7 @@ export async function getAccount() {
     cache: 'no-store',
     headers: { Authorization: `Bearer ${token}` },
   });
+
   if (!res.ok) {
     return null;
   } else {
