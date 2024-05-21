@@ -33,24 +33,31 @@ const AppBarContainer = styled(MuiAppBar, {
 interface Props {
   toggleDrawer: () => void;
   open: boolean;
+  name: string;
+  role: string;
 }
 
 const AppBar = (props: Props) => {
   return (
     <AppBarContainer open={props.open} position="fixed">
       <Toolbar>
-        <IconButton
-          aria-label="open drawer"
-          color="inherit"
-          edge="start"
-          onClick={props.toggleDrawer}
-          sx={{
-            marginRight: 5,
-            ...(props.open && { display: 'none' }),
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
+        {props.role === '0' ? (
+          <IconButton
+            aria-label="open drawer"
+            color="inherit"
+            edge="start"
+            onClick={props.toggleDrawer}
+            sx={{
+              marginRight: 5,
+              ...(props.open && { display: 'none' }),
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+        ) : (
+          <></>
+        )}
+
         <Typography
           color="inherit"
           component="h1"
@@ -58,7 +65,7 @@ const AppBar = (props: Props) => {
           sx={{ flexGrow: 1 }}
           variant="h6"
         >
-          管理者
+          {props.name}
         </Typography>
         <IconButton color="inherit">
           <Badge badgeContent={4} color="secondary">
