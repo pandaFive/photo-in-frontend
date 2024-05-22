@@ -29,7 +29,6 @@ const HeaderContainer = (props: Props) => {
       ) : (
         <></>
       )}
-      {/* <Drawer open={open} toggleDrawer={toggleDrawer} /> */}
     </>
   );
 };
