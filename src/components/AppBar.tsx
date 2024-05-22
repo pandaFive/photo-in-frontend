@@ -1,10 +1,13 @@
 'use client';
 
+import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Badge, IconButton, Toolbar, Typography } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { styled } from '@mui/material/styles';
+
+import { logoutAction } from '../util/actions/logout';
 
 const drawerWidth: number = 240;
 
@@ -38,6 +41,14 @@ interface Props {
 }
 
 const AppBar = (props: Props) => {
+  const onLogout = () => {
+    const confirmed = confirm('ログアウトしますか?');
+
+    if (confirmed) {
+      logoutAction();
+    }
+  };
+
   return (
     <AppBarContainer open={props.open} position="fixed">
       <Toolbar>
@@ -67,6 +78,14 @@ const AppBar = (props: Props) => {
         >
           {props.name}
         </Typography>
+        <IconButton
+          aria-label="logout"
+          color="inherit"
+          onClick={onLogout}
+          type="submit"
+        >
+          <LogoutIcon />
+        </IconButton>
         <IconButton color="inherit">
           <Badge badgeContent={4} color="secondary">
             <NotificationsIcon />
