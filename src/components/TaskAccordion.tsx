@@ -16,6 +16,7 @@ type Props = {
   body: string;
   type: boolean;
   id: string;
+  index: number;
   time: string;
   reload: () => void;
 };
@@ -87,7 +88,10 @@ const TaskAccordion = (props: Props) => {
           id="task header"
           onClick={onFetchFile}
         >
-          <Typography mx={2} width={100}>{`地域：${props.body}`}</Typography>
+          <Typography
+            mx={2}
+            width={100}
+          >{`${props.index + 1}.  地域：${props.body}`}</Typography>
           <Divider
             flexItem
             orientation="vertical"

@@ -154,10 +154,11 @@ const TaskList = (props: Props) => {
                 variant="h5"
               >{`${mutateData[sectionName]?.length}件`}</Typography>
               <Divider />
-              {mutateData[sectionName]?.map((task: Task) => (
+              {mutateData[sectionName]?.map((task: Task, index: number) => (
                 <TaskAccordion
                   body={task.area_name}
                   id={String(task.history_id)}
+                  index={index}
                   key={task.id}
                   reload={onUpdate}
                   time={task.created_at}
