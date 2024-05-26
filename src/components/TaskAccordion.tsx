@@ -4,10 +4,9 @@ import {
   Accordion,
   Typography,
   AccordionDetails,
-  Grid,
-  Paper,
   Button,
   Divider,
+  Grid,
 } from '@mui/material';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -17,6 +16,7 @@ type Props = {
   body: string;
   type: boolean;
   id: string;
+  index: number;
   time: string;
   reload: () => void;
 };
@@ -72,56 +72,57 @@ const TaskAccordion = (props: Props) => {
   const date = new Date(props.time);
 
   return (
-    <Grid>
-      <Paper
+    <Grid sx={{ mt: 1, mb: 1 }}>
+      <Accordion
         sx={{
-          p: 1,
           display: 'flex',
           flexDirection: 'column',
-          // height: 200,
           width: '700px',
+          borderTop: 1,
+          borderTopColor: '#efefef',
         }}
       >
-        <Accordion>
-          <AccordionSummary
-            aria-controls="task content"
-            expandIcon={<ArrowDropDownIcon />}
-            id="task header"
-            onClick={onFetchFile}
-          >
-            <Typography mx={2} width={100}>{`地域：${props.body}`}</Typography>
-            <Divider
-              flexItem
-              orientation="vertical"
-              sx={{ borderRightWidth: 1, borderColor: 'gray' }}
-            />
-            <Typography mx={2}>{props.title}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Link href={fileUrl} target="_blank">
-              {'Open File in New Tab'}
-            </Link>
-            <Typography>{`振り分け日時：${date.toLocaleDateString()}`}</Typography>
-            {props.type ? (
-              <>
-                <Button
-                  onClick={onComplete}
-                  sx={{ m: 1 }}
-                  tabIndex={-1}
-                  variant="contained"
-                >
-                  Complete
-                </Button>
-                <Button onClick={onNG} tabIndex={-1} variant="outlined">
-                  NG
-                </Button>
-              </>
-            ) : (
-              <></>
-            )}
-          </AccordionDetails>
-        </Accordion>
-      </Paper>
+        <AccordionSummary
+          aria-controls="task content"
+          expandIcon={<ArrowDropDownIcon />}
+          id="task header"
+          onClick={onFetchFile}
+        >
+          <Typography
+            mx={2}
+            width={100}
+          >{`${props.index + 1}.  地域：${props.body}`}</Typography>
+          <Divider
+            flexItem
+            orientation="vertical"
+            sx={{ borderRightWidth: 1, borderColor: 'gray' }}
+          />
+          <Typography mx={2}>{props.title}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Link href={fileUrl} target="_blank">
+            {'Open File in New Tab'}
+          </Link>
+          <Typography>{`振り分け日時：${date.toLocaleDateString()}`}</Typography>
+          {props.type ? (
+            <>
+              <Button
+                onClick={onComplete}
+                sx={{ m: 1 }}
+                tabIndex={-1}
+                variant="contained"
+              >
+                Complete
+              </Button>
+              <Button onClick={onNG} tabIndex={-1} variant="outlined">
+                NG
+              </Button>
+            </>
+          ) : (
+            <></>
+          )}
+        </AccordionDetails>
+      </Accordion>
     </Grid>
   );
 };
