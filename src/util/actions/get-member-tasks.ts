@@ -1,20 +1,21 @@
-export interface Task {
-  id: string;
+type Task = {
+  id: number;
   title: string;
   area_name: string;
-  history_id: string;
+  history_id: number;
   created_at: string;
-}
+};
 
-export const getAccountTasks = async (id: string) => {
+export const getMemberAssignTask = async (id: string) => {
   try {
-    const res = await fetch(`${process.env.API_HOST}/account/tasks?id=${id}`, {
+    const res = await fetch(`/api/account/${id}/tasks`, {
+      method: 'GET',
       cache: 'no-store',
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;
   } catch (err) {
     console.error(err);
-    return [];
+    return Array<Task>;
   }
 };
