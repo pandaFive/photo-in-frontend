@@ -3,55 +3,42 @@ import {
   AccordionSummary,
   Accordion,
   Typography,
-  AccordionDetails,
-  Button,
   Divider,
   Grid,
 } from '@mui/material';
-import Link from 'next/link';
 import { useState } from 'react';
 
-type Props = {
+import AdminDetail from './Details/AdminDetail';
+import MemberDetail from './Details/MemberDetail';
+
+type Task = {
+  id: number;
   title: string;
-  body: string;
-  type: boolean;
-  id: string;
+  area_name: string;
+  created_at: string;
+};
+
+type MemberTask = Task & {
+  history_id: number;
+};
+
+type AdminTask = Task & {
+  cycle_id: number;
+};
+
+type Props = {
+  task: MemberTask | AdminTask;
   index: number;
-  time: string;
+  type: string;
   reload: () => void;
 };
 
 const TaskAccordion = (props: Props) => {
   const [fileUrl, setFileUrl] = useState('');
-  const changeNG = async () => {
-    await fetch(`/api/task/${String(props.id)}/ng`, {
-      method: 'PUT',
-    });
-    props.reload();
-  };
-
-  const changeComplete = async () => {
-    await fetch(`/api/task/${String(props.id)}/complete`, {
-      method: 'PUT',
-    });
-    props.reload();
-  };
-
-  const onNG = (): void => {
-    changeNG()
-      .then()
-      .catch((e) => alert(e));
-  };
-
-  const onComplete = (): void => {
-    changeComplete()
-      .then()
-      .catch((e) => alert(e));
-  };
 
   const fetchFile = async () => {
     try {
-      const res = await fetch(`/api/aws?key=${props.title}`, {
+      const res = await fetch(`/api/aws?key=${props.task.title}`, {
         method: 'GET',
       });
       const url = await res.json();
@@ -69,7 +56,7 @@ const TaskAccordion = (props: Props) => {
     }
   };
 
-  const date = new Date(props.time);
+  const date = new Date(props.task.created_at);
 
   return (
     <Grid sx={{ mt: 1, mb: 1 }}>
@@ -91,37 +78,24 @@ const TaskAccordion = (props: Props) => {
           <Typography
             mx={2}
             width={100}
-          >{`${props.index + 1}.  地域：${props.body}`}</Typography>
+          >{`${props.index + 1}.  地域：${props.task.area_name}`}</Typography>
           <Divider
             flexItem
             orientation="vertical"
             sx={{ borderRightWidth: 1, borderColor: 'gray' }}
           />
-          <Typography mx={2}>{props.title}</Typography>
+          <Typography mx={2}>{props.task.title}</Typography>
         </AccordionSummary>
-        <AccordionDetails>
-          <Link href={fileUrl} target="_blank">
-            {'Open File in New Tab'}
-          </Link>
-          <Typography>{`振り分け日時：${date.toLocaleDateString()}`}</Typography>
-          {props.type ? (
-            <>
-              <Button
-                onClick={onComplete}
-                sx={{ m: 1 }}
-                tabIndex={-1}
-                variant="contained"
-              >
-                Complete
-              </Button>
-              <Button onClick={onNG} tabIndex={-1} variant="outlined">
-                NG
-              </Button>
-            </>
-          ) : (
-            <></>
-          )}
-        </AccordionDetails>
+        {'history_id' in props.task ? (
+          <MemberDetail
+            date={date.toLocaleDateString()}
+            id={String(props.task.history_id)}
+            reload={props.reload}
+            url={fileUrl}
+          />
+        ) : (
+          <AdminDetail date={date.toLocaleDateString()} url={fileUrl} />
+        )}
       </Accordion>
     </Grid>
   );

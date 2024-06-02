@@ -3,17 +3,24 @@ type Task = {
   title: string;
   area_name: string;
   created_at: string;
+};
+
+type MemberTask = Task & {
   history_id: number;
 };
 
-type GroupType = {
-  [key: string]: Task[];
+type AdminTask = Task & {
+  cycle_id: number;
 };
 
-export const grouping = (items: Task[], key: string) => {
+type GroupType = {
+  [key: string]: (MemberTask | AdminTask)[];
+};
+
+export const grouping = (items: (MemberTask | AdminTask)[], key: string) => {
+  console.log(items);
   if (key === 'time') {
-    return items.reduce((acc: GroupType, item: Task) => {
-      console.log('check');
+    return items.reduce((acc: GroupType, item: MemberTask | AdminTask) => {
       const time = new Date(item['created_at']).toLocaleDateString();
       if (!acc[time]) {
         acc[time] = [];
@@ -24,7 +31,7 @@ export const grouping = (items: Task[], key: string) => {
       return acc;
     }, {});
   } else if (key === 'area') {
-    return items.reduce((acc: GroupType, item: Task) => {
+    return items.reduce((acc: GroupType, item: MemberTask | AdminTask) => {
       const area = item['area_name'];
       if (!acc[area]) {
         acc[area] = [];

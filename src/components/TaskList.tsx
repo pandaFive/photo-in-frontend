@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import { Suspense, useEffect, useState } from 'react';
 
+import { getMemberAssignTask } from '../util/actions/get-member-tasks';
+import { getAllTasks, getNGTasks } from '../util/actions/get-tasks';
 import { grouping } from '../util/grouping';
 
 import TaskAccordion from './TaskAccordion';
@@ -20,7 +22,14 @@ type Task = {
   title: string;
   area_name: string;
   created_at: string;
+};
+
+type MemberTask = Task & {
   history_id: number;
+};
+
+type AdminTask = Task & {
+  cycle_id: number;
 };
 
 type Props = {
@@ -29,7 +38,7 @@ type Props = {
 };
 
 type GroupType = {
-  [key: string]: Task[];
+  [key: string]: (MemberTask | AdminTask)[];
 };
 
 const sortTasks = (list: string[]) => {
@@ -37,45 +46,44 @@ const sortTasks = (list: string[]) => {
 };
 
 const TaskList = (props: Props) => {
-  const [data, setData] = useState<Task[]>([]);
+  const [data, setData] = useState<MemberTask[] | AdminTask[]>([]);
   const [sortType, setSortType] = useState<string>('time');
+  const [dataType, setDataType] = useState<string>('active');
   const [section, setSection] = useState<string[]>([]);
   const [mutateData, setMutateData] = useState<GroupType>({});
 
   const getData =
     props.type === 'photographer'
       ? async () => {
-          const inputData: {
-            id: number;
-          } = {
-            id: props.id,
-          };
           try {
-            const res = await fetch(
-              `/api/account/${String(inputData.id)}/tasks`,
-              {
-                method: 'GET',
-                cache: 'no-store',
-              },
-            );
-            const result: Task[] = (await res.json()) as Task[];
-            setData(() => result);
+            const result: MemberTask[] | AdminTask[] =
+              (await getMemberAssignTask(String(props.id))) as
+                | MemberTask[]
+                | AdminTask[];
+            setData(result);
           } catch (err) {
             console.error(err);
           }
         }
       : async () => {
           try {
-            const res = await fetch(`/api/tasks`, {
-              method: 'GET',
-              cache: 'no-store',
-            });
-            const result: Task[] = (await res.json()) as Task[];
-            setData(() => result);
+            const result: MemberTask[] | AdminTask[] = (await getAllTasks()) as
+              | MemberTask[]
+              | AdminTask[];
+            setData(result);
           } catch (err) {
             console.error(err);
           }
         };
+
+  const getNG = async () => {
+    try {
+      const result: AdminTask[] = (await getNGTasks()) as AdminTask[];
+      setData(result);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const onUpdate = () => {
     getData()
@@ -85,6 +93,19 @@ const TaskList = (props: Props) => {
 
   const onChangeType = (type: string) => {
     setSortType(() => type);
+  };
+
+  const onChangeDataType = (newDataType: string) => {
+    setDataType(newDataType);
+    if (newDataType === 'NG') {
+      getNG()
+        .then()
+        .catch((e) => console.error(e));
+    } else if (newDataType === 'active') {
+      getData()
+        .then()
+        .catch((e) => console.error(e));
+    }
   };
 
   useEffect(() => {
@@ -120,25 +141,56 @@ const TaskList = (props: Props) => {
         }}
       >
         <Toolbar />
-        <ButtonGroup
-          aria-label="sort type"
-          disableElevation
-          sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
-          variant="contained"
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            width: '400px',
+          }}
         >
-          <Button
-            disabled={sortType === 'time'}
-            onClick={() => onChangeType('time')}
+          <ButtonGroup
+            aria-label="sort type"
+            disableElevation
+            sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+            variant="contained"
           >
-            日付
-          </Button>
-          <Button
-            disabled={sortType === 'area'}
-            onClick={() => onChangeType('area')}
-          >
-            地域
-          </Button>
-        </ButtonGroup>
+            <Button
+              disabled={sortType === 'time'}
+              onClick={() => onChangeType('time')}
+            >
+              日付
+            </Button>
+            <Button
+              disabled={sortType === 'area'}
+              onClick={() => onChangeType('area')}
+            >
+              地域
+            </Button>
+          </ButtonGroup>
+          {props.type !== 'photographer' ? (
+            <ButtonGroup
+              aria-label="data type"
+              disableElevation
+              sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+              variant="contained"
+            >
+              <Button
+                disabled={dataType === 'active'}
+                onClick={() => onChangeDataType('active')}
+              >
+                ALL
+              </Button>
+              <Button
+                disabled={dataType === 'NG'}
+                onClick={() => onChangeDataType('NG')}
+              >
+                NG
+              </Button>
+            </ButtonGroup>
+          ) : (
+            <></>
+          )}
+        </Box>
         <Suspense fallback={<div>loading...</div>}>
           {section?.map((sectionName: string) => (
             <Paper
@@ -154,18 +206,17 @@ const TaskList = (props: Props) => {
                 variant="h5"
               >{`${mutateData[sectionName]?.length}件`}</Typography>
               <Divider />
-              {mutateData[sectionName]?.map((task: Task, index: number) => (
-                <TaskAccordion
-                  body={task.area_name}
-                  id={String(task.history_id)}
-                  index={index}
-                  key={task.id}
-                  reload={onUpdate}
-                  time={task.created_at}
-                  title={task.title}
-                  type={props.type === 'photographer'}
-                />
-              ))}
+              {mutateData[sectionName]?.map(
+                (task: MemberTask | AdminTask, index: number) => (
+                  <TaskAccordion
+                    index={index}
+                    key={task.id}
+                    reload={onUpdate}
+                    task={task}
+                    type={props.type}
+                  />
+                ),
+              )}
             </Paper>
           ))}
         </Suspense>
