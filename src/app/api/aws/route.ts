@@ -23,7 +23,7 @@ const s3Client = new S3Client({
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
-  const key = searchParams.get('key');
+  const key = searchParams.get('key') as string | undefined;
 
   const getParams: GetObjectCommandInput = {
     Bucket: process.env.S3_BUCKET_NAME,
@@ -45,8 +45,8 @@ export const GET = async (request: NextRequest) => {
 
 export const POST = async (request: Request) => {
   const formData = await request.formData();
-  const file = formData.get('file');
-  const name = file in name ? (file.name as string) : '';
+  const file = formData.get('file') as File;
+  const name: string = 'name' in file ? file.name : '';
 
   const buffer = Buffer.from(await file?.arrayBuffer());
 
