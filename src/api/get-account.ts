@@ -1,3 +1,5 @@
+'use server';
+
 import { getCookies } from '../util/cookies';
 
 type response = {

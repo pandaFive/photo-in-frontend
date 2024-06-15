@@ -1,3 +1,5 @@
+'use server';
+
 export interface Account {
   id: string;
   role: string;
