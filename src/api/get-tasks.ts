@@ -1,3 +1,5 @@
+'use server';
+
 export type Task = {
   [key: string]: string;
 };
