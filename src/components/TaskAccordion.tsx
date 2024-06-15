@@ -41,7 +41,7 @@ const TaskAccordion = (props: Props) => {
       const res = await fetch(`/api/aws?key=${props.task.title}`, {
         method: 'GET',
       });
-      const url = await res.json();
+      const url: string = (await res.json()) as string;
       setFileUrl(url);
     } catch (err) {
       console.error(err);

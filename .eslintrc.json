@@ -11,6 +11,7 @@
     "project": "./tsconfig.json"
   },
   "plugins": ["unused-imports"],
+  "ignorePatterns": ["*config.js"],
   "rules": {
     "unused-imports/no-unused-imports": "error",
     "react/jsx-sort-props": "error",

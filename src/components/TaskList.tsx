@@ -9,7 +9,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 
 import { getMemberAssignTask } from '../util/actions/get-member-tasks';
 import { getAllTasks, getNGTasks } from '../util/actions/get-tasks';
@@ -52,29 +52,22 @@ const TaskList = (props: Props) => {
   const [section, setSection] = useState<string[]>([]);
   const [mutateData, setMutateData] = useState<GroupType>({});
 
-  const getData =
-    props.type === 'photographer'
-      ? async () => {
-          try {
-            const result: MemberTask[] | AdminTask[] =
-              (await getMemberAssignTask(String(props.id))) as
+  const getData = useCallback(
+    async () => {
+      try {
+        const result: MemberTask[] | AdminTask[] =
+          props.type === 'photographer'
+            ? ((await getMemberAssignTask(String(props.id))) as
                 | MemberTask[]
-                | AdminTask[];
-            setData(result);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-      : async () => {
-          try {
-            const result: MemberTask[] | AdminTask[] = (await getAllTasks()) as
-              | MemberTask[]
-              | AdminTask[];
-            setData(result);
-          } catch (err) {
-            console.error(err);
-          }
-        };
+                | AdminTask[])
+            : ((await getAllTasks()) as MemberTask[] | AdminTask[]);
+        setData(result);
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [props.type, props.id], // getDataの依存関係
+  );
 
   const getNG = async () => {
     try {
@@ -85,11 +78,11 @@ const TaskList = (props: Props) => {
     }
   };
 
-  const onUpdate = () => {
+  const onUpdate = useCallback(() => {
     getData()
       .then()
       .catch((e) => console.error(e));
-  };
+  }, [getData]);
 
   const onChangeType = (type: string) => {
     setSortType(() => type);
@@ -118,7 +111,7 @@ const TaskList = (props: Props) => {
 
   useEffect(() => {
     onUpdate();
-  }, []);
+  }, [onUpdate]);
 
   return (
     <Box
