@@ -8,7 +8,7 @@ type Task = {
 
 export const getAllTasks = async () => {
   try {
-    const res = await fetch(`/api/tasks?type=all`, {
+    const res = await fetch(`/api/tasks/all?type=all`, {
       method: 'GET',
       cache: 'no-store',
     });
