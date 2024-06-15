@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
+    "eslint": "eslint",
     "prettier": "prettier --write .",
     "markuplint": "markuplint \"./**/*.tsx\""
   },
