@@ -1,3 +1,5 @@
+'use server';
+
 export interface Task {
   [key: string]: string;
 }
