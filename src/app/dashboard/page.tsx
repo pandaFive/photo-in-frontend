@@ -7,10 +7,10 @@ import { RedirectType, redirect } from 'next/navigation';
 import * as React from 'react';
 
 import { getAccount } from '@/src/api/get-account';
+import UploadButton from '@/src/components/Buttons/UploadButton';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
-import UploadButton from '@/src/components/UploadButton';
 
 const Dashboard = async () => {
   const currentAccount = await getAccount();

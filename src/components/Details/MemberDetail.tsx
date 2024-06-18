@@ -1,11 +1,13 @@
-import { AccordionDetails, Button, Typography } from '@mui/material';
+import { AccordionDetails, Typography } from '@mui/material';
 import Link from 'next/link';
+
+import { BasicButton, OutlinedButton } from '../Buttons/BasicButton';
 
 type Props = {
   id: string;
   url: string;
   date: string;
-  reload: () => void;
+  reload: (newDataType: string) => void;
 };
 
 const MemberDetail = (props: Props) => {
@@ -13,14 +15,14 @@ const MemberDetail = (props: Props) => {
     await fetch(`/api/task/${String(props.id)}/ng`, {
       method: 'PUT',
     });
-    props.reload();
+    props.reload('active');
   };
 
   const changeComplete = async () => {
     await fetch(`/api/task/${String(props.id)}/complete`, {
       method: 'PUT',
     });
-    props.reload();
+    props.reload('active');
   };
 
   const onNG = (): void => {
@@ -41,17 +43,8 @@ const MemberDetail = (props: Props) => {
         {'Open File in New Tab'}
       </Link>
       <Typography>{`振り分け日時：${props.date}`}</Typography>
-      <Button
-        onClick={onComplete}
-        sx={{ m: 1 }}
-        tabIndex={-1}
-        variant="contained"
-      >
-        Complete
-      </Button>
-      <Button onClick={onNG} tabIndex={-1} variant="outlined">
-        NG
-      </Button>
+      <BasicButton onClick={onComplete} str="Complete" />
+      <OutlinedButton onClick={onNG} str="NG" />
     </AccordionDetails>
   );
 };
