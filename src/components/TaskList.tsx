@@ -202,9 +202,10 @@ const TaskList = (props: Props) => {
               {mutateData[sectionName]?.map(
                 (task: MemberTask | AdminTask, index: number) => (
                   <TaskAccordion
+                    dataType={dataType}
                     index={index}
                     key={task.id}
-                    reload={onUpdate}
+                    reload={onChangeDataType}
                     task={task}
                     type={props.type}
                   />

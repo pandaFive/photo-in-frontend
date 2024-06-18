@@ -30,7 +30,8 @@ type Props = {
   task: MemberTask | AdminTask;
   index: number;
   type: string;
-  reload: () => void;
+  dataType: string;
+  reload: (newDataType: string) => void;
 };
 
 const TaskAccordion = (props: Props) => {
@@ -94,7 +95,13 @@ const TaskAccordion = (props: Props) => {
             url={fileUrl}
           />
         ) : (
-          <AdminDetail date={date.toLocaleDateString()} url={fileUrl} />
+          <AdminDetail
+            dataType={props.dataType}
+            date={date.toLocaleDateString()}
+            id={String(props.task.id)}
+            reload={props.reload}
+            url={fileUrl}
+          />
         )}
       </Accordion>
     </Grid>
