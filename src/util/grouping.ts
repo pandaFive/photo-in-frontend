@@ -18,7 +18,6 @@ type GroupType = {
 };
 
 export const grouping = (items: (MemberTask | AdminTask)[], key: string) => {
-  console.log(items);
   if (key === 'time') {
     return items.reduce((acc: GroupType, item: MemberTask | AdminTask) => {
       const time = new Date(item['created_at']).toLocaleDateString();
@@ -39,7 +38,6 @@ export const grouping = (items: (MemberTask | AdminTask)[], key: string) => {
       if (acc[area] !== undefined) {
         acc[area]?.push(item);
       }
-      console.log(acc);
       return acc;
     }, {});
   } else {
