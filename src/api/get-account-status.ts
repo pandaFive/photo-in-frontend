@@ -9,7 +9,7 @@ export type Statuses = {
 };
 
 export async function getAccountStatus(): Promise<Statuses[] | ErrorResponse> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/accounts`, {
+  const res = await fetch(`${process.env.API_HOST}/accounts`, {
     cache: 'no-store',
   });
 

@@ -5,12 +5,9 @@ interface ErrorResponse {
 }
 
 export async function getUnfulfilledCount(): Promise<number | ErrorResponse> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/unfulfilled-count`,
-    {
-      cache: 'no-store',
-    },
-  );
+  const res = await fetch(`${process.env.API_HOST}/unfulfilled-count`, {
+    cache: 'no-store',
+  });
 
   if (res.ok) {
     const unfulfilledCount: number = (await res.json()) as number;

@@ -3,22 +3,14 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
-import { RedirectType, redirect } from 'next/navigation';
 import * as React from 'react';
 
-import { getAccount } from '@/src/api/get-account';
 import UploadButton from '@/src/components/Buttons/UploadButton';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
 
-const Dashboard = async () => {
-  const currentAccount = await getAccount();
-
-  if (currentAccount !== null && currentAccount.role !== '0') {
-    redirect('/login', RedirectType.push);
-  }
-
+const Dashboard = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <Box
