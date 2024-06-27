@@ -9,9 +9,15 @@ const Account = async ({ params }: { params: { id: string } }) => {
   const currentAccount = await getAccount();
   if (currentAccount === null || currentAccount.id !== parseInt(id)) {
     redirect('/login', RedirectType.push);
+  } else {
+    return (
+      <TaskList
+        account={currentAccount}
+        id={parseInt(id)}
+        type={'photographer'}
+      />
+    );
   }
-
-  return <TaskList id={parseInt(id)} type={'photographer'} />;
 };
 
 export default Account;

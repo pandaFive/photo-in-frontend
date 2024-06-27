@@ -1,9 +1,15 @@
 import { AccordionDetails, Typography } from '@mui/material';
 import Link from 'next/link';
 
+import { AccountData } from '@/src/api/get-account';
+import { Comment } from '@/src/types';
+
 import { BasicButton, OutlinedButton } from '../Buttons/BasicButton';
+import CommentList from '../CommentList';
 
 type Props = {
+  account: AccountData;
+  comments: Comment[];
   id: string;
   url: string;
   date: string;
@@ -43,6 +49,7 @@ const MemberDetail = (props: Props) => {
         {'Open File in New Tab'}
       </Link>
       <Typography>{`振り分け日時：${props.date}`}</Typography>
+      <CommentList account={props.account} comments={props.comments} />
       <BasicButton onClick={onComplete} str="Complete" />
       <OutlinedButton onClick={onNG} str="NG" />
     </AccordionDetails>

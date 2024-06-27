@@ -1,9 +1,12 @@
 import { AccordionDetails, Typography } from '@mui/material';
 import Link from 'next/link';
 
+import { Comment } from '@/src/types';
+
 import { BasicButton } from '../Buttons/BasicButton';
 
 type Props = {
+  comments: Comment[];
   url: string;
   date: string;
   id: string;

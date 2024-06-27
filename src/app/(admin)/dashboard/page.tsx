@@ -16,7 +16,7 @@ const Dashboard = () => {
       <Box
         component="main"
         sx={{
-          backgroundColor: 'f9f9f9',
+          backgroundColor: '#f9f9f9',
           flexGrow: 1,
           overflow: 'auto',
         }}

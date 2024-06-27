@@ -1,12 +1,6 @@
 'use server';
 
-export interface Task {
-  id: string;
-  title: string;
-  area_name: string;
-  history_id: string;
-  created_at: string;
-}
+import { Task } from '../types';
 
 export const getAccountTasks = async (id: string) => {
   try {
