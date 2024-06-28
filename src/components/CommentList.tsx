@@ -123,13 +123,6 @@ const CommentList = (props: Props) => {
     setFlagCommentChange(true);
     if (id == 0) {
       setFlagNewComment(true);
-      // fetchPutComment(
-      //   rows[rows.length - 1]?.comment as string,
-      //   props.account.id,
-      //   props.cycleId,
-      // )
-      //   .then()
-      //   .catch((e) => console.error(e));
     }
   };
 

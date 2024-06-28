@@ -27,6 +27,7 @@ const TaskAccordion = (props: Props) => {
   const [fileUrl, setFileUrl] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
   const [flagFetchComments, setFlagFetchComments] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const fetchFile = async () => {
     try {
@@ -49,11 +50,13 @@ const TaskAccordion = (props: Props) => {
         },
       );
       const result: Comment[] = (await res.json()) as Comment[];
+      console.log(result);
       setComments(result);
       setFlagFetchComments(true);
     } catch (err) {
       console.error(err);
     }
+    setLoaded(true);
   };
 
   const onFetchFile = () => {
@@ -114,6 +117,7 @@ const TaskAccordion = (props: Props) => {
             cycleId={props.task.assign_cycle_id}
             date={date.toLocaleDateString()}
             id={String(props.task.history_id)}
+            isLoaded={loaded}
             reload={props.reload}
             url={fileUrl}
           />

@@ -9,7 +9,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { AccountData } from '../api/get-account';
 import { Task } from '../types';
@@ -17,6 +17,7 @@ import { getMemberAssignTask } from '../util/actions/get-member-tasks';
 import { getAllTasks, getNGTasks } from '../util/actions/get-tasks';
 import { grouping } from '../util/grouping';
 
+import LoadCircle from './LoadCircle';
 import TaskAccordion from './TaskAccordion';
 
 type Props = {
@@ -176,8 +177,10 @@ const TaskList = (props: Props) => {
             <></>
           )}
         </Box>
-        <Suspense fallback={<div>loading...</div>}>
-          {section?.map((sectionName: string) => (
+        {data.length === 0 ? (
+          <LoadCircle />
+        ) : (
+          section?.map((sectionName: string) => (
             <Paper
               elevation={6}
               key={sectionName}
@@ -203,9 +206,8 @@ const TaskList = (props: Props) => {
                 />
               ))}
             </Paper>
-          ))}
-        </Suspense>
-        <h1>hello world!</h1>
+          ))
+        )}
       </Box>
     </Box>
   );

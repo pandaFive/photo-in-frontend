@@ -6,10 +6,12 @@ import { Comment } from '@/src/types';
 
 import { BasicButton, OutlinedButton } from '../Buttons/BasicButton';
 import CommentList from '../CommentList';
+import LoadCircle from '../LoadCircle';
 
 type Props = {
   account: AccountData;
   comments: Comment[];
+  isLoaded: boolean;
   id: string;
   cycleId: number;
   url: string;
@@ -50,11 +52,15 @@ const MemberDetail = (props: Props) => {
         {'Open File in New Tab'}
       </Link>
       <Typography>{`振り分け日時：${props.date}`}</Typography>
-      <CommentList
-        account={props.account}
-        comments={props.comments}
-        cycleId={props.cycleId}
-      />
+      {!props.isLoaded ? (
+        <LoadCircle />
+      ) : (
+        <CommentList
+          account={props.account}
+          comments={props.comments}
+          cycleId={props.cycleId}
+        />
+      )}
       <BasicButton onClick={onComplete} str="Complete" />
       <OutlinedButton onClick={onNG} str="NG" />
     </AccordionDetails>
