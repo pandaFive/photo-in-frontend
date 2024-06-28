@@ -25,26 +25,25 @@ import * as React from 'react';
 
 import { AccountData } from '../api/get-account';
 import { Comment } from '../types';
+import { fetchPostComment, fetchPutComment } from '../util/fetch-comment';
 
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
   setRowModesModel: (
     newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
   ) => void;
-  id: string;
   role: string;
   name: string;
 }
 
 const EditToolbar = (props: EditToolbarProps) => {
-  const { setRows, setRowModesModel, id, role, name } = props;
+  const { setRows, setRowModesModel, role, name } = props;
 
   const handleClick = () => {
     setRows((oldRows) => [
       ...oldRows,
       {
-        // id: oldRows.length + 1,
-        id: id,
+        id: 0,
         role,
         name,
         comment: '',
@@ -54,7 +53,7 @@ const EditToolbar = (props: EditToolbarProps) => {
     ]);
     setRowModesModel((oldModel) => ({
       ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
+      [0]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
     }));
   };
 
@@ -90,6 +89,7 @@ const createRows = (comments: Comment[], account: AccountData) => {
 type Props = {
   account: AccountData;
   comments: Comment[];
+  cycleId: number;
 };
 
 const CommentList = (props: Props) => {
@@ -99,6 +99,8 @@ const CommentList = (props: Props) => {
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
+  const [flagCommentChange, setFlagCommentChange] = React.useState(false);
+  const [flagNewComment, setFlagNewComment] = React.useState(false);
 
   const role: string = props.account.role;
   const name: string = props.account.name;
@@ -118,6 +120,17 @@ const CommentList = (props: Props) => {
 
   const handleSaveClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    setFlagCommentChange(true);
+    if (id == 0) {
+      setFlagNewComment(true);
+      // fetchPutComment(
+      //   rows[rows.length - 1]?.comment as string,
+      //   props.account.id,
+      //   props.cycleId,
+      // )
+      //   .then()
+      //   .catch((e) => console.error(e));
+    }
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
@@ -139,6 +152,29 @@ const CommentList = (props: Props) => {
   const processRowUpdate = (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    if (flagCommentChange) {
+      if (flagNewComment) {
+        fetchPostComment(
+          newRow.comment as string,
+          props.account.id,
+          props.cycleId,
+        )
+          .then((response) => {
+            const newId = 'id' in response ? response.id : 0;
+            const newUpdatedRow = { ...updatedRow, id: newId };
+            setRows(
+              rows.map((row) => (row.id === newRow.id ? newUpdatedRow : row)),
+            );
+          })
+          .catch((e) => console.error(e));
+        setFlagNewComment(false);
+      } else {
+        fetchPutComment(newRow.comment as string, newRow.id as number)
+          .then()
+          .catch((e) => console.error(e));
+      }
+      setFlagCommentChange(false);
+    }
     return updatedRow;
   };
 

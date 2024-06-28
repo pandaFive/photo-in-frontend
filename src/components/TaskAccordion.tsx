@@ -26,6 +26,7 @@ type Props = {
 const TaskAccordion = (props: Props) => {
   const [fileUrl, setFileUrl] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
+  const [flagFetchComments, setFlagFetchComments] = useState(false);
 
   const fetchFile = async () => {
     try {
@@ -49,6 +50,7 @@ const TaskAccordion = (props: Props) => {
       );
       const result: Comment[] = (await res.json()) as Comment[];
       setComments(result);
+      setFlagFetchComments(true);
     } catch (err) {
       console.error(err);
     }
@@ -63,7 +65,7 @@ const TaskAccordion = (props: Props) => {
   };
 
   const onFetchComment = () => {
-    if (comments.length === 0) {
+    if (comments.length === 0 && !flagFetchComments) {
       fetchComment()
         .then()
         .catch((e) => console.error(e));
@@ -109,6 +111,7 @@ const TaskAccordion = (props: Props) => {
           <MemberDetail
             account={props.account}
             comments={comments}
+            cycleId={props.task.assign_cycle_id}
             date={date.toLocaleDateString()}
             id={String(props.task.history_id)}
             reload={props.reload}

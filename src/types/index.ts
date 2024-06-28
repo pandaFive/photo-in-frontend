@@ -10,6 +10,7 @@ export type Task = {
 export type Comment = {
   id: number;
   content: string;
+  cycleId: number;
   updatedAt: string;
   accountName: string;
   role: string;

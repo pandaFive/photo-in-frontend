@@ -29,8 +29,14 @@ type GroupType = {
   [key: string]: Task[];
 };
 
-const sortTasks = (list: string[]) => {
-  return list.toSorted();
+const sortTasks = (list: string[], sortType) => {
+  if (sortType === 'time') {
+    return list.toSorted(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+    );
+  } else {
+    return list.toSorted();
+  }
 };
 
 const TaskList = (props: Props) => {
@@ -92,8 +98,8 @@ const TaskList = (props: Props) => {
   }, [data, sortType]);
 
   useEffect(() => {
-    setSection(() => sortTasks(Object.keys(mutateData)));
-  }, [mutateData]);
+    setSection(() => sortTasks(Object.keys(mutateData), sortType));
+  }, [mutateData, sortType]);
 
   useEffect(() => {
     onUpdate();

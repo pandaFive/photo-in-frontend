@@ -11,6 +11,7 @@ type Props = {
   account: AccountData;
   comments: Comment[];
   id: string;
+  cycleId: number;
   url: string;
   date: string;
   reload: (newDataType: string) => void;
@@ -49,7 +50,11 @@ const MemberDetail = (props: Props) => {
         {'Open File in New Tab'}
       </Link>
       <Typography>{`振り分け日時：${props.date}`}</Typography>
-      <CommentList account={props.account} comments={props.comments} />
+      <CommentList
+        account={props.account}
+        comments={props.comments}
+        cycleId={props.cycleId}
+      />
       <BasicButton onClick={onComplete} str="Complete" />
       <OutlinedButton onClick={onNG} str="NG" />
     </AccordionDetails>
