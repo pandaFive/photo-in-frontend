@@ -21,7 +21,6 @@ import LoadCircle from './LoadCircle';
 import TaskAccordion from './TaskAccordion';
 
 type Props = {
-  type: string;
   id: number;
   account: AccountData;
 };
@@ -51,7 +50,7 @@ const TaskList = (props: Props) => {
     async () => {
       try {
         const result: Task[] =
-          props.type === 'photographer'
+          props.account.role === 'member'
             ? ((await getMemberAssignTask(String(props.id))) as Task[])
             : ((await getAllTasks()) as Task[]);
         setData(result);
@@ -59,7 +58,7 @@ const TaskList = (props: Props) => {
         console.error(err);
       }
     },
-    [props.type, props.id], // getDataの依存関係
+    [props.account.role, props.id], // getDataの依存関係
   );
 
   const getNG = async () => {
@@ -153,7 +152,7 @@ const TaskList = (props: Props) => {
               地域
             </Button>
           </ButtonGroup>
-          {props.type !== 'photographer' ? (
+          {props.account.role !== 'member' ? (
             <ButtonGroup
               aria-label="data type"
               disableElevation
@@ -202,7 +201,7 @@ const TaskList = (props: Props) => {
                   key={task.id}
                   reload={onChangeDataType}
                   task={task}
-                  type={props.type}
+                  type={props.account.role}
                 />
               ))}
             </Paper>

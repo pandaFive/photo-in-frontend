@@ -2,7 +2,8 @@
 
 import { NextResponse } from 'next/server';
 
-import { getTasks, Task } from '@/src/api/get-tasks';
+import { getTasks } from '@/src/api/get-tasks';
+import { Task } from '@/src/types';
 
 export const GET = async () => {
   try {

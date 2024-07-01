@@ -43,6 +43,7 @@ const TaskAccordion = (props: Props) => {
 
   const fetchComment = async () => {
     try {
+      console.log(props.task);
       const res = await fetch(
         `/api/comments?assignCycleId=${String(props.task.assign_cycle_id)}&accountId=${String(props.account.id)}`,
         {
@@ -50,7 +51,6 @@ const TaskAccordion = (props: Props) => {
         },
       );
       const result: Comment[] = (await res.json()) as Comment[];
-      console.log(result);
       setComments(result);
       setFlagFetchComments(true);
     } catch (err) {
@@ -110,7 +110,7 @@ const TaskAccordion = (props: Props) => {
           />
           <Typography mx={2}>{props.task.title}</Typography>
         </AccordionSummary>
-        {props.type === 'photographer' ? (
+        {props.type === 'member' ? (
           <MemberDetail
             account={props.account}
             comments={comments}
@@ -123,10 +123,13 @@ const TaskAccordion = (props: Props) => {
           />
         ) : (
           <AdminDetail
+            account={props.account}
             comments={comments}
+            cycleId={props.task.assign_cycle_id}
             dataType={props.dataType}
             date={date.toLocaleDateString()}
             id={String(props.task.id)}
+            isLoaded={loaded}
             reload={props.reload}
             url={fileUrl}
           />

@@ -1,3 +1,4 @@
+import { Res } from '../app/api/comment/route';
 import { Comment } from '../types';
 
 export const fetchPostComment = async (
@@ -38,5 +39,19 @@ export const fetchPutComment = async (content: string, id: number) => {
   } catch (err) {
     console.error(err);
     return {};
+  }
+};
+
+export const fetchDeleteComment = async (id: number) => {
+  try {
+    const res = await fetch(`/api/comment?commentId=${id}`, {
+      method: 'DELETE',
+      cache: 'no-store',
+    });
+    const result: Res = (await res.json()) as Res;
+    return result;
+  } catch (err) {
+    console.error(err);
+    return { message: 'error' };
   }
 };

@@ -14,7 +14,7 @@ export async function loginAction(formData: FormData) {
   if ('account' in result) {
     const currentAccount: Account = result.account as Account;
     setCookies('token', currentAccount.token);
-    if (currentAccount.role === '0') {
+    if (currentAccount.role === 'admin') {
       redirect('dashboard', RedirectType.push);
     } else {
       redirect(`account/${currentAccount.id}`, RedirectType.push);

@@ -52,7 +52,7 @@ const AppBar = (props: Props) => {
   return (
     <AppBarContainer open={props.open} position="fixed">
       <Toolbar>
-        {props.role === '0' ? (
+        {props.role === 'admin' ? (
           <IconButton
             aria-label="open drawer"
             color="inherit"

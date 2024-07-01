@@ -25,7 +25,11 @@ import * as React from 'react';
 
 import { AccountData } from '../api/get-account';
 import { Comment } from '../types';
-import { fetchPostComment, fetchPutComment } from '../util/fetch-comment';
+import {
+  fetchDeleteComment,
+  fetchPostComment,
+  fetchPutComment,
+} from '../util/fetch-comment';
 
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -66,7 +70,7 @@ const EditToolbar = (props: EditToolbarProps) => {
   );
 };
 
-const createRows = (comments: Comment[], account: AccountData) => {
+const createRows = (comments: Comment[]) => {
   let newRows: GridRowsProp = [];
   if (Array.isArray(comments) && comments.length !== 0) {
     comments?.forEach((cur) => {
@@ -74,10 +78,10 @@ const createRows = (comments: Comment[], account: AccountData) => {
         ...newRows,
         {
           id: cur.id,
-          name: account.name,
+          name: cur.name,
           comment: cur.content,
           joinDate: cur.updatedAt,
-          role: account.role,
+          role: cur.role,
           isNew: false,
         },
       ];
@@ -93,9 +97,7 @@ type Props = {
 };
 
 const CommentList = (props: Props) => {
-  const [rows, setRows] = React.useState(
-    createRows(props.comments, props.account),
-  );
+  const [rows, setRows] = React.useState(createRows(props.comments));
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
@@ -128,6 +130,9 @@ const CommentList = (props: Props) => {
 
   const handleDeleteClick = (id: GridRowId) => () => {
     setRows(rows.filter((row) => row.id !== id));
+    fetchDeleteComment(id as number)
+      .then()
+      .catch((err) => console.error(err));
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -142,30 +147,38 @@ const CommentList = (props: Props) => {
     }
   };
 
+  const fetchPutOrPostComment = (
+    newRow: GridRowModel,
+    updatedRow: GridRowModel,
+  ) => {
+    if (flagNewComment) {
+      fetchPostComment(
+        newRow.comment as string,
+        props.account.id,
+        props.cycleId,
+      )
+        .then((response) => {
+          const newId = 'id' in response ? response.id : 0;
+          const newUpdatedRow = { ...updatedRow, id: newId };
+          console.log(response);
+          setRows(
+            rows.map((row) => (row.id === newRow.id ? newUpdatedRow : row)),
+          );
+        })
+        .catch((e) => console.error(e));
+      setFlagNewComment(false);
+    } else {
+      fetchPutComment(newRow.comment as string, newRow.id as number)
+        .then()
+        .catch((e) => console.error(e));
+    }
+  };
+
   const processRowUpdate = (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     if (flagCommentChange) {
-      if (flagNewComment) {
-        fetchPostComment(
-          newRow.comment as string,
-          props.account.id,
-          props.cycleId,
-        )
-          .then((response) => {
-            const newId = 'id' in response ? response.id : 0;
-            const newUpdatedRow = { ...updatedRow, id: newId };
-            setRows(
-              rows.map((row) => (row.id === newRow.id ? newUpdatedRow : row)),
-            );
-          })
-          .catch((e) => console.error(e));
-        setFlagNewComment(false);
-      } else {
-        fetchPutComment(newRow.comment as string, newRow.id as number)
-          .then()
-          .catch((e) => console.error(e));
-      }
+      fetchPutOrPostComment(newRow, updatedRow);
       setFlagCommentChange(false);
     }
     return updatedRow;

@@ -9,9 +9,18 @@ export type Task = {
 
 export type Comment = {
   id: number;
+  name: string;
   content: string;
   cycleId: number;
   updatedAt: string;
   accountName: string;
   role: string;
+};
+
+export type AccountData = {
+  id: number;
+  name: string;
+  area: string[];
+  role: string;
+  token: string;
 };
