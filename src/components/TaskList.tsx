@@ -9,44 +9,38 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
+import { AccountData } from '../api/get-account';
+import { Task } from '../types';
 import { getMemberAssignTask } from '../util/actions/get-member-tasks';
 import { getAllTasks, getNGTasks } from '../util/actions/get-tasks';
 import { grouping } from '../util/grouping';
 
+import LoadCircle from './LoadCircle';
 import TaskAccordion from './TaskAccordion';
 
-type Task = {
-  id: number;
-  title: string;
-  area_name: string;
-  created_at: string;
-};
-
-type MemberTask = Task & {
-  history_id: number;
-};
-
-type AdminTask = Task & {
-  cycle_id: number;
-};
-
 type Props = {
-  type: string;
   id: number;
+  account: AccountData;
 };
 
 type GroupType = {
-  [key: string]: (MemberTask | AdminTask)[];
+  [key: string]: Task[];
 };
 
-const sortTasks = (list: string[]) => {
-  return list.toSorted();
+const sortTasks = (list: string[], sortType) => {
+  if (sortType === 'time') {
+    return list.toSorted(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+    );
+  } else {
+    return list.toSorted();
+  }
 };
 
 const TaskList = (props: Props) => {
-  const [data, setData] = useState<MemberTask[] | AdminTask[]>([]);
+  const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
   const [dataType, setDataType] = useState<string>('active');
   const [section, setSection] = useState<string[]>([]);
@@ -55,23 +49,21 @@ const TaskList = (props: Props) => {
   const getData = useCallback(
     async () => {
       try {
-        const result: MemberTask[] | AdminTask[] =
-          props.type === 'photographer'
-            ? ((await getMemberAssignTask(String(props.id))) as
-                | MemberTask[]
-                | AdminTask[])
-            : ((await getAllTasks()) as MemberTask[] | AdminTask[]);
+        const result: Task[] =
+          props.account.role === 'member'
+            ? ((await getMemberAssignTask(String(props.id))) as Task[])
+            : ((await getAllTasks()) as Task[]);
         setData(result);
       } catch (err) {
         console.error(err);
       }
     },
-    [props.type, props.id], // getDataの依存関係
+    [props.account.role, props.id], // getDataの依存関係
   );
 
   const getNG = async () => {
     try {
-      const result: AdminTask[] = (await getNGTasks()) as AdminTask[];
+      const result: Task[] = (await getNGTasks()) as Task[];
       setData(result);
     } catch (err) {
       console.error(err);
@@ -106,8 +98,8 @@ const TaskList = (props: Props) => {
   }, [data, sortType]);
 
   useEffect(() => {
-    setSection(() => sortTasks(Object.keys(mutateData)));
-  }, [mutateData]);
+    setSection(() => sortTasks(Object.keys(mutateData), sortType));
+  }, [mutateData, sortType]);
 
   useEffect(() => {
     onUpdate();
@@ -160,7 +152,7 @@ const TaskList = (props: Props) => {
               地域
             </Button>
           </ButtonGroup>
-          {props.type !== 'photographer' ? (
+          {props.account.role !== 'member' ? (
             <ButtonGroup
               aria-label="data type"
               disableElevation
@@ -184,12 +176,14 @@ const TaskList = (props: Props) => {
             <></>
           )}
         </Box>
-        <Suspense fallback={<div>loading...</div>}>
-          {section?.map((sectionName: string) => (
+        {data.length === 0 ? (
+          <LoadCircle />
+        ) : (
+          section?.map((sectionName: string) => (
             <Paper
               elevation={6}
               key={sectionName}
-              sx={{ m: 2, p: 2, width: '900px' }}
+              sx={{ m: 2, p: 2, width: '1000px' }}
             >
               <Typography component="h4" key={sectionName} variant="h4">
                 {sectionName}
@@ -199,22 +193,20 @@ const TaskList = (props: Props) => {
                 variant="h5"
               >{`${mutateData[sectionName]?.length}件`}</Typography>
               <Divider />
-              {mutateData[sectionName]?.map(
-                (task: MemberTask | AdminTask, index: number) => (
-                  <TaskAccordion
-                    dataType={dataType}
-                    index={index}
-                    key={task.id}
-                    reload={onChangeDataType}
-                    task={task}
-                    type={props.type}
-                  />
-                ),
-              )}
+              {mutateData[sectionName]?.map((task: Task, index: number) => (
+                <TaskAccordion
+                  account={props.account}
+                  dataType={dataType}
+                  index={index}
+                  key={task.id}
+                  reload={onChangeDataType}
+                  task={task}
+                  type={props.account.role}
+                />
+              ))}
             </Paper>
-          ))}
-        </Suspense>
-        <h1>hello world!</h1>
+          ))
+        )}
       </Box>
     </Box>
   );

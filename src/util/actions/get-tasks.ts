@@ -1,10 +1,4 @@
-type Task = {
-  id: number;
-  title: string;
-  area_name: string;
-  cycle_id: number;
-  created_at: string;
-};
+import { Task } from '@/src/types';
 
 export const getAllTasks = async () => {
   try {

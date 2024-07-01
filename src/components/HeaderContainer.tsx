@@ -24,7 +24,7 @@ const HeaderContainer = (props: Props) => {
         role={props.role}
         toggleDrawer={toggleDrawer}
       />
-      {props.role === '0' ? (
+      {props.role === 'admin' ? (
         <Drawer open={open} toggleDrawer={toggleDrawer} />
       ) : (
         <></>

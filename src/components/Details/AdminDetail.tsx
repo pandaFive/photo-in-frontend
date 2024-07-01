@@ -1,9 +1,18 @@
 import { AccordionDetails, Typography } from '@mui/material';
 import Link from 'next/link';
 
+import { AccountData } from '@/src/api/get-account';
+import { Comment } from '@/src/types';
+
 import { BasicButton } from '../Buttons/BasicButton';
+import CommentList from '../CommentList';
+import LoadCircle from '../LoadCircle';
 
 type Props = {
+  account: AccountData;
+  comments: Comment[];
+  cycleId: number;
+  isLoaded: boolean;
   url: string;
   date: string;
   id: string;
@@ -30,6 +39,15 @@ const AdminDetail = (props: Props) => {
         {'Open File in New Tab'}
       </Link>
       <Typography>{`登録日時：${props.date}`}</Typography>
+      {!props.isLoaded ? (
+        <LoadCircle />
+      ) : (
+        <CommentList
+          account={props.account}
+          comments={props.comments}
+          cycleId={props.cycleId}
+        />
+      )}
       {props.dataType === 'NG' ? (
         <BasicButton onClick={onReassign} str="再アサイン" />
       ) : (

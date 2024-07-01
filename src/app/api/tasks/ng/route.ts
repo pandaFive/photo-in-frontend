@@ -2,13 +2,7 @@
 
 import { NextResponse } from 'next/server';
 
-type AdminTask = {
-  id: number;
-  title: string;
-  area_name: string;
-  cycle_id: number;
-  created_at: string;
-};
+import { Task } from '@/src/types';
 
 export const GET = async () => {
   try {
@@ -17,10 +11,10 @@ export const GET = async () => {
       cache: 'no-store',
     });
 
-    const result: AdminTask[] = (await res.json()) as AdminTask[];
+    const result: Task[] = (await res.json()) as Task[];
     return NextResponse.json(result);
   } catch (err) {
     console.error(err);
-    return NextResponse.json(Array<AdminTask>);
+    return NextResponse.json(Array<Task>);
   }
 };

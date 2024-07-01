@@ -1,8 +1,6 @@
 'use server';
 
-export type Task = {
-  [key: string]: string;
-};
+import { Task } from '../types';
 
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${process.env.API_HOST}/tasks?type=all`, {
