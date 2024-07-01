@@ -45,7 +45,7 @@ const TaskAccordion = (props: Props) => {
     try {
       console.log(props.task);
       const res = await fetch(
-        `/api/comments?assignCycleId=${String(props.task.assign_cycle_id)}&accountId=${String(props.account.id)}`,
+        `/api/comments?taskId=${String(props.task.id)}&accountId=${String(props.account.id)}`,
         {
           method: 'GET',
         },

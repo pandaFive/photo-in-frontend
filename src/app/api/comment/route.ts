@@ -12,7 +12,7 @@ type Body = {
   id: number;
   content: string;
   accountId: number;
-  cycleId: number;
+  taskId: number;
 };
 
 export const POST = async (request: NextRequest) => {
@@ -28,7 +28,7 @@ export const POST = async (request: NextRequest) => {
         comment: {
           content: body.content,
           account_id: body.accountId,
-          assign_cycle_id: body.cycleId,
+          task_id: body.taskId,
         },
       }),
     });

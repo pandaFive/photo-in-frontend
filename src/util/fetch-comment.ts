@@ -4,7 +4,7 @@ import { Comment } from '../types';
 export const fetchPostComment = async (
   content: string,
   accountId: number,
-  cycleId: number,
+  taskId: number,
 ) => {
   try {
     const res = await fetch(`/api/comment`, {
@@ -13,7 +13,7 @@ export const fetchPostComment = async (
       body: JSON.stringify({
         content: content,
         accountId: accountId,
-        cycleId: cycleId,
+        taskId: taskId,
       }),
     });
     const result: Comment = (await res.json()) as Comment;

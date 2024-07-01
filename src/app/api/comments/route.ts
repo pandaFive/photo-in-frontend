@@ -6,11 +6,11 @@ import { Comment } from '@/src/types';
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
-  const assignId = searchParams.get('assignCycleId');
+  const taskId = searchParams.get('taskId');
   const accountId = searchParams.get('accountId');
   try {
     const res = await fetch(
-      `${process.env.API_HOST}/comments?assignCycleId=${assignId}&accountId=${accountId}`,
+      `${process.env.API_HOST}/comments?taskId=${taskId}&accountId=${accountId}`,
       {
         cache: 'no-store',
       },

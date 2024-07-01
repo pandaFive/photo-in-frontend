@@ -11,7 +11,7 @@ export type Comment = {
   id: number;
   name: string;
   content: string;
-  cycleId: number;
+  taskId: number;
   updatedAt: string;
   accountName: string;
   role: string;
