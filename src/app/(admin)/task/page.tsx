@@ -10,7 +10,7 @@ const TaskData = async () => {
   if (currentAccount !== null && currentAccount.role !== 'admin') {
     redirect('/login', RedirectType.push);
   }
-  return <TaskList account={currentAccount} id={0} />;
+  return <TaskList account={currentAccount} id={currentAccount.id} />;
 };
 
 export default TaskData;

@@ -9,16 +9,7 @@ import * as React from 'react';
 import Copyright from '@/src/components/Copyright';
 import ProTip from '@/src/components/ProTip';
 
-import CommentList from '../components/CommentList';
-
 export default function Home() {
-  const account = {
-    id: 10,
-    name: 'admin',
-    area: ['相模原'],
-    role: 'admin',
-    token: 'token',
-  };
   return (
     <Box
       sx={{
@@ -53,7 +44,6 @@ export default function Home() {
             <Typography component="h1" sx={{ mb: 2 }} variant="h4">
               Material UI - Next.js App Router example in TypeScript
             </Typography>
-            <CommentList account={account} />
             <Link color="secondary" component={NextLink} href="/login">
               Go to the login page
             </Link>

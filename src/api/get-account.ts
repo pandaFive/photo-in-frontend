@@ -17,7 +17,6 @@ export type AccountData = {
 export async function getAccount() {
   const token = getCookies('token');
   const res = await fetch(`${process.env.API_HOST}/account`, {
-    cache: 'no-store',
     headers: { Authorization: `Bearer ${token}` },
   });
 

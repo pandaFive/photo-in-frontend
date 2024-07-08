@@ -17,7 +17,7 @@ export async function loginAction(formData: FormData) {
     if (currentAccount.role === 'admin') {
       redirect('dashboard', RedirectType.push);
     } else {
-      redirect(`account/${currentAccount.id}`, RedirectType.push);
+      redirect(`member/${currentAccount.id}`, RedirectType.push);
     }
   } else {
     redirect('dashboard');
