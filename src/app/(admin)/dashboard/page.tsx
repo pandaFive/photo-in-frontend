@@ -30,6 +30,8 @@ const Dashboard = () => {
             {/* Chart */}
             <Grid item lg={9} md={8} xs={12}>
               <Paper
+                elevation={2}
+                square={false}
                 sx={{
                   p: 2,
                   display: 'flex',
@@ -43,6 +45,8 @@ const Dashboard = () => {
             {/* Recent Uncompletes */}
             <Grid item lg={3} md={4} xs={12}>
               <Paper
+                elevation={2}
+                square={false}
                 sx={{
                   p: 2,
                   display: 'flex',
@@ -55,7 +59,11 @@ const Dashboard = () => {
             </Grid>
             {/* Recent Orders */}
             <Grid item xs={12}>
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+              <Paper
+                elevation={2}
+                square={false}
+                sx={{ p: 2, display: 'flex', flexDirection: 'column' }}
+              >
                 <Orders />
               </Paper>
             </Grid>

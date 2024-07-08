@@ -24,3 +24,25 @@ export type AccountData = {
   role: string;
   token: string;
 };
+
+export type Area = {
+  id: number;
+  name: string;
+};
+
+export type MemberStatus = {
+  id: number;
+  capacity: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  area: string[];
+  total: number;
+  week: number;
+  ng_rate: number;
+  assign: number;
+};
+
+export type ResponseStatus = {
+  [key: string]: string;
+};

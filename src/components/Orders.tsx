@@ -9,17 +9,18 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import { getAccountStatus, Statuses } from '../api/get-account-status';
+import { getAccountStatus } from '../api/get-account-status';
+import { MemberStatus } from '../types';
 
 const Orders = () => {
-  const [rows, setRow] = React.useState<Statuses[]>([]);
+  const [rows, setRow] = React.useState<MemberStatus[]>([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
       const response = await getAccountStatus();
 
       if (response !== undefined) {
-        setRow(response as Statuses[]);
+        setRow(response as MemberStatus[]);
       }
     };
     void fetchData();
@@ -42,14 +43,14 @@ const Orders = () => {
         </TableHead>
         <TableBody>
           {rows?.map((row) => (
-            <TableRow key={row.id as number}>
+            <TableRow key={row.id}>
               <TableCell>{row.name}</TableCell>
-              <TableCell>{row.area}</TableCell>
+              <TableCell>{row.area.join(' ')}</TableCell>
               <TableCell>{row.total}</TableCell>
               <TableCell>{row.week}</TableCell>
               <TableCell>{row.ng_rate}</TableCell>
               <TableCell>{row.assign}</TableCell>
-              <TableCell align="right">{`${row.total as number}件`}</TableCell>
+              <TableCell align="right">{`${row.total}件`}</TableCell>
             </TableRow>
           ))}
         </TableBody>
