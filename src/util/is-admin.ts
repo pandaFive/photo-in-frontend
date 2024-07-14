@@ -1,4 +1,4 @@
-import { AccountData } from '../api/get-account';
+import { AccountData } from '../types';
 
 export const isAdmin = (account: AccountData | null) => {
   if (account === null || account.role !== 'admin') {

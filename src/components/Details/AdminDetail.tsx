@@ -1,12 +1,11 @@
 import { AccordionDetails, Typography } from '@mui/material';
 import Link from 'next/link';
 
-import { AccountData } from '@/src/api/get-account';
+import { BasicButton } from '@/src/components/Buttons/BasicButton';
+import CommentList from '@/src/components/CommentList';
+import LoadCircle from '@/src/components/LoadCircle';
 import { Comment } from '@/src/types';
-
-import { BasicButton } from '../Buttons/BasicButton';
-import CommentList from '../CommentList';
-import LoadCircle from '../LoadCircle';
+import { AccountData } from '@/src/types';
 
 type Props = {
   account: AccountData;

@@ -23,7 +23,7 @@ import {
 } from '@mui/x-data-grid';
 import * as React from 'react';
 
-import { AccountData } from '../api/get-account';
+import { AccountData } from '../types';
 import { Comment } from '../types';
 import {
   fetchDeleteComment,
@@ -160,7 +160,6 @@ const CommentList = (props: Props) => {
         .then((response) => {
           const newId = 'id' in response ? response.id : 0;
           const newUpdatedRow = { ...updatedRow, id: newId };
-          console.log(response);
           setRows(
             rows.map((row) => (row.id === newRow.id ? newUpdatedRow : row)),
           );

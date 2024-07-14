@@ -8,7 +8,6 @@ export const singUpAction = async (formData: FormData) => {
   const area = JSON.parse(formData.get('area') as string) as string[];
   const capacity = formData.get('capacity');
   if (area !== null && area instanceof Array && capacity !== null) {
-    console.log('check');
     const result = await postSignup(
       String(formData.get('name')),
       String(formData.get('password')),
