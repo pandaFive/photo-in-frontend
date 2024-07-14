@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { AccountData } from '../api/get-account';
+import { AccountData } from '../types';
 import { Comment, Task } from '../types';
 
 import AdminDetail from './Details/AdminDetail';
@@ -43,7 +43,6 @@ const TaskAccordion = (props: Props) => {
 
   const fetchComment = async () => {
     try {
-      console.log(props.task);
       const res = await fetch(
         `/api/comments?taskId=${String(props.task.id)}&accountId=${String(props.account.id)}`,
         {
@@ -102,7 +101,7 @@ const TaskAccordion = (props: Props) => {
           <Typography
             mx={2}
             width={100}
-          >{`${props.index + 1}.  地域：${props.task.area_name}`}</Typography>
+          >{`${String(props.index + 1)}.  地域：${props.task.area_name}`}</Typography>
           <Divider
             flexItem
             orientation="vertical"

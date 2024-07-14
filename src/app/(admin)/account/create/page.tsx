@@ -21,9 +21,6 @@ const AccountCreate = () => {
       document.querySelectorAll('input[name="option"]:checked'),
     ).map((checkbox) => ('value' in checkbox ? checkbox.value : ''));
 
-    console.log(checkedValues);
-    console.log(typeof checkedValues);
-
     const data = new FormData(event.currentTarget);
     data.append('area', JSON.stringify(checkedValues));
     void singUpAction(data);
@@ -67,6 +64,7 @@ const AccountCreate = () => {
             >
               <Typography sx={{ m: 2, width: '15%' }}>Account name</Typography>
               <TextField
+                aria-label="Account Name"
                 autoComplete="text"
                 autoFocus
                 id="name"
@@ -85,6 +83,7 @@ const AccountCreate = () => {
             >
               <Typography sx={{ m: 2, width: '15%' }}>password</Typography>
               <TextField
+                aria-label="password"
                 autoComplete="password"
                 autoFocus
                 id="password"

@@ -4,9 +4,8 @@ import { LineChart, axisClasses } from '@mui/x-charts';
 import { ChartsTextStyle } from '@mui/x-charts/ChartsText';
 import * as React from 'react';
 
-import { getWeekComplete } from '../api/get-week-complete';
-
-import Title from './Title';
+import { getWeekComplete } from '@/src/api/get-week-complete';
+import Title from '@/src/components/Title';
 
 interface Data {
   date: string;
@@ -39,7 +38,7 @@ function getDatesForPastWeek(): string[] {
   return dates;
 }
 
-export default function Chart() {
+const Chart = () => {
   const [data, setData] = React.useState([]);
   const theme = useTheme();
 
@@ -119,4 +118,6 @@ export default function Chart() {
       </div>
     </React.Fragment>
   );
-}
+};
+
+export default Chart;

@@ -11,14 +11,13 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
-import { AccountData } from '../api/get-account';
-import { Task } from '../types';
-import { getMemberAssignTask } from '../util/actions/get-member-tasks';
-import { getAllTasks, getNGTasks } from '../util/actions/get-tasks';
-import { grouping } from '../util/grouping';
-
-import LoadCircle from './LoadCircle';
-import TaskAccordion from './TaskAccordion';
+import LoadCircle from '@/src/components/LoadCircle';
+import TaskAccordion from '@/src/components/TaskAccordion';
+import { AccountData } from '@/src/types';
+import { Task } from '@/src/types';
+import { getMemberAssignTask } from '@/src/util/actions/get-member-tasks';
+import { getAllTasks, getNGTasks } from '@/src/util/actions/get-tasks';
+import { grouping } from '@/src/util/grouping';
 
 type Props = {
   id: number;
