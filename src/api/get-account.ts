@@ -1,23 +1,15 @@
 'use server';
 
+import { AccountData } from '../types';
 import { getCookies } from '../util/cookies';
 
 type response = {
   account: AccountData;
 };
 
-export type AccountData = {
-  id: number;
-  name: string;
-  area: string[];
-  role: string;
-  token: string;
-};
-
-export async function getAccount() {
+export const getAccount = async () => {
   const token = getCookies('token');
   const res = await fetch(`${process.env.API_HOST}/account`, {
-    cache: 'no-store',
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -27,4 +19,4 @@ export async function getAccount() {
     const currentAccount: response = (await res.json()) as response;
     return currentAccount.account;
   }
-}
+};

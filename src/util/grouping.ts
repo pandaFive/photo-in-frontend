@@ -1,26 +1,11 @@
-type Task = {
-  id: number;
-  title: string;
-  area_name: string;
-  created_at: string;
-};
-
-type MemberTask = Task & {
-  history_id: number;
-};
-
-type AdminTask = Task & {
-  cycle_id: number;
-};
-
+import { Task } from '../types';
 type GroupType = {
-  [key: string]: (MemberTask | AdminTask)[];
+  [key: string]: Task[];
 };
 
-export const grouping = (items: (MemberTask | AdminTask)[], key: string) => {
-  console.log(items);
+export const grouping = (items: Task[], key: string) => {
   if (key === 'time') {
-    return items.reduce((acc: GroupType, item: MemberTask | AdminTask) => {
+    return items.reduce((acc: GroupType, item: Task) => {
       const time = new Date(item['created_at']).toLocaleDateString();
       if (!acc[time]) {
         acc[time] = [];
@@ -31,7 +16,7 @@ export const grouping = (items: (MemberTask | AdminTask)[], key: string) => {
       return acc;
     }, {});
   } else if (key === 'area') {
-    return items.reduce((acc: GroupType, item: MemberTask | AdminTask) => {
+    return items.reduce((acc: GroupType, item: Task) => {
       const area = item['area_name'];
       if (!acc[area]) {
         acc[area] = [];
@@ -39,7 +24,6 @@ export const grouping = (items: (MemberTask | AdminTask)[], key: string) => {
       if (acc[area] !== undefined) {
         acc[area]?.push(item);
       }
-      console.log(acc);
       return acc;
     }, {});
   } else {

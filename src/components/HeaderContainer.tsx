@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 
-import AppBar from './AppBar';
-import Drawer from './Drawer';
+import AppBar from '@/src/components/AppBar';
+import Drawer from '@/src/components/Drawer';
 
 type Props = {
   name: string;
@@ -24,7 +24,7 @@ const HeaderContainer = (props: Props) => {
         role={props.role}
         toggleDrawer={toggleDrawer}
       />
-      {props.role === '0' ? (
+      {props.role === 'admin' ? (
         <Drawer open={open} toggleDrawer={toggleDrawer} />
       ) : (
         <></>

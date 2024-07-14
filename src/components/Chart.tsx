@@ -4,9 +4,8 @@ import { LineChart, axisClasses } from '@mui/x-charts';
 import { ChartsTextStyle } from '@mui/x-charts/ChartsText';
 import * as React from 'react';
 
-import { getWeekComplete } from '../api/get-week-complete';
-
-import Title from './Title';
+import { getWeekComplete } from '@/src/api/get-week-complete';
+import Title from '@/src/components/Title';
 
 interface Data {
   date: string;
@@ -23,7 +22,7 @@ function getDatesForPastWeek(): string[] {
   const oneDayMs: number = 24 * 60 * 60 * 1000; // 1日のミリ秒数
 
   // 1週間前の日付を取得
-  const oneWeekAgo: Date = new Date(today.getTime() - 7 * oneDayMs);
+  const oneWeekAgo: Date = new Date(today.getTime() - 6 * oneDayMs);
 
   // 1週間前から今日までの日付を生成
   for (let i = 0; i < 7; i++) {
@@ -39,7 +38,7 @@ function getDatesForPastWeek(): string[] {
   return dates;
 }
 
-export default function Chart() {
+const Chart = () => {
   const [data, setData] = React.useState([]);
   const theme = useTheme();
 
@@ -47,7 +46,6 @@ export default function Chart() {
     const fetchData = async () => {
       try {
         const response = await getWeekComplete();
-        // const keys: string[] = Object.keys(response);
         const datesForPastWeek: string[] = getDatesForPastWeek();
         const newData = datesForPastWeek.reduce((res, ele) => {
           if (response[ele]) {
@@ -120,4 +118,6 @@ export default function Chart() {
       </div>
     </React.Fragment>
   );
-}
+};
+
+export default Chart;

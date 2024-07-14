@@ -2,7 +2,8 @@
 
 import { NextResponse } from 'next/server';
 
-import { getAccountTasks, Task } from '@/src/api/get-account-tasks';
+import { getAccountTasks } from '@/src/api/get-account-tasks';
+import { Task } from '@/src/types';
 
 export const GET = async (
   request: Request,

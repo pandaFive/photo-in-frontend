@@ -1,11 +1,24 @@
-import { AccordionDetails, Button, Typography } from '@mui/material';
+import { AccordionDetails, Typography } from '@mui/material';
 import Link from 'next/link';
 
+import {
+  BasicButton,
+  OutlinedButton,
+} from '@/src/components/Buttons/BasicButton';
+import CommentList from '@/src/components/CommentList';
+import LoadCircle from '@/src/components/LoadCircle';
+import { AccountData } from '@/src/types';
+import { Comment } from '@/src/types';
+
 type Props = {
+  account: AccountData;
+  comments: Comment[];
+  isLoaded: boolean;
   id: string;
+  cycleId: number;
   url: string;
   date: string;
-  reload: () => void;
+  reload: (newDataType: string) => void;
 };
 
 const MemberDetail = (props: Props) => {
@@ -13,14 +26,14 @@ const MemberDetail = (props: Props) => {
     await fetch(`/api/task/${String(props.id)}/ng`, {
       method: 'PUT',
     });
-    props.reload();
+    props.reload('active');
   };
 
   const changeComplete = async () => {
     await fetch(`/api/task/${String(props.id)}/complete`, {
       method: 'PUT',
     });
-    props.reload();
+    props.reload('active');
   };
 
   const onNG = (): void => {
@@ -41,17 +54,17 @@ const MemberDetail = (props: Props) => {
         {'Open File in New Tab'}
       </Link>
       <Typography>{`振り分け日時：${props.date}`}</Typography>
-      <Button
-        onClick={onComplete}
-        sx={{ m: 1 }}
-        tabIndex={-1}
-        variant="contained"
-      >
-        Complete
-      </Button>
-      <Button onClick={onNG} tabIndex={-1} variant="outlined">
-        NG
-      </Button>
+      {!props.isLoaded ? (
+        <LoadCircle />
+      ) : (
+        <CommentList
+          account={props.account}
+          comments={props.comments}
+          cycleId={props.cycleId}
+        />
+      )}
+      <BasicButton onClick={onComplete} str="Complete" />
+      <OutlinedButton onClick={onNG} str="NG" />
     </AccordionDetails>
   );
 };

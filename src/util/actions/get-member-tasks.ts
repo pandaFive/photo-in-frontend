@@ -1,10 +1,4 @@
-type Task = {
-  id: number;
-  title: string;
-  area_name: string;
-  history_id: number;
-  created_at: string;
-};
+import { Task } from '@/src/types';
 
 export const getMemberAssignTask = async (id: string) => {
   try {

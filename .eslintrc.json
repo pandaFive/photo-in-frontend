@@ -11,7 +11,7 @@
     "project": "./tsconfig.json"
   },
   "plugins": ["unused-imports"],
-  "ignorePatterns": ["*config.js"],
+  "ignorePatterns": ["*config.js", "*setup.js", "src/__tests__/**/*"],
   "rules": {
     "unused-imports/no-unused-imports": "error",
     "react/jsx-sort-props": "error",
@@ -42,5 +42,13 @@
         }
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["@/components/CommentList.tsx"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
 }
