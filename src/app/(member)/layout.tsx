@@ -1,6 +1,7 @@
 import { RedirectType, redirect } from 'next/navigation';
 
-import { AccountData, getAccount } from '@/src/api/get-account';
+import { getAccount } from '@/src/api/get-account';
+import { AccountData } from '@/src/types';
 import { isMember } from '@/src/util/is-member';
 
 const Layout = async ({ children }) => {

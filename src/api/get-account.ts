@@ -14,7 +14,7 @@ export const getAccount = async () => {
   });
 
   if (!res.ok) {
-    return {};
+    return null;
   } else {
     const currentAccount: response = (await res.json()) as response;
     return currentAccount.account;

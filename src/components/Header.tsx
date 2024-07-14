@@ -8,6 +8,11 @@ const Header = async () => {
   const currentAccount: AccountData = (await getAccount()) as AccountData;
   const name: string = currentAccount !== null ? currentAccount?.name : '';
   const role: string = currentAccount !== null ? currentAccount?.role : '';
+  console.log(currentAccount);
+
+  if (currentAccount === null) {
+    return <></>;
+  }
 
   return (
     <>
