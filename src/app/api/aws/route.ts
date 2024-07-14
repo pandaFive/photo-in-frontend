@@ -35,7 +35,7 @@ export const GET = async (request: NextRequest) => {
   try {
     // @ts-expect-error don't resolve error
     const url = await getSignedUrl(s3Client, command, { expiresIn: 7200 });
-    'Get success:', url;
+    console.log('Get success:', url);
     return NextResponse.json(url);
   } catch (err) {
     console.error(err);
@@ -61,7 +61,7 @@ export const POST = async (request: Request) => {
   try {
     const command = new PutObjectCommand(uploadParams);
     const uploadResult = await s3Client.send(command);
-    'Upload success:', uploadResult;
+    console.log('Upload success:', uploadResult);
     const url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.REGION}.amazonaws.com/${name}`;
     await postTaskCreate(name);
     return NextResponse.json({ url });
