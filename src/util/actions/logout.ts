@@ -6,5 +6,5 @@ import { deleteCookie } from '../cookies';
 
 export const logoutAction = () => {
   deleteCookie('token');
-  redirect('/login', RedirectType.push);
+  redirect('/', RedirectType.push);
 };

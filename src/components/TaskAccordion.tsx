@@ -100,7 +100,7 @@ const TaskAccordion = (props: Props) => {
         >
           <Typography
             mx={2}
-            width={100}
+            width={150}
           >{`${String(props.index + 1)}.  地域：${props.task.area_name}`}</Typography>
           <Divider
             flexItem
