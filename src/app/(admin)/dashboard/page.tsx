@@ -5,6 +5,7 @@ import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import * as React from 'react';
 
+import AreaChips from '@/src/components/AreaChips';
 import UploadButton from '@/src/components/Buttons/UploadButton';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
@@ -23,6 +24,7 @@ const Dashboard = () => {
       >
         <Toolbar />
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+          <AreaChips />
           <Grid>
             <UploadButton />
           </Grid>

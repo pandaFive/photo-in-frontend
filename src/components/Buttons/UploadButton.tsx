@@ -75,7 +75,7 @@ const UploadButton = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ mb: 2 }}>
       <Button
         component="label"
         role={undefined}
@@ -92,6 +92,9 @@ const UploadButton = () => {
           type="file"
         />
       </Button>
+      <Button onClick={onSend} sx={{ ml: 1 }} variant="contained">
+        送信
+      </Button>
       <div>
         {selectedFileArray.map((file, index) => (
           <div key={file.name}>
@@ -102,9 +105,6 @@ const UploadButton = () => {
           </div>
         ))}
       </div>
-      <Button onClick={onSend} variant="contained">
-        送信
-      </Button>
     </Box>
   );
 };
