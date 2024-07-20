@@ -4,6 +4,9 @@ import '@testing-library/jest-dom';
 import Dashboard from '@/src/app/(admin)/dashboard/page';
 
 // モックコンポーネントを作成
+jest.mock('@/src/components/AreaChips', () => () => (
+  <div data-testid="area-chips">Chips</div>
+));
 jest.mock('@/src/components/Buttons/UploadButton', () => () => (
   <div data-testid="upload-button">UploadButton</div>
 ));
