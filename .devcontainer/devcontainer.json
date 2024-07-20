@@ -21,7 +21,9 @@
         "mosapride.zenkaku",
         "oderwat.indent-rainbow",
         "VisualStudioExptTeam.vscodeintellicode",
-        "shardulm94.trailing-spaces"
+        "shardulm94.trailing-spaces",
+        "eamodio.gitlens",
+        "github.vscode-github-actions"
       ]
     }
   },

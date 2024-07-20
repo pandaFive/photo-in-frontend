@@ -8,7 +8,7 @@ const Layout = async ({ children }) => {
   const account: AccountData | null = await getAccount();
 
   if (!isMember(account)) {
-    redirect('/login', RedirectType.push);
+    redirect('/', RedirectType.push);
   }
 
   return <>{children}</>;
