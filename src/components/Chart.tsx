@@ -40,6 +40,7 @@ function getDatesForPastWeek(): string[] {
 
 const Chart = () => {
   const [data, setData] = React.useState([]);
+  const [max, setMax] = React.useState(10);
   const theme = useTheme();
 
   React.useEffect(() => {
@@ -50,6 +51,10 @@ const Chart = () => {
         const newData = datesForPastWeek.reduce((res, ele) => {
           if (response[ele]) {
             res.push(createData(ele, response[ele] as number) as never);
+
+            if (response[ele] > max) {
+              setMax((response[ele] as number) + 5);
+            }
           } else {
             res.push(createData(ele, 0) as never);
           }
@@ -62,7 +67,7 @@ const Chart = () => {
     };
 
     void fetchData();
-  }, []);
+  }, [max]);
 
   return (
     <React.Fragment>
@@ -72,14 +77,15 @@ const Chart = () => {
           dataset={data}
           margin={{
             top: 16,
-            right: 20,
+            right: 24,
             left: 70,
             bottom: 30,
           }}
           series={[
             {
+              curve: 'linear',
               dataKey: 'amount',
-              showMark: false,
+              showMark: true,
               color: theme.palette.primary.light,
             },
           ]}
@@ -99,7 +105,9 @@ const Chart = () => {
               scaleType: 'point',
               dataKey: 'date',
               tickNumber: 2,
-              tickLabelStyle: theme.typography.body2 as ChartsTextStyle,
+              tickLabelStyle: {
+                ...(theme.typography.body2 as ChartsTextStyle),
+              },
             },
           ]}
           yAxis={[
@@ -108,9 +116,11 @@ const Chart = () => {
               labelStyle: {
                 ...(theme.typography.body1 as ChartsTextStyle),
                 fill: theme.palette.text.primary,
+                writingMode: 'vertical-rl',
+                transform: 'revert',
               },
               tickLabelStyle: theme.typography.body2 as ChartsTextStyle,
-              max: 30,
+              max: max,
               tickNumber: 5,
             },
           ]}
