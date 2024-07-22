@@ -15,7 +15,7 @@ const Header = async () => {
 
   return (
     <>
-      <HeaderContainer name={name} role={role} />
+      <HeaderContainer accountId={currentAccount.id} name={name} role={role} />
     </>
   );
 };

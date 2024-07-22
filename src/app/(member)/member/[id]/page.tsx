@@ -9,7 +9,7 @@ const Account = async ({ params }: { params: { id: string } }) => {
 
   const currentAccount: AccountData = (await getAccount()) as AccountData;
   if (currentAccount === null || currentAccount.id !== parseInt(id)) {
-    redirect('/login', RedirectType.push);
+    redirect('/', RedirectType.push);
   } else {
     return <TaskList account={currentAccount} id={parseInt(id)} />;
   }

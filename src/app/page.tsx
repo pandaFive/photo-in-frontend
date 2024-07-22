@@ -15,7 +15,7 @@ import { loginAction } from '../util/actions/login';
 
 const defaultTheme = createTheme();
 
-export default function SignInSide() {
+const SignInSide = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -116,4 +116,6 @@ export default function SignInSide() {
       </Grid>
     </ThemeProvider>
   );
-}
+};
+
+export default SignInSide;
