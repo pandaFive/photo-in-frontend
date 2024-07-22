@@ -15,11 +15,11 @@ export async function loginAction(formData: FormData) {
     const currentAccount: Account = result.account as Account;
     setCookies('token', currentAccount.token);
     if (currentAccount.role === 'admin') {
-      redirect('dashboard', RedirectType.push);
+      redirect('/dashboard', RedirectType.push);
     } else {
-      redirect(`member/${currentAccount.id}`, RedirectType.push);
+      redirect(`/member/${currentAccount.id}`, RedirectType.push);
     }
   } else {
-    redirect('dashboard');
+    redirect('/dashboard');
   }
 }

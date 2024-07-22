@@ -8,7 +8,7 @@ import { AccountData } from '@/src/types';
 const TaskData = async () => {
   const currentAccount: AccountData = (await getAccount()) as AccountData;
   if (currentAccount !== null && currentAccount.role !== 'admin') {
-    redirect('/login', RedirectType.push);
+    redirect('/', RedirectType.push);
   }
   return <TaskList account={currentAccount} id={currentAccount.id} />;
 };
