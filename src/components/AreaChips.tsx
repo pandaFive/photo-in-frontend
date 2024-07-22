@@ -1,10 +1,12 @@
-import { Chip, Grid, Paper, Typography } from '@mui/material';
+import { Box, Chip, Grid, Paper, Typography } from '@mui/material';
 
-import { getAreas } from '../api/get-areas';
 import { Area } from '../types';
 
-const AreaChips = async () => {
-  const areas: Area[] = (await getAreas()) as Area[];
+type Props = {
+  areas: Area[];
+};
+
+const AreaChips = (props: Props) => {
   return (
     <Grid>
       <Paper
@@ -12,18 +14,22 @@ const AreaChips = async () => {
         square={false}
         sx={{ p: 2, mb: 2, display: 'flex', alignItems: 'center' }}
       >
-        <Typography variant="h6">現在登録されているエリア：</Typography>
-        {areas?.map((value) => {
-          return (
-            <Chip
-              color="primary"
-              key={value.name}
-              label={value.name}
-              sx={{ ml: 1, p: 0, height: '1.6rem' }}
-              variant="outlined"
-            />
-          );
-        })}
+        <Typography variant="h6" whiteSpace={'nowrap'}>
+          現在登録されているエリア：
+        </Typography>
+        <Box display={'flex'} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+          {props.areas?.map((value) => {
+            return (
+              <Chip
+                color="primary"
+                key={value.name}
+                label={value.name}
+                sx={{ ml: 1, p: 0, height: '1.6rem' }}
+                variant="outlined"
+              />
+            );
+          })}
+        </Box>
       </Paper>
     </Grid>
   );

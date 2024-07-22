@@ -5,13 +5,17 @@ import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import * as React from 'react';
 
+import { getAreas } from '@/src/api/get-areas';
 import AreaChips from '@/src/components/AreaChips';
 import UploadButton from '@/src/components/Buttons/UploadButton';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
+import { Area } from '@/src/types';
 
-const Dashboard = () => {
+const Dashboard = async () => {
+  const areas: Area[] = (await getAreas()) as Area[];
+  const areaNames: string[] = areas?.map((area) => area.name);
   return (
     <Box sx={{ display: 'flex' }}>
       <Box
@@ -24,9 +28,9 @@ const Dashboard = () => {
       >
         <Toolbar />
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-          <AreaChips />
+          <AreaChips areas={areas} />
           <Grid>
-            <UploadButton />
+            <UploadButton areaNames={areaNames} />
           </Grid>
           <Grid container spacing={3}>
             {/* Chart */}

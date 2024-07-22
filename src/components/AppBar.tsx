@@ -2,9 +2,18 @@
 
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
-import { IconButton, Toolbar, Typography } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  IconButton,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { styled } from '@mui/material/styles';
+import { useState } from 'react';
 
 import { logoutAction } from '../util/actions/logout';
 
@@ -32,20 +41,22 @@ const AppBarContainer = styled(MuiAppBar, {
   }),
 }));
 
-interface Props {
+type Props = {
   toggleDrawer: () => void;
   open: boolean;
   name: string;
   role: string;
-}
+};
 
 const AppBar = (props: Props) => {
-  const onLogout = () => {
-    const confirmed = confirm('ログアウトしますか?');
+  const [open, setOpen] = useState(false);
 
-    if (confirmed) {
-      logoutAction();
-    }
+  const toggledOpen = () => {
+    setOpen(!open);
+  };
+
+  const onLogout = () => {
+    logoutAction();
   };
 
   return (
@@ -80,11 +91,28 @@ const AppBar = (props: Props) => {
         <IconButton
           aria-label="logout"
           color="inherit"
-          onClick={onLogout}
+          onClick={toggledOpen}
           type="submit"
         >
           <LogoutIcon />
         </IconButton>
+        <Dialog
+          aria-describedby="alert-dialog"
+          aria-labelledby="alert-dialog"
+          fullWidth
+          onClose={toggledOpen}
+          open={open}
+        >
+          <DialogTitle id="alert-dialog-title">
+            {'ログアウトしますか？'}
+          </DialogTitle>
+          <DialogActions>
+            <Button onClick={toggledOpen}>キャンセル</Button>
+            <Button autoFocus onClick={onLogout}>
+              ログアウト
+            </Button>
+          </DialogActions>
+        </Dialog>
         {/* <IconButton color="inherit">
           <Badge badgeContent={4} color="secondary">
             <NotificationsIcon />
