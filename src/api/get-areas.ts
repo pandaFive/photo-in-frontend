@@ -11,10 +11,10 @@ export const getAreas = async () => {
       const result: Area[] = (await res.json()) as Area[];
       return result;
     } else {
-      return {};
+      return [];
     }
   } catch (err) {
     console.error(err);
-    return {};
+    return [];
   }
 };

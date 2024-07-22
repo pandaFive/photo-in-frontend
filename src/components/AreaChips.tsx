@@ -1,9 +1,7 @@
 import { Box, Chip, Grid, Paper, Typography } from '@mui/material';
 
-import { Area } from '../types';
-
 type Props = {
-  areas: Area[];
+  areaNames: string[];
 };
 
 const AreaChips = (props: Props) => {
@@ -18,12 +16,12 @@ const AreaChips = (props: Props) => {
           現在登録されているエリア：
         </Typography>
         <Box display={'flex'} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
-          {props.areas?.map((value) => {
+          {props.areaNames?.map((name) => {
             return (
               <Chip
                 color="primary"
-                key={value.name}
-                label={value.name}
+                key={name}
+                label={name}
                 sx={{ ml: 1, p: 0, height: '1.6rem' }}
                 variant="outlined"
               />

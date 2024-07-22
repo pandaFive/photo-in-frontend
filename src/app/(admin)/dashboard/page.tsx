@@ -11,11 +11,10 @@ import UploadButton from '@/src/components/Buttons/UploadButton';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
-import { Area } from '@/src/types';
 
 const Dashboard = async () => {
-  const areas: Area[] = (await getAreas()) as Area[];
-  const areaNames: string[] = areas?.map((area) => area.name);
+  const areaNames: string[] = (await getAreas()).map((area) => area.name);
+  // const areaNames: string[] = areas?.map((area) => area.name);
   return (
     <Box sx={{ display: 'flex' }}>
       <Box
@@ -28,7 +27,7 @@ const Dashboard = async () => {
       >
         <Toolbar />
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-          <AreaChips areas={areas} />
+          <AreaChips areaNames={areaNames} />
           <Grid>
             <UploadButton areaNames={areaNames} />
           </Grid>
