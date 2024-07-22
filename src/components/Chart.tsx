@@ -67,7 +67,7 @@ const Chart = () => {
     };
 
     void fetchData();
-  }, []);
+  }, [max]);
 
   return (
     <React.Fragment>
