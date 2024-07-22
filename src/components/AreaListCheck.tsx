@@ -25,7 +25,7 @@ const AreaListCheck = () => {
 
   const getArea = useCallback(async () => {
     try {
-      const res = (await getAreas()) as Area[];
+      const res = await getAreas();
       setArea(res);
     } catch (err) {
       console.error(err);
