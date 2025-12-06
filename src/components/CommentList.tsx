@@ -40,9 +40,16 @@ interface EditToolbarProps {
   name: string;
 }
 
+/**
+ * DataGridのツールバーコンポーネント
+ * 新しいコメントを追加するためのボタンを提供する
+ */
 const EditToolbar = (props: EditToolbarProps) => {
   const { setRows, setRowModesModel, role, name } = props;
 
+  /**
+   * 新しいコメント行を追加し、編集モードに切り替える
+   */
   const handleClick = () => {
     setRows((oldRows) => [
       ...oldRows,
@@ -70,24 +77,24 @@ const EditToolbar = (props: EditToolbarProps) => {
   );
 };
 
-const createRows = (comments: Comment[]) => {
-  let newRows: GridRowsProp = [];
-  if (Array.isArray(comments) && comments.length !== 0) {
-    comments?.forEach((cur) => {
-      newRows = [
-        ...newRows,
-        {
-          id: cur.id,
-          name: cur.name,
-          comment: cur.content,
-          joinDate: cur.updatedAt,
-          role: cur.role,
-          isNew: false,
-        },
-      ];
-    }, []);
+/**
+ * コメントデータをDataGrid用の行データに変換する
+ * @param comments - APIから取得したコメントの配列
+ * @returns DataGridで使用可能な行データの配列
+ */
+const createRows = (comments: Comment[]): GridRowsProp => {
+  if (!Array.isArray(comments) || comments.length === 0) {
+    return [];
   }
-  return newRows;
+
+  return comments.map((cur) => ({
+    id: cur.id,
+    name: cur.name,
+    comment: cur.content,
+    joinDate: cur.updatedAt,
+    role: cur.role,
+    isNew: false,
+  }));
 };
 
 type Props = {
@@ -96,12 +103,23 @@ type Props = {
   cycleId: number;
 };
 
+/**
+ * コメント一覧を表示・編集するためのDataGridコンポーネント
+ *
+ * 状態管理:
+ * - rows: 表示するコメント行のデータ
+ * - rowModesModel: 各行の編集モード状態（表示/編集）
+ * - flagCommentChange: コメントが変更されたかを追跡するフラグ
+ * - flagNewComment: 新規コメントかどうかを追跡するフラグ（POST/PUTの判定に使用）
+ */
 const CommentList = (props: Props) => {
   const [rows, setRows] = React.useState(createRows(props.comments));
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
+  // コメントが変更されたかを追跡（保存時にAPIを呼び出すかの判定に使用）
   const [flagCommentChange, setFlagCommentChange] = React.useState(false);
+  // 新規コメントかどうかを追跡（POST/PUTの判定に使用）
   const [flagNewComment, setFlagNewComment] = React.useState(false);
 
   const role: string = props.account.role;
@@ -147,32 +165,50 @@ const CommentList = (props: Props) => {
     }
   };
 
+  /**
+   * コメントをAPIに保存する（新規作成または更新）
+   * flagNewCommentの状態に応じてPOSTまたはPUTリクエストを送信
+   *
+   * @param newRow - 保存する行データ
+   * @param updatedRow - 更新後の行データ（新規作成時にIDを更新するために使用）
+   */
   const fetchPutOrPostComment = (
     newRow: GridRowModel,
     updatedRow: GridRowModel,
   ) => {
     if (flagNewComment) {
+      // 新規コメント作成
       fetchPostComment(
         newRow.comment as string,
         props.account.id,
         props.cycleId,
       )
         .then((response) => {
-          const newId = 'id' in response ? response.id : 0;
-          const newUpdatedRow = { ...updatedRow, id: newId };
-          setRows(
-            rows.map((row) => (row.id === newRow.id ? newUpdatedRow : row)),
-          );
+          if (response) {
+            const newId = response.id;
+            const newUpdatedRow = { ...updatedRow, id: newId };
+            setRows(
+              rows.map((row) => (row.id === newRow.id ? newUpdatedRow : row)),
+            );
+          }
         })
-        .catch((e) => console.error(e));
+        .catch((e) => console.error('Failed to post comment:', e));
       setFlagNewComment(false);
     } else {
+      // 既存コメント更新
       fetchPutComment(newRow.comment as string, newRow.id as number)
         .then()
-        .catch((e) => console.error(e));
+        .catch((e) => console.error('Failed to update comment:', e));
     }
   };
 
+  /**
+   * 行の更新を処理し、必要に応じてAPIに保存する
+   * DataGridの行編集が完了した際に呼び出される
+   *
+   * @param newRow - 更新された行データ
+   * @returns 更新後の行データ
+   */
   const processRowUpdate = (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
