@@ -6,7 +6,7 @@ import {
   Divider,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import { AccountData } from '../types';
 import { Comment, Task } from '../types';
@@ -26,58 +26,67 @@ type Props = {
 const TaskAccordion = (props: Props) => {
   const [fileUrl, setFileUrl] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
-  const [flagFetchComments, setFlagFetchComments] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchFile = async () => {
-    try {
-      const res = await fetch(`/api/aws?key=${props.task.title}`, {
-        method: 'GET',
-      });
-      const url: string = (await res.json()) as string;
-      setFileUrl(url);
-    } catch (err) {
-      console.error(err);
+  /**
+   * ファイルURLとコメントを並列で取得する
+   * AbortControllerを使用してコンポーネントアンマウント時にリクエストをキャンセル
+   */
+  const fetchData = async () => {
+    // 既存のリクエストがある場合はキャンセル
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
-  };
 
-  const fetchComment = async () => {
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     try {
-      const res = await fetch(
-        `/api/comments?taskId=${String(props.task.id)}&accountId=${String(props.account.id)}`,
-        {
+      // ファイルURLとコメントを並列で取得
+      const [fileRes, commentRes] = await Promise.all([
+        fetch(`/api/aws?key=${props.task.title}`, {
           method: 'GET',
-        },
-      );
-      const result: Comment[] = (await res.json()) as Comment[];
+          signal,
+        }),
+        fetch(
+          `/api/comments?taskId=${String(props.task.id)}&accountId=${String(props.account.id)}`,
+          {
+            method: 'GET',
+            signal,
+          },
+        ),
+      ]);
+
+      const url: string = (await fileRes.json()) as string;
+      const result: Comment[] = (await commentRes.json()) as Comment[];
+
+      setFileUrl(url);
       setComments(result);
-      setFlagFetchComments(true);
-    } catch (err) {
-      console.error(err);
-    }
-    setLoaded(true);
-  };
-
-  const onFetchFile = () => {
-    if (fileUrl === '') {
-      fetchFile()
-        .then()
-        .catch((e) => console.error(e));
-    }
-  };
-
-  const onFetchComment = () => {
-    if (comments.length === 0 && !flagFetchComments) {
-      fetchComment()
-        .then()
-        .catch((e) => console.error(e));
+      setLoaded(true);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        console.error('Failed to fetch task data:', err);
+      }
     }
   };
 
   const onClickArrow = () => {
-    onFetchComment();
-    onFetchFile();
+    if (!loaded) {
+      fetchData()
+        .then()
+        .catch((e) => console.error(e));
+    }
   };
+
+  // コンポーネントアンマウント時にリクエストをキャンセル
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const date = new Date(props.task.created_at);
 
