@@ -46,3 +46,9 @@ export type MemberStatus = {
 export type ResponseStatus = {
   [key: string]: string;
 };
+
+export type GroupType = {
+  [key: string]: Task[];
+};
+
+export type GroupKey = 'time' | 'area';

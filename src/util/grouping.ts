@@ -1,32 +1,22 @@
-import { Task } from '../types';
-type GroupType = {
-  [key: string]: Task[];
-};
+import { Task, GroupType, GroupKey } from '../types';
 
-export const grouping = (items: Task[], key: string) => {
-  if (key === 'time') {
-    return items.reduce((acc: GroupType, item: Task) => {
-      const time = new Date(item['created_at']).toLocaleDateString();
-      if (!acc[time]) {
-        acc[time] = [];
-      }
-      if (acc[time] !== undefined) {
-        acc[time]?.push(item);
-      }
-      return acc;
-    }, {});
-  } else if (key === 'area') {
-    return items.reduce((acc: GroupType, item: Task) => {
-      const area = item['area_name'];
-      if (!acc[area]) {
-        acc[area] = [];
-      }
-      if (acc[area] !== undefined) {
-        acc[area]?.push(item);
-      }
-      return acc;
-    }, {});
-  } else {
-    return {};
-  }
+/**
+ * タスクを日付またはエリアでグループ化する
+ * @param items - グループ化するタスクの配列
+ * @param groupKey - グループ化のキー ('time': 作成日でグループ化, 'area': エリアでグループ化)
+ * @returns グループ化されたタスク（キー: 日付またはエリア名, 値: タスクの配列）
+ */
+export const grouping = (items: Task[], groupKey: GroupKey): GroupType => {
+  return items.reduce((acc: GroupType, item: Task) => {
+    const key = groupKey === 'time'
+      ? new Date(item.created_at).toLocaleDateString()
+      : item.area_name;
+
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(item);
+
+    return acc;
+  }, {});
 };

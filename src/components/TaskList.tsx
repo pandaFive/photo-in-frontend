@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
-import { AccountData } from '@/src/types';
+import { AccountData, GroupType } from '@/src/types';
 import { Task } from '@/src/types';
 import { getMemberAssignTask } from '@/src/util/actions/get-member-tasks';
 import { getAllTasks, getNGTasks } from '@/src/util/actions/get-tasks';
@@ -22,10 +22,6 @@ import { grouping } from '@/src/util/grouping';
 type Props = {
   id: number;
   account: AccountData;
-};
-
-type GroupType = {
-  [key: string]: Task[];
 };
 
 const sortTasks = (list: string[], sortType: string) => {
