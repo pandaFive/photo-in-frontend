@@ -12,10 +12,9 @@ import {
   Chip,
 } from '@mui/material';
 
-import { MemberStatus } from '../types';
-import { formatIsoToYYYYMMDD } from '../util/format-date';
-
-import CircleRate from './CircleRate';
+import { MemberStatus } from '@/src/types';
+import { formatIsoToYYYYMMDD } from '@/src/util/format-date';
+import CircleRate from '@/src/components/CircleRate';
 
 type Props = {
   member: MemberStatus;

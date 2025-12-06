@@ -9,8 +9,8 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import { getAccountStatus } from '../api/get-account-status';
-import { MemberStatus } from '../types';
+import { getAccountStatus } from '@/src/api/get-account-status';
+import { MemberStatus } from '@/src/types';
 
 const Orders = () => {
   const [rows, setRow] = React.useState<MemberStatus[]>([]);

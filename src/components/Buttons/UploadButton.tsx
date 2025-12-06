@@ -3,8 +3,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Button, Box } from '@mui/material';
 import React, { useState, useRef } from 'react';
 
-import EmptySendDialog from '../EmptySendDialog';
-import IncorrectUploadDialog from '../IncorrectUploadDialog';
+import EmptySendDialog from '@/src/components/EmptySendDialog';
+import IncorrectUploadDialog from '@/src/components/IncorrectUploadDialog';
 
 type Props = {
   areaNames: string[];

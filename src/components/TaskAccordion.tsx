@@ -8,11 +8,9 @@ import {
 } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 
-import { AccountData } from '../types';
-import { Comment, Task } from '../types';
-
-import AdminDetail from './Details/AdminDetail';
-import MemberDetail from './Details/MemberDetail';
+import { AccountData, Comment, Task } from '@/src/types';
+import AdminDetail from '@/src/components/Details/AdminDetail';
+import MemberDetail from '@/src/components/Details/MemberDetail';
 
 type Props = {
   account: AccountData;
