@@ -1,57 +1,88 @@
 import { Res } from '../app/api/comment/route';
 import { Comment } from '../types';
 
+/**
+ * コメントAPI用の共通fetch関数
+ * @param url - リクエストURL
+ * @param options - fetchオプション
+ * @param errorMessage - エラー時のログメッセージ
+ * @returns レスポンスデータ、エラー時はnull
+ */
+const fetchCommentApi = async <T>(
+  url: string,
+  options: RequestInit,
+  errorMessage: string,
+): Promise<T | null> => {
+  try {
+    const res = await fetch(url, {
+      ...options,
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    return (await res.json()) as T;
+  } catch (err) {
+    console.error(errorMessage, err);
+    return null;
+  }
+};
+
+/**
+ * 新しいコメントを投稿する
+ * @param content - コメント内容
+ * @param accountId - アカウントID
+ * @param taskId - タスクID
+ * @returns 作成されたコメント、エラー時はnull
+ */
 export const fetchPostComment = async (
   content: string,
   accountId: number,
   taskId: number,
-) => {
-  try {
-    const res = await fetch(`/api/comment`, {
+): Promise<Comment | null> => {
+  return fetchCommentApi<Comment>(
+    '/api/comment',
+    {
       method: 'POST',
-      cache: 'no-store',
-      body: JSON.stringify({
-        content: content,
-        accountId: accountId,
-        taskId: taskId,
-      }),
-    });
-    const result: Comment = (await res.json()) as Comment;
-    return result;
-  } catch (err) {
-    console.error(err);
-    return {};
-  }
+      body: JSON.stringify({ content, accountId, taskId }),
+    },
+    'Failed to post comment:',
+  );
 };
 
-export const fetchPutComment = async (content: string, id: number) => {
-  try {
-    const res = await fetch(`/api/comment`, {
+/**
+ * 既存のコメントを更新する
+ * @param content - 更新後のコメント内容
+ * @param id - コメントID
+ * @returns 更新されたコメント、エラー時はnull
+ */
+export const fetchPutComment = async (
+  content: string,
+  id: number,
+): Promise<Comment | null> => {
+  return fetchCommentApi<Comment>(
+    '/api/comment',
+    {
       method: 'PUT',
-      cache: 'no-store',
-      body: JSON.stringify({
-        content: content,
-        id: id,
-      }),
-    });
-    const result: Comment = (await res.json()) as Comment;
-    return result;
-  } catch (err) {
-    console.error(err);
-    return {};
-  }
+      body: JSON.stringify({ content, id }),
+    },
+    'Failed to update comment:',
+  );
 };
 
-export const fetchDeleteComment = async (id: number) => {
-  try {
-    const res = await fetch(`/api/comment?commentId=${id}`, {
+/**
+ * コメントを削除する
+ * @param id - コメントID
+ * @returns 削除結果、エラー時はnull
+ */
+export const fetchDeleteComment = async (id: number): Promise<Res | null> => {
+  return fetchCommentApi<Res>(
+    `/api/comment?commentId=${id}`,
+    {
       method: 'DELETE',
-      cache: 'no-store',
-    });
-    const result: Res = (await res.json()) as Res;
-    return result;
-  } catch (err) {
-    console.error(err);
-    return { message: 'error' };
-  }
+    },
+    'Failed to delete comment:',
+  );
 };
