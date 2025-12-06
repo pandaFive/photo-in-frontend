@@ -123,7 +123,7 @@ const CommentList = (props: Props) => {
   const handleSaveClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     setFlagCommentChange(true);
-    if (id == 0) {
+    if (id === 0) {
       setFlagNewComment(true);
     }
   };

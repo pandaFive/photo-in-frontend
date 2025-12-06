@@ -28,7 +28,7 @@ type GroupType = {
   [key: string]: Task[];
 };
 
-const sortTasks = (list: string[], sortType) => {
+const sortTasks = (list: string[], sortType: string) => {
   if (sortType === 'time') {
     return list.toSorted(
       (a, b) => new Date(a).getTime() - new Date(b).getTime(),
@@ -54,7 +54,9 @@ const TaskList = (props: Props) => {
             : ((await getAllTasks()) as Task[]);
         setData(result);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to fetch task data:', err);
+        // エラー時は空配列を設定して画面が壊れるのを防ぐ
+        setData([]);
       }
     },
     [props.account.role, props.id], // getDataの依存関係
@@ -65,7 +67,9 @@ const TaskList = (props: Props) => {
       const result: Task[] = (await getNGTasks()) as Task[];
       setData(result);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch NG tasks:', err);
+      // エラー時は空配列を設定して画面が壊れるのを防ぐ
+      setData([]);
     }
   };
 
