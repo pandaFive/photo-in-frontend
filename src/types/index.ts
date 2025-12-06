@@ -52,3 +52,20 @@ export type GroupType = {
 };
 
 export type GroupKey = 'time' | 'area';
+
+// API共通型
+export interface ErrorResponse {
+  message: string;
+  code?: string;
+}
+
+export type ApiResult<T> = T | ErrorResponse;
+
+// API固有のレスポンス型
+export type CommentApiResponse = {
+  [key: string]: string;
+};
+
+export type WeekCompleteData = {
+  [key: string]: number;
+};

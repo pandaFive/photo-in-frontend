@@ -1,23 +1,17 @@
 'use server';
 
-interface ErrorResponse {
-  message: string;
-}
+import { WeekCompleteData, ApiResult } from '@/src/types';
 
-interface Completed {
-  [key: string]: number;
-}
-
-export async function getWeekComplete(): Promise<Completed | ErrorResponse> {
+export async function getWeekComplete(): Promise<ApiResult<WeekCompleteData>> {
   const res = await fetch(`${process.env.API_HOST}/completed-data`, {
     next: { revalidate: 300 }, // 5分ごとに再検証
   });
 
   if (res.ok) {
-    const result: Completed = (await res.json()) as Completed;
+    const result: WeekCompleteData = (await res.json()) as WeekCompleteData;
     return result;
   } else {
-    const errors: ErrorResponse = (await res.json()) as ErrorResponse;
+    const errors = (await res.json()) as ApiResult<WeekCompleteData>;
     return errors;
   }
 }

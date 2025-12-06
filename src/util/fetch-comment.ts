@@ -1,5 +1,4 @@
-import { Res } from '../app/api/comment/route';
-import { Comment } from '../types';
+import { Comment, CommentApiResponse } from '@/src/types';
 
 /**
  * コメントAPI用の共通fetch関数
@@ -77,8 +76,8 @@ export const fetchPutComment = async (
  * @param id - コメントID
  * @returns 削除結果、エラー時はnull
  */
-export const fetchDeleteComment = async (id: number): Promise<Res | null> => {
-  return fetchCommentApi<Res>(
+export const fetchDeleteComment = async (id: number): Promise<CommentApiResponse | null> => {
+  return fetchCommentApi<CommentApiResponse>(
     `/api/comment?commentId=${id}`,
     {
       method: 'DELETE',

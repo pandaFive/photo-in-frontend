@@ -2,11 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import { Comment } from '@/src/types';
-
-export type Res = {
-  [key: string]: string;
-};
+import { Comment, CommentApiResponse } from '@/src/types';
 
 type Body = {
   id: number;
@@ -83,7 +79,7 @@ export const DELETE = async (request: NextRequest) => {
     });
 
     if (res.ok) {
-      const result: Res = (await res.json()) as Res;
+      const result: CommentApiResponse = (await res.json()) as CommentApiResponse;
       return NextResponse.json(result);
     } else {
       return NextResponse.json({});
