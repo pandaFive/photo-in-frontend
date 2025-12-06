@@ -1,7 +1,7 @@
 'use client';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Button, Box } from '@mui/material';
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 
 import EmptySendDialog from '../EmptySendDialog';
 import IncorrectUploadDialog from '../IncorrectUploadDialog';
@@ -24,33 +24,50 @@ const UploadButton = (props: Props) => {
     setIncorrectDialogOpen(!incorrectDialogOpen);
   };
 
-  const selectedFileArray: File[] = useMemo(() => {
-    return inputFiles ? [...Array.from(inputFiles)] : [];
-  }, [inputFiles]);
-
   const changeUploadFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const target: HTMLInputElement = event.target;
     const files: FileList = target.files ? target.files : new FileList();
 
-    if (!files) return;
-    if (!inputFileRef.current?.files) return;
-    const newFileArray = [...selectedFileArray, ...Array.from(files)].filter(
-      (file, index, self) =>
-        self.findIndex((f) => f.name === file.name) === index,
+    if (!files || !inputFileRef.current?.files) return;
+
+    // Setを使用して重複チェックをO(n)に最適化
+    const fileNameSet = new Set<string>();
+    const uniqueFiles: File[] = [];
+
+    // 既存ファイル
+    inputFiles.forEach((file) => {
+      if (!fileNameSet.has(file.name)) {
+        fileNameSet.add(file.name);
+        uniqueFiles.push(file);
+      }
+    });
+
+    // 新規ファイル
+    Array.from(files).forEach((file) => {
+      if (!fileNameSet.has(file.name)) {
+        fileNameSet.add(file.name);
+        uniqueFiles.push(file);
+      }
+    });
+
+    // エリア名フィルタリング - Setで高速化
+    const areaNameSet = new Set(props.areaNames);
+    const filteredFiles = uniqueFiles.filter((file) =>
+      Array.from(areaNameSet).some((area) => file.name.includes(area))
     );
-    const filteredFileArray = newFileArray.filter((file) =>
-      props.areaNames.some((area) => file.name.includes(area)),
-    );
+
     const dt = new DataTransfer();
-    filteredFileArray.forEach((file) => dt.items.add(file));
+    filteredFiles.forEach((file) => dt.items.add(file));
     inputFileRef.current.files = dt.files;
     setInputFiles(Array.from(dt.files));
 
-    // newFileArray と filteredFileArrayの長さが異なるときに無効であるというmessageを表示する
-    if (newFileArray.length !== filteredFileArray.length) {
+    // 無効なファイルがあった場合にメッセージを表示
+    if (uniqueFiles.length !== filteredFiles.length) {
       toggleIncorrectOpen();
     }
   };
+
+  const selectedFileArray = inputFiles;
 
   const handleDelete = (index: number) => {
     if (!inputFileRef.current?.files) return;
