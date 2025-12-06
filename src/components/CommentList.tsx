@@ -22,6 +22,7 @@ import {
   GridSlots,
 } from '@mui/x-data-grid';
 import * as React from 'react';
+import { useMemo, useCallback } from 'react';
 
 import { AccountData } from '../types';
 import { Comment } from '../types';
@@ -125,45 +126,48 @@ const CommentList = (props: Props) => {
   const role: string = props.account.role;
   const name: string = props.account.name;
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = useCallback((
     params,
     event,
   ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
     }
-  };
+  }, []);
 
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
+  const handleEditClick = useCallback((id: GridRowId) => () => {
+    setRowModesModel((prev) => ({ ...prev, [id]: { mode: GridRowModes.Edit } }));
+  }, []);
 
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  const handleSaveClick = useCallback((id: GridRowId) => () => {
+    setRowModesModel((prev) => ({ ...prev, [id]: { mode: GridRowModes.View } }));
     setFlagCommentChange(true);
     if (id === 0) {
       setFlagNewComment(true);
     }
-  };
+  }, []);
 
-  const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.id !== id));
+  const handleDeleteClick = useCallback((id: GridRowId) => () => {
+    setRows((prev) => prev.filter((row) => row.id !== id));
     fetchDeleteComment(id as number)
       .then()
-      .catch((err) => console.error(err));
-  };
+      .catch((err) => console.error('Failed to delete comment:', err));
+  }, []);
 
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
+  const handleCancelClick = useCallback((id: GridRowId) => () => {
+    setRowModesModel((prev) => ({
+      ...prev,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
+    }));
 
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
-    }
-  };
+    setRows((prev) => {
+      const editedRow = prev.find((row) => row.id === id);
+      if (editedRow?.isNew) {
+        return prev.filter((row) => row.id !== id);
+      }
+      return prev;
+    });
+  }, []);
 
   /**
    * コメントをAPIに保存する（新規作成または更新）
@@ -223,7 +227,8 @@ const CommentList = (props: Props) => {
     setRowModesModel(newRowModesModel);
   };
 
-  const columns: GridColDef[] = [
+  // columns定義をメモ化して不要な再レンダリングを防ぐ
+  const columns: GridColDef[] = useMemo(() => [
     { field: 'name', headerName: 'Name', width: 180, editable: false },
     {
       field: 'role',
@@ -296,7 +301,7 @@ const CommentList = (props: Props) => {
         ];
       },
     },
-  ];
+  ], [rowModesModel, handleSaveClick, handleCancelClick, handleEditClick, handleDeleteClick]);
 
   return (
     <Box
