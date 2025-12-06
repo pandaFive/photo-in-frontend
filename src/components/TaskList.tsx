@@ -18,6 +18,7 @@ import { Task } from '@/src/types';
 import { getMemberAssignTask } from '@/src/util/actions/get-member-tasks';
 import { getAllTasks, getNGTasks } from '@/src/util/actions/get-tasks';
 import { grouping } from '@/src/util/grouping';
+import { useMemo } from 'react';
 
 type Props = {
   id: number;
@@ -38,8 +39,6 @@ const TaskList = (props: Props) => {
   const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
   const [dataType, setDataType] = useState<string>('active');
-  const [section, setSection] = useState<string[]>([]);
-  const [mutateData, setMutateData] = useState<GroupType>({});
 
   const getData = useCallback(
     async () => {
@@ -92,17 +91,21 @@ const TaskList = (props: Props) => {
     }
   };
 
-  useEffect(() => {
-    setMutateData(() => grouping(data, sortType));
+  // dataとsortTypeからmutateDataを計算（メモ化）
+  const mutateData = useMemo(() => {
+    return grouping(data, sortType);
   }, [data, sortType]);
 
-  useEffect(() => {
-    setSection(() => sortTasks(Object.keys(mutateData), sortType));
+  // mutateDataとsortTypeからsectionを計算（メモ化）
+  const section = useMemo(() => {
+    return sortTasks(Object.keys(mutateData), sortType);
   }, [mutateData, sortType]);
 
+  // 初回マウント時のみデータ取得
   useEffect(() => {
     onUpdate();
-  }, [onUpdate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Box
