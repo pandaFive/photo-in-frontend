@@ -4,7 +4,7 @@ export const getMemberAssignTask = async (id: string): Promise<Task[]> => {
   try {
     const res = await fetch(`/api/account/${id}/tasks`, {
       method: 'GET',
-      cache: 'no-store',
+      next: { revalidate: 60 }, // 1分ごとに再検証
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;

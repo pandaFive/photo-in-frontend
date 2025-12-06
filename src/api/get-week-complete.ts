@@ -10,7 +10,7 @@ interface Completed {
 
 export async function getWeekComplete(): Promise<Completed | ErrorResponse> {
   const res = await fetch(`${process.env.API_HOST}/completed-data`, {
-    cache: 'no-store',
+    next: { revalidate: 300 }, // 5分ごとに再検証
   });
 
   if (res.ok) {

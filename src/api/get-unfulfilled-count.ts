@@ -6,7 +6,7 @@ interface ErrorResponse {
 
 export async function getUnfulfilledCount(): Promise<number | ErrorResponse> {
   const res = await fetch(`${process.env.API_HOST}/unfulfilled-count`, {
-    cache: 'no-store',
+    next: { revalidate: 60 }, // 1分ごとに再検証
   });
 
   if (res.ok) {

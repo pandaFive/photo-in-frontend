@@ -4,7 +4,7 @@ export const getAllTasks = async (): Promise<Task[]> => {
   try {
     const res = await fetch(`/api/tasks/all?type=all`, {
       method: 'GET',
-      cache: 'no-store',
+      next: { revalidate: 60 }, // 1分ごとに再検証
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;
@@ -18,7 +18,7 @@ export const getNGTasks = async (): Promise<Task[]> => {
   try {
     const res = await fetch(`/api/tasks/ng`, {
       method: 'GET',
-      cache: 'no-store',
+      next: { revalidate: 60 }, // 1分ごとに再検証
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;

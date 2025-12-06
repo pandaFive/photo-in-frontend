@@ -10,7 +10,7 @@ export async function getAccountStatus(): Promise<
   MemberStatus[] | ErrorResponse
 > {
   const res = await fetch(`${process.env.API_HOST}/accounts`, {
-    cache: 'no-store',
+    next: { revalidate: 300 }, // 5分ごとに再検証
   });
 
   if (res.ok) {
