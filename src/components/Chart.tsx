@@ -55,9 +55,9 @@ const Chart = () => {
         const datesForPastWeek: string[] = getDatesForPastWeek();
 
         // データの変換（副作用なし）
-        const newData: Data[] = datesForPastWeek.map((ele) => {
-          const amount = response[ele] ? (response[ele] as number) : 0;
-          return createData(ele, amount);
+        const newData: Data[] = datesForPastWeek.map((dateString) => {
+          const amount = response[dateString] ? (response[dateString] as number) : 0;
+          return createData(dateString, amount);
         });
 
         // データから最大値を計算
