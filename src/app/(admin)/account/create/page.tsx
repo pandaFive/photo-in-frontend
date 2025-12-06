@@ -9,21 +9,61 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
 
 import AreaListCheck from '@/src/components/AreaListCheck';
 import RoleRadioButton from '@/src/components/RoleRadioButton';
 import { singUpAction } from '@/src/util/actions/signUp';
 
 const AccountCreate = () => {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const checkedValues = Array.from(
-      document.querySelectorAll('input[name="option"]:checked'),
-    ).map((checkbox) => ('value' in checkbox ? checkbox.value : ''));
+    setError(null);
 
     const data = new FormData(event.currentTarget);
+
+    // バリデーション
+    const name = data.get('name');
+    const password = data.get('password');
+    const capacity = data.get('capacity');
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      setError('アカウント名を入力してください');
+      return;
+    }
+
+    if (!password || typeof password !== 'string' || password.length < 8) {
+      setError('パスワードは8文字以上で入力してください');
+      return;
+    }
+
+    if (!capacity || Number(capacity) <= 0) {
+      setError('キャパシティは1以上を入力してください');
+      return;
+    }
+
+    // FormDataから全てのチェックボックスの値を取得（React的な方法）
+    const checkedValues = data.getAll('option').filter((value) => value !== '');
+
+    if (checkedValues.length === 0) {
+      setError('少なくとも1つのエリアを選択してください');
+      return;
+    }
+
     data.append('area', JSON.stringify(checkedValues));
-    void singUpAction(data);
+
+    setIsSubmitting(true);
+    try {
+      await singUpAction(data);
+    } catch (err) {
+      setError('アカウント作成に失敗しました');
+      console.error('Account creation failed:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return (
     <Box
@@ -51,6 +91,11 @@ const AccountCreate = () => {
           }}
         >
           <Typography variant="h4">Create New Account</Typography>
+          {error && (
+            <Typography color="error" sx={{ mt: 2 }}>
+              {error}
+            </Typography>
+          )}
           <Box
             component="form"
             noValidate
@@ -131,12 +176,13 @@ const AccountCreate = () => {
               <RoleRadioButton />
             </Box>
             <Button
+              disabled={isSubmitting}
               size="medium"
               sx={{ mt: 3, mb: 2 }}
               type="submit"
               variant="contained"
             >
-              新規作成
+              {isSubmitting ? '作成中...' : '新規作成'}
             </Button>
           </Box>
         </Container>

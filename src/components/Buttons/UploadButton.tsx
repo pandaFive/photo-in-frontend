@@ -61,25 +61,30 @@ const UploadButton = (props: Props) => {
   };
 
   const sendData = async (): Promise<void> => {
-    if (!inputFileRef.current?.files) {
-      throw new Error('No file selected');
+    if (!inputFileRef.current?.files || inputFileRef.current.files.length === 0) {
+      toggledSendOpen();
+      return;
     }
 
-    const file: File = inputFileRef.current.files[0]
-      ? inputFileRef.current.files[0]
-      : new File(['foo'], 'foo.txt');
+    const files = Array.from(inputFileRef.current.files);
 
-    if (file.name === 'foo.txt') {
-      toggledSendOpen();
-    } else {
+    // 全てのファイルをアップロード
+    for (const file of files) {
       const formData = new FormData();
       formData.append('file', file);
 
-      await fetch(`/api/aws`, {
+      const response = await fetch(`/api/aws`, {
         method: 'POST',
         body: formData,
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to upload ${file.name}: ${error.error || 'Unknown error'}`);
+      }
     }
+
+    // アップロード成功後、ファイルリストをクリア
     const dt = new DataTransfer();
     inputFileRef.current.files = dt.files;
     setInputFiles(Array.from(dt.files));
@@ -88,7 +93,11 @@ const UploadButton = (props: Props) => {
   const onSend = () => {
     sendData()
       .then()
-      .catch((e) => console.error(e));
+      .catch((error) => {
+        console.error('Upload failed:', error);
+        // TODO: ユーザーにエラーを表示するダイアログを追加
+        alert(`アップロードに失敗しました: ${error.message}`);
+      });
   };
 
   return (
