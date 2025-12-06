@@ -23,22 +23,18 @@ type Props = {
 };
 
 const MemberCard = (props: Props) => {
-  const onDelete = () => {
-    const confirmed = confirm(`${props.member.name}を削除しますか？`);
+  const onDelete = async () => {
+    if (!confirm(`${props.member.name}を削除しますか？`)) {
+      return;
+    }
 
-    if (confirmed) {
-      const fetchDelete = async () => {
-        try {
-          await fetch(`/api/account/${props.member.id}`, {
-            method: 'DELETE',
-          });
-          props.handleDelete(props.member.id);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
-      void fetchDelete();
+    try {
+      await fetch(`/api/account/${props.member.id}`, {
+        method: 'DELETE',
+      });
+      props.handleDelete(props.member.id);
+    } catch (err) {
+      console.error('Failed to delete member:', err);
     }
   };
 
