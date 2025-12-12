@@ -19,6 +19,7 @@ type Props = {
   url: string;
   date: string;
   reload: (newDataType: string) => void;
+  reloadCurrent: () => void;
 };
 
 const MemberDetail = (props: Props) => {
@@ -26,14 +27,14 @@ const MemberDetail = (props: Props) => {
     await fetch(`/api/task/${String(props.id)}/ng`, {
       method: 'PUT',
     });
-    props.reload('active');
+    props.reloadCurrent();
   };
 
   const changeComplete = async () => {
     await fetch(`/api/task/${String(props.id)}/complete`, {
       method: 'PUT',
     });
-    props.reload('active');
+    props.reloadCurrent();
   };
 
   const onNG = (): void => {
@@ -63,7 +64,7 @@ const MemberDetail = (props: Props) => {
           cycleId={props.cycleId}
         />
       )}
-      <BasicButton onClick={onComplete} str="Complete" />
+      <BasicButton onClick={onComplete} str="完了" />
       <OutlinedButton onClick={onNG} str="NG" />
     </AccordionDetails>
   );

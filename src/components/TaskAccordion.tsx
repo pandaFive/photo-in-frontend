@@ -20,6 +20,7 @@ type Props = {
   type: string;
   dataType: string;
   reload: (newDataType: string) => void;
+  reloadCurrent: () => void;
 };
 
 const TaskAccordion = (props: Props) => {
@@ -126,6 +127,7 @@ const TaskAccordion = (props: Props) => {
             id={String(props.task.history_id)}
             isLoaded={loaded}
             reload={props.reload}
+            reloadCurrent={props.reloadCurrent}
             url={fileUrl}
           />
         ) : (
@@ -138,6 +140,7 @@ const TaskAccordion = (props: Props) => {
             id={String(props.task.id)}
             isLoaded={loaded}
             reload={props.reload}
+            reloadCurrent={props.reloadCurrent}
             url={fileUrl}
           />
         )}

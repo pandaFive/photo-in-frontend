@@ -48,6 +48,7 @@ describe('MemberDetail', () => {
     url: 'https://example.com',
     date: '2023-01-01',
     reload: jest.fn(),
+    reloadCurrent: jest.fn(),
   };
 
   it('renders correctly when loaded', () => {
@@ -56,7 +57,7 @@ describe('MemberDetail', () => {
     expect(screen.getByText('Open File in New Tab')).toBeInTheDocument();
     expect(screen.getByText('振り分け日時：2023-01-01')).toBeInTheDocument();
     expect(screen.getByTestId('comment-list')).toBeInTheDocument();
-    expect(screen.getByText('Complete')).toBeInTheDocument();
+    expect(screen.getByText('完了')).toBeInTheDocument();
     expect(screen.getByText('NG')).toBeInTheDocument();
   });
 
@@ -66,16 +67,16 @@ describe('MemberDetail', () => {
     expect(screen.getByTestId('load-circle')).toBeInTheDocument();
   });
 
-  it('calls changeComplete when Complete button is clicked', async () => {
+  it('calls changeComplete when 完了 button is clicked', async () => {
     render(<MemberDetail {...mockProps} />);
 
-    fireEvent.click(screen.getByText('Complete'));
+    fireEvent.click(screen.getByText('完了'));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith('/api/task/1/complete', {
         method: 'PUT',
       });
-      expect(mockProps.reload).toHaveBeenCalledWith('active');
+      expect(mockProps.reloadCurrent).toHaveBeenCalled();
     });
   });
 
@@ -88,7 +89,7 @@ describe('MemberDetail', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/task/1/ng', {
         method: 'PUT',
       });
-      expect(mockProps.reload).toHaveBeenCalledWith('active');
+      expect(mockProps.reloadCurrent).toHaveBeenCalled();
     });
   });
 });

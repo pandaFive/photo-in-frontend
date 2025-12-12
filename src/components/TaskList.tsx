@@ -36,7 +36,7 @@ const sortTasks = (list: string[], sortType: string) => {
 const TaskList = (props: Props) => {
   const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
-  const { data: fetchedData, dataType, isLoading, error, changeDataType } =
+  const { data: fetchedData, dataType, isLoading, error, changeDataType, reloadCurrent } =
     useTaskListData({ account: props.account, id: props.id });
 
   const onChangeType = useCallback((type: string) => {
@@ -165,6 +165,7 @@ const TaskList = (props: Props) => {
                   index={index}
                   key={task.id}
                   reload={onChangeDataType}
+                  reloadCurrent={reloadCurrent}
                   task={task}
                   type={props.account.role}
                 />
