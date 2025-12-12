@@ -1,6 +1,6 @@
 'use server';
 
-import { MemberStatus, ApiResult } from '@/src/types';
+import { ErrorResponse, MemberStatus, ApiResult } from '@/src/types';
 
 export async function getAccountStatus(): Promise<ApiResult<MemberStatus[]>> {
   const res = await fetch(`${process.env.API_HOST}/accounts`, {
@@ -8,10 +8,10 @@ export async function getAccountStatus(): Promise<ApiResult<MemberStatus[]>> {
   });
 
   if (res.ok) {
-    const result: MemberStatus[] = (await res.json()) as MemberStatus[];
-    return result;
+    const result = (await res.json()) as unknown;
+    return result as MemberStatus[];
   } else {
-    const errors: ErrorResponse = (await res.json()) as ErrorResponse;
-    return errors;
+    const errors = (await res.json()) as unknown;
+    return errors as ErrorResponse;
   }
 }

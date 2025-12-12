@@ -12,9 +12,9 @@ import {
   Chip,
 } from '@mui/material';
 
+import CircleRate from '@/src/components/CircleRate';
 import { MemberStatus } from '@/src/types';
 import { formatIsoToYYYYMMDD } from '@/src/util/format-date';
-import CircleRate from '@/src/components/CircleRate';
 
 type Props = {
   member: MemberStatus;
@@ -88,7 +88,13 @@ const MemberCard = (props: Props) => {
             </Box>
           </CardContent>
           <CardActions>
-            <Button onClick={onDelete} size="small" variant="outlined">
+            <Button
+              onClick={() => {
+                void onDelete();
+              }}
+              size="small"
+              variant="outlined"
+            >
               削除
             </Button>
           </CardActions>

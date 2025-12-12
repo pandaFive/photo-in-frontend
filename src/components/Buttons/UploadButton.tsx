@@ -96,8 +96,15 @@ const UploadButton = (props: Props) => {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(`Failed to upload ${file.name}: ${error.error || 'Unknown error'}`);
+        const errorBody = (await response.json()) as unknown;
+        const errorMessage =
+          typeof errorBody === 'object' &&
+          errorBody !== null &&
+          'error' in errorBody &&
+          typeof (errorBody as { error?: unknown }).error === 'string'
+            ? (errorBody as { error?: string }).error
+            : 'Unknown error';
+        throw new Error(`Failed to upload ${file.name}: ${errorMessage}`);
       }
     }
 
@@ -110,10 +117,12 @@ const UploadButton = (props: Props) => {
   const onSend = () => {
     sendData()
       .then()
-      .catch((error) => {
+      .catch((error: unknown) => {
+        const message =
+          error instanceof Error ? error.message : 'Unknown error occurred';
         console.error('Upload failed:', error);
         // TODO: ユーザーにエラーを表示するダイアログを追加
-        alert(`アップロードに失敗しました: ${error.message}`);
+        alert(`アップロードに失敗しました: ${message}`);
       });
   };
 
