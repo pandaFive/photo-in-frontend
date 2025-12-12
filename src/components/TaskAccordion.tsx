@@ -7,6 +7,7 @@ import {
   Grid,
 } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
+import { memo } from 'react';
 
 import AdminDetail from '@/src/components/Details/AdminDetail';
 import MemberDetail from '@/src/components/Details/MemberDetail';
@@ -145,4 +146,4 @@ const TaskAccordion = (props: Props) => {
   );
 };
 
-export default TaskAccordion;
+export default memo(TaskAccordion);

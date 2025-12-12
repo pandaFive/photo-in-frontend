@@ -38,6 +38,7 @@ const TaskList = (props: Props) => {
   const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
   const [dataType, setDataType] = useState<string>('active');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const getData = useCallback(
     async () => {
@@ -51,12 +52,14 @@ const TaskList = (props: Props) => {
         console.error('Failed to fetch task data:', err);
         // エラー時は空配列を設定して画面が壊れるのを防ぐ
         setData([]);
+      } finally {
+        setIsLoading(false);
       }
     },
     [props.account.role, props.id], // getDataの依存関係
   );
 
-  const getNG = async () => {
+  const getNG = useCallback(async () => {
     try {
       const result = await getNGTasks();
       setData(result);
@@ -64,8 +67,10 @@ const TaskList = (props: Props) => {
       console.error('Failed to fetch NG tasks:', err);
       // エラー時は空配列を設定して画面が壊れるのを防ぐ
       setData([]);
+    } finally {
+        setIsLoading(false);
     }
-  };
+  }, []);
 
   const onUpdate = useCallback(() => {
     getData()
@@ -73,22 +78,21 @@ const TaskList = (props: Props) => {
       .catch((e) => console.error(e));
   }, [getData]);
 
-  const onChangeType = (type: string) => {
-    setSortType(() => type);
-  };
+  const onChangeType = useCallback((type: string) => {
+    setSortType(type);
+  }, []);
 
-  const onChangeDataType = (newDataType: string) => {
-    setDataType(newDataType);
-    if (newDataType === 'NG') {
-      getNG()
+  const onChangeDataType = useCallback(
+    (newDataType: string) => {
+      setDataType(newDataType);
+      setIsLoading(true);
+      const fetcher = newDataType === 'NG' ? getNG : getData;
+      fetcher()
         .then()
         .catch((e) => console.error(e));
-    } else if (newDataType === 'active') {
-      getData()
-        .then()
-        .catch((e) => console.error(e));
-    }
-  };
+    },
+    [getData, getNG],
+  );
 
   // dataとsortTypeからmutateDataを計算（メモ化）
   const mutateData = useMemo(() => {
@@ -177,7 +181,7 @@ const TaskList = (props: Props) => {
             <></>
           )}
         </Box>
-        {data.length === 0 ? (
+        {isLoading ? (
           <LoadCircle />
         ) : (
           section?.map((sectionName: string) => (
