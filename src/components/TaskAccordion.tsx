@@ -6,11 +6,11 @@ import {
   Divider,
   Grid,
 } from '@mui/material';
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { AccountData, Comment, Task } from '@/src/types';
 import AdminDetail from '@/src/components/Details/AdminDetail';
 import MemberDetail from '@/src/components/Details/MemberDetail';
+import { AccountData, Comment, Task } from '@/src/types';
 
 type Props = {
   account: AccountData;

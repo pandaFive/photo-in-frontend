@@ -104,7 +104,7 @@ export const POST = async (request: Request) => {
     };
 
     const command = new PutObjectCommand(uploadParams);
-    const uploadResult = await s3Client.send(command);
+    await s3Client.send(command);
 
     // タスク作成
     await postTaskCreate(name);

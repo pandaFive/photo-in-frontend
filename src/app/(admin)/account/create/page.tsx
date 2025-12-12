@@ -99,7 +99,9 @@ const AccountCreate = () => {
           <Box
             component="form"
             noValidate
-            onSubmit={handleSubmit}
+            onSubmit={(event) => {
+              void handleSubmit(event);
+            }}
             sx={{ mt: 2 }}
           >
             <Box

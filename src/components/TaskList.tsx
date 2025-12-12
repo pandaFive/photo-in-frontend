@@ -9,16 +9,15 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
-import { AccountData, GroupType } from '@/src/types';
+import { AccountData } from '@/src/types';
 import { Task } from '@/src/types';
 import { getMemberAssignTask } from '@/src/util/actions/get-member-tasks';
 import { getAllTasks, getNGTasks } from '@/src/util/actions/get-tasks';
 import { grouping } from '@/src/util/grouping';
-import { useMemo } from 'react';
 
 type Props = {
   id: number;
@@ -43,10 +42,10 @@ const TaskList = (props: Props) => {
   const getData = useCallback(
     async () => {
       try {
-        const result: Task[] =
+        const result =
           props.account.role === 'member'
-            ? ((await getMemberAssignTask(String(props.id))) as Task[])
-            : ((await getAllTasks()) as Task[]);
+            ? await getMemberAssignTask(String(props.id))
+            : await getAllTasks();
         setData(result);
       } catch (err) {
         console.error('Failed to fetch task data:', err);
@@ -59,7 +58,7 @@ const TaskList = (props: Props) => {
 
   const getNG = async () => {
     try {
-      const result: Task[] = (await getNGTasks()) as Task[];
+      const result = await getNGTasks();
       setData(result);
     } catch (err) {
       console.error('Failed to fetch NG tasks:', err);
