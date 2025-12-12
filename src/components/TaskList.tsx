@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRef } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
@@ -35,48 +36,47 @@ const sortTasks = (list: string[], sortType: string) => {
 };
 
 const TaskList = (props: Props) => {
+  const requestIdRef = useRef(0);
   const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
   const [dataType, setDataType] = useState<string>('active');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const getData = useCallback(
-    async () => {
+  const fetchTasks = useCallback(
+    async (targetType: 'active' | 'NG') => {
+      const currentRequestId = requestIdRef.current + 1;
+      requestIdRef.current = currentRequestId;
+      setIsLoading(true);
+      setError(null);
+
       try {
         const result =
-          props.account.role === 'member'
-            ? await getMemberAssignTask(String(props.id))
-            : await getAllTasks();
+          targetType === 'NG'
+            ? await getNGTasks()
+            : props.account.role === 'member'
+              ? await getMemberAssignTask(String(props.id))
+              : await getAllTasks();
+
+        if (requestIdRef.current !== currentRequestId) {
+          return;
+        }
         setData(result);
       } catch (err) {
+        if (requestIdRef.current !== currentRequestId) {
+          return;
+        }
         console.error('Failed to fetch task data:', err);
-        // エラー時は空配列を設定して画面が壊れるのを防ぐ
+        setError('タスクの取得に失敗しました');
         setData([]);
       } finally {
-        setIsLoading(false);
+        if (requestIdRef.current === currentRequestId) {
+          setIsLoading(false);
+        }
       }
     },
-    [props.account.role, props.id], // getDataの依存関係
+    [props.account.role, props.id],
   );
-
-  const getNG = useCallback(async () => {
-    try {
-      const result = await getNGTasks();
-      setData(result);
-    } catch (err) {
-      console.error('Failed to fetch NG tasks:', err);
-      // エラー時は空配列を設定して画面が壊れるのを防ぐ
-      setData([]);
-    } finally {
-        setIsLoading(false);
-    }
-  }, []);
-
-  const onUpdate = useCallback(() => {
-    getData()
-      .then()
-      .catch((e) => console.error(e));
-  }, [getData]);
 
   const onChangeType = useCallback((type: string) => {
     setSortType(type);
@@ -85,13 +85,11 @@ const TaskList = (props: Props) => {
   const onChangeDataType = useCallback(
     (newDataType: string) => {
       setDataType(newDataType);
-      setIsLoading(true);
-      const fetcher = newDataType === 'NG' ? getNG : getData;
-      fetcher()
+      fetchTasks(newDataType === 'NG' ? 'NG' : 'active')
         .then()
         .catch((e) => console.error(e));
     },
-    [getData, getNG],
+    [fetchTasks],
   );
 
   // dataとsortTypeからmutateDataを計算（メモ化）
@@ -106,9 +104,10 @@ const TaskList = (props: Props) => {
 
   // 初回マウント時のみデータ取得
   useEffect(() => {
-    onUpdate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchTasks('active')
+      .then()
+      .catch((e) => console.error(e));
+  }, [fetchTasks]);
 
   return (
     <Box
@@ -131,6 +130,11 @@ const TaskList = (props: Props) => {
         }}
       >
         <Toolbar />
+        {error && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {error}
+          </Typography>
+        )}
         <Box
           sx={{
             display: 'flex',
