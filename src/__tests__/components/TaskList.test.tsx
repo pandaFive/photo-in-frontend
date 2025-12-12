@@ -85,7 +85,7 @@ describe('TaskList', () => {
     render(<TaskList id={1} account={mockMemberAccount} />);
 
     await waitFor(() => {
-      expect(mockGetMemberAssignTask).toHaveBeenCalledWith('1');
+      expect(mockGetMemberAssignTask).toHaveBeenCalledWith('1', expect.any(AbortSignal));
     });
   });
 
@@ -95,7 +95,7 @@ describe('TaskList', () => {
     render(<TaskList id={2} account={mockAdminAccount} />);
 
     await waitFor(() => {
-      expect(mockGetAllTasks).toHaveBeenCalled();
+      expect(mockGetAllTasks).toHaveBeenCalledWith(expect.any(AbortSignal));
     });
   });
 
@@ -108,7 +108,10 @@ describe('TaskList', () => {
     expect(screen.getByTestId('load-circle')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockGetMemberAssignTask).toHaveBeenCalled();
+      expect(mockGetMemberAssignTask).toHaveBeenCalledWith(
+        '1',
+        expect.any(AbortSignal),
+      );
     });
   });
 

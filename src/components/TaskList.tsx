@@ -10,15 +10,13 @@ import {
   Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRef } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
 import { AccountData } from '@/src/types';
 import { Task } from '@/src/types';
-import { getMemberAssignTask } from '@/src/util/actions/get-member-tasks';
-import { getAllTasks, getNGTasks } from '@/src/util/actions/get-tasks';
 import { grouping } from '@/src/util/grouping';
+import { useTaskListData } from '@/src/util/hooks/useTaskListData';
 
 type Props = {
   id: number;
@@ -36,47 +34,10 @@ const sortTasks = (list: string[], sortType: string) => {
 };
 
 const TaskList = (props: Props) => {
-  const requestIdRef = useRef(0);
   const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
-  const [dataType, setDataType] = useState<string>('active');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchTasks = useCallback(
-    async (targetType: 'active' | 'NG') => {
-      const currentRequestId = requestIdRef.current + 1;
-      requestIdRef.current = currentRequestId;
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const result =
-          targetType === 'NG'
-            ? await getNGTasks()
-            : props.account.role === 'member'
-              ? await getMemberAssignTask(String(props.id))
-              : await getAllTasks();
-
-        if (requestIdRef.current !== currentRequestId) {
-          return;
-        }
-        setData(result);
-      } catch (err) {
-        if (requestIdRef.current !== currentRequestId) {
-          return;
-        }
-        console.error('Failed to fetch task data:', err);
-        setError('タスクの取得に失敗しました');
-        setData([]);
-      } finally {
-        if (requestIdRef.current === currentRequestId) {
-          setIsLoading(false);
-        }
-      }
-    },
-    [props.account.role, props.id],
-  );
+  const { data: fetchedData, dataType, isLoading, error, changeDataType } =
+    useTaskListData({ account: props.account, id: props.id });
 
   const onChangeType = useCallback((type: string) => {
     setSortType(type);
@@ -84,12 +45,9 @@ const TaskList = (props: Props) => {
 
   const onChangeDataType = useCallback(
     (newDataType: string) => {
-      setDataType(newDataType);
-      fetchTasks(newDataType === 'NG' ? 'NG' : 'active')
-        .then()
-        .catch((e) => console.error(e));
+      changeDataType(newDataType === 'NG' ? 'NG' : 'active');
     },
-    [fetchTasks],
+    [changeDataType],
   );
 
   // dataとsortTypeからmutateDataを計算（メモ化）
@@ -102,12 +60,10 @@ const TaskList = (props: Props) => {
     return sortTasks(Object.keys(mutateData), sortType);
   }, [mutateData, sortType]);
 
-  // 初回マウント時のみデータ取得
+  // 取得データが変わったときのみローカルstateへ反映（派生計算のため）
   useEffect(() => {
-    fetchTasks('active')
-      .then()
-      .catch((e) => console.error(e));
-  }, [fetchTasks]);
+    setData(fetchedData);
+  }, [fetchedData]);
 
   return (
     <Box
