@@ -20,6 +20,7 @@ type Props = {
   type: string;
   dataType: string;
   reload: (newDataType: string) => void;
+  mutate: () => void;
 };
 
 const TaskAccordion = (props: Props) => {
@@ -125,6 +126,7 @@ const TaskAccordion = (props: Props) => {
             date={date.toLocaleDateString()}
             id={String(props.task.history_id)}
             isLoaded={loaded}
+            mutate={props.mutate}
             reload={props.reload}
             url={fileUrl}
           />
@@ -137,6 +139,7 @@ const TaskAccordion = (props: Props) => {
             date={date.toLocaleDateString()}
             id={String(props.task.id)}
             isLoaded={loaded}
+            mutate={props.mutate}
             reload={props.reload}
             url={fileUrl}
           />

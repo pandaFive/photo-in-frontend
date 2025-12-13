@@ -1,10 +1,14 @@
 import { Task } from '@/src/types';
 
-export const getMemberAssignTask = async (id: string): Promise<Task[]> => {
+export const getMemberAssignTask = async (
+  id: string,
+  signal?: AbortSignal,
+): Promise<Task[]> => {
   try {
     const res = await fetch(`/api/account/${id}/tasks`, {
       method: 'GET',
-      next: { revalidate: 60 }, // 1分ごとに再検証
+      signal,
+      cache: 'no-store',
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;

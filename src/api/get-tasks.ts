@@ -4,7 +4,7 @@ import { Task } from '../types';
 
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${process.env.API_HOST}/tasks?type=all`, {
-    next: { revalidate: 60 }, // 1分ごとに再検証
+    cache: 'no-store',
   });
 
   if (res.ok) {

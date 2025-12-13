@@ -9,15 +9,14 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
 import { AccountData } from '@/src/types';
 import { Task } from '@/src/types';
-import { getMemberAssignTask } from '@/src/util/actions/get-member-tasks';
-import { getAllTasks, getNGTasks } from '@/src/util/actions/get-tasks';
 import { grouping } from '@/src/util/grouping';
+import { useTaskListData } from '@/src/util/hooks/useTaskListData';
 
 type Props = {
   id: number;
@@ -35,48 +34,9 @@ const sortTasks = (list: string[], sortType: string) => {
 };
 
 const TaskList = (props: Props) => {
-  const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
-  const [dataType, setDataType] = useState<string>('active');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const getData = useCallback(
-    async () => {
-      try {
-        const result =
-          props.account.role === 'member'
-            ? await getMemberAssignTask(String(props.id))
-            : await getAllTasks();
-        setData(result);
-      } catch (err) {
-        console.error('Failed to fetch task data:', err);
-        // エラー時は空配列を設定して画面が壊れるのを防ぐ
-        setData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [props.account.role, props.id], // getDataの依存関係
-  );
-
-  const getNG = useCallback(async () => {
-    try {
-      const result = await getNGTasks();
-      setData(result);
-    } catch (err) {
-      console.error('Failed to fetch NG tasks:', err);
-      // エラー時は空配列を設定して画面が壊れるのを防ぐ
-      setData([]);
-    } finally {
-        setIsLoading(false);
-    }
-  }, []);
-
-  const onUpdate = useCallback(() => {
-    getData()
-      .then()
-      .catch((e) => console.error(e));
-  }, [getData]);
+  const { data, dataType, isLoading, error, changeDataType, mutate } =
+    useTaskListData({ account: props.account, id: props.id });
 
   const onChangeType = useCallback((type: string) => {
     setSortType(type);
@@ -84,15 +44,14 @@ const TaskList = (props: Props) => {
 
   const onChangeDataType = useCallback(
     (newDataType: string) => {
-      setDataType(newDataType);
-      setIsLoading(true);
-      const fetcher = newDataType === 'NG' ? getNG : getData;
-      fetcher()
-        .then()
-        .catch((e) => console.error(e));
+      changeDataType(newDataType === 'NG' ? 'NG' : 'active');
     },
-    [getData, getNG],
+    [changeDataType],
   );
+
+  const handleMutate = useCallback(() => {
+    void mutate();
+  }, [mutate]);
 
   // dataとsortTypeからmutateDataを計算（メモ化）
   const mutateData = useMemo(() => {
@@ -103,12 +62,6 @@ const TaskList = (props: Props) => {
   const section = useMemo(() => {
     return sortTasks(Object.keys(mutateData), sortType);
   }, [mutateData, sortType]);
-
-  // 初回マウント時のみデータ取得
-  useEffect(() => {
-    onUpdate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Box
@@ -131,6 +84,11 @@ const TaskList = (props: Props) => {
         }}
       >
         <Toolbar />
+        {error && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {error}
+          </Typography>
+        )}
         <Box
           sx={{
             display: 'flex',
@@ -204,6 +162,7 @@ const TaskList = (props: Props) => {
                   dataType={dataType}
                   index={index}
                   key={task.id}
+                  mutate={handleMutate}
                   reload={onChangeDataType}
                   task={task}
                   type={props.account.role}

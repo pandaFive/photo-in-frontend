@@ -33,6 +33,7 @@ const mockProps = {
   id: '123',
   dataType: 'OK',
   reload: jest.fn(),
+  mutate: jest.fn(),
 };
 
 describe('AdminDetail', () => {
@@ -62,8 +63,7 @@ describe('AdminDetail', () => {
     expect(screen.queryByText('再アサイン')).not.toBeInTheDocument();
   });
 
-  it('calls reload function when reassign button is clicked', async () => {
-    // global.fetch = jest.fn(() => Promise.resolve({ ok: true }));
+  it('calls mutate function when reassign button is clicked', async () => {
     global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
@@ -95,6 +95,6 @@ describe('AdminDetail', () => {
     expect(global.fetch).toHaveBeenCalledWith('/api/task/123/reassign', {
       method: 'PUT',
     });
-    expect(mockProps.reload).toHaveBeenCalledWith('NG');
+    expect(mockProps.mutate).toHaveBeenCalled();
   });
 });

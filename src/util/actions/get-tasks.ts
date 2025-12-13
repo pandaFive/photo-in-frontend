@@ -1,10 +1,11 @@
 import { Task } from '@/src/types';
 
-export const getAllTasks = async (): Promise<Task[]> => {
+export const getAllTasks = async (signal?: AbortSignal): Promise<Task[]> => {
   try {
     const res = await fetch(`/api/tasks/all?type=all`, {
       method: 'GET',
-      next: { revalidate: 60 }, // 1分ごとに再検証
+      signal,
+      cache: 'no-store',
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;
@@ -14,11 +15,12 @@ export const getAllTasks = async (): Promise<Task[]> => {
   }
 };
 
-export const getNGTasks = async (): Promise<Task[]> => {
+export const getNGTasks = async (signal?: AbortSignal): Promise<Task[]> => {
   try {
     const res = await fetch(`/api/tasks/ng`, {
       method: 'GET',
-      next: { revalidate: 60 }, // 1分ごとに再検証
+      signal,
+      cache: 'no-store',
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;
