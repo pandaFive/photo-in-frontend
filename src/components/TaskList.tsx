@@ -35,7 +35,7 @@ const sortTasks = (list: string[], sortType: string) => {
 
 const TaskList = (props: Props) => {
   const [sortType, setSortType] = useState<string>('time');
-  const { data, dataType, isLoading, error, changeDataType, reloadCurrent } =
+  const { data, dataType, isLoading, error, changeDataType, mutate } =
     useTaskListData({ account: props.account, id: props.id });
 
   const onChangeType = useCallback((type: string) => {
@@ -48,6 +48,10 @@ const TaskList = (props: Props) => {
     },
     [changeDataType],
   );
+
+  const handleMutate = useCallback(() => {
+    void mutate();
+  }, [mutate]);
 
   // dataとsortTypeからmutateDataを計算（メモ化）
   const mutateData = useMemo(() => {
@@ -158,8 +162,8 @@ const TaskList = (props: Props) => {
                   dataType={dataType}
                   index={index}
                   key={task.id}
+                  mutate={handleMutate}
                   reload={onChangeDataType}
-                  reloadCurrent={reloadCurrent}
                   task={task}
                   type={props.account.role}
                 />

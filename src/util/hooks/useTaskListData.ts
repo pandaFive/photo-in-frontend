@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
+import useSWR from 'swr';
 
 import { AccountData, Task } from '@/src/types';
-import { getMemberAssignTask } from '@/src/util/actions/get-member-tasks';
-import { getAllTasks, getNGTasks } from '@/src/util/actions/get-tasks';
+import { fetcher } from '@/src/util/swr/fetcher';
+import { SWR_KEYS } from '@/src/util/swr/keys';
 
 type DataType = 'active' | 'NG';
 
@@ -12,90 +13,45 @@ type Params = {
   initialType?: DataType;
 };
 
-export const useTaskListData = ({ account, id, initialType = 'active' }: Params) => {
-  const requestIdRef = useRef(0);
-  const abortRef = useRef<AbortController | null>(null);
-
-  const [data, setData] = useState<Task[]>([]);
+export const useTaskListData = ({
+  account,
+  id,
+  initialType = 'active',
+}: Params) => {
   const [dataType, setDataType] = useState<DataType>(initialType);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchTasks = useCallback(
-    async (targetType: DataType) => {
-      const controller = new AbortController();
-      if (abortRef.current) {
-        abortRef.current.abort();
-      }
-      abortRef.current = controller;
+  const swrKey =
+    dataType === 'NG'
+      ? SWR_KEYS.ngTasks
+      : account.role === 'member'
+        ? SWR_KEYS.memberTasks(String(id))
+        : SWR_KEYS.allTasks;
 
-      const currentRequestId = requestIdRef.current + 1;
-      requestIdRef.current = currentRequestId;
+  const {
+    data = [],
+    error,
+    isLoading,
+    mutate: boundMutate,
+  } = useSWR<Task[], Error>(swrKey, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 2000,
+  });
 
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const result =
-          targetType === 'NG'
-            ? await getNGTasks(controller.signal)
-            : account.role === 'member'
-              ? await getMemberAssignTask(String(id), controller.signal)
-              : await getAllTasks(controller.signal);
-
-        if (requestIdRef.current !== currentRequestId) {
-          return;
-        }
-        setData(result);
-        setDataType(targetType);
-      } catch (err) {
-        if (requestIdRef.current !== currentRequestId) {
-          return;
-        }
-        if (err instanceof DOMException && err.name === 'AbortError') {
-          return;
-        }
-        console.error('Failed to fetch task data:', err);
-        setError('タスクの取得に失敗しました');
-        setData([]);
-      } finally {
-        if (requestIdRef.current === currentRequestId) {
-          setIsLoading(false);
-        }
-      }
-    },
-    [account.role, id],
-  );
-
-  const changeDataType = useCallback(
-    (nextType: DataType) => {
-      if (nextType === dataType) return;
-      fetchTasks(nextType)
-        .then()
-        .catch((e) => console.error(e));
-    },
-    [dataType, fetchTasks],
-  );
+  const changeDataType = useCallback((nextType: DataType) => {
+    setDataType(nextType);
+  }, []);
 
   const reloadCurrent = useCallback(() => {
-    fetchTasks(dataType)
-      .then()
-      .catch((e) => console.error(e));
-  }, [dataType, fetchTasks]);
-
-  useEffect(() => {
-    fetchTasks(initialType)
-      .then()
-      .catch((e) => console.error(e));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchTasks, initialType, account.role, id]);
+    void boundMutate();
+  }, [boundMutate]);
 
   return {
     data,
     dataType,
     isLoading,
-    error,
+    error: error ? 'タスクの取得に失敗しました' : null,
     changeDataType,
     reloadCurrent,
+    mutate: boundMutate,
   };
 };

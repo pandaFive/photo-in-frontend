@@ -48,7 +48,7 @@ describe('MemberDetail', () => {
     url: 'https://example.com',
     date: '2023-01-01',
     reload: jest.fn(),
-    reloadCurrent: jest.fn(),
+    mutate: jest.fn(),
   };
 
   it('renders correctly when loaded', () => {
@@ -76,7 +76,7 @@ describe('MemberDetail', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/task/1/complete', {
         method: 'PUT',
       });
-      expect(mockProps.reloadCurrent).toHaveBeenCalled();
+      expect(mockProps.mutate).toHaveBeenCalled();
     });
   });
 
@@ -89,7 +89,7 @@ describe('MemberDetail', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/task/1/ng', {
         method: 'PUT',
       });
-      expect(mockProps.reloadCurrent).toHaveBeenCalled();
+      expect(mockProps.mutate).toHaveBeenCalled();
     });
   });
 });

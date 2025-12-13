@@ -26,13 +26,13 @@ const mockTask: Task = {
 };
 
 const mockReload = jest.fn();
-const mockReloadCurrent = jest.fn();
+const mockMutate = jest.fn();
 
 describe('TaskAccordion', () => {
   beforeEach(() => {
     mockFetch.mockClear();
     mockReload.mockClear();
-    mockReloadCurrent.mockClear();
+    mockMutate.mockClear();
   });
 
   test('renders TaskAccordion correctly', () => {
@@ -44,7 +44,7 @@ describe('TaskAccordion', () => {
         type="member"
         dataType="test"
         reload={mockReload}
-        reloadCurrent={mockReloadCurrent}
+        mutate={mockMutate}
       />,
     );
 
@@ -68,7 +68,7 @@ describe('TaskAccordion', () => {
         type="member"
         dataType="test"
         reload={mockReload}
-        reloadCurrent={mockReloadCurrent}
+        mutate={mockMutate}
       />,
     );
 
@@ -97,7 +97,7 @@ describe('TaskAccordion', () => {
         type="member"
         dataType="test"
         reload={mockReload}
-        reloadCurrent={mockReloadCurrent}
+        mutate={mockMutate}
       />,
     );
 
@@ -114,7 +114,7 @@ describe('TaskAccordion', () => {
         type="admin"
         dataType="test"
         reload={mockReload}
-        reloadCurrent={mockReloadCurrent}
+        mutate={mockMutate}
       />,
     );
 

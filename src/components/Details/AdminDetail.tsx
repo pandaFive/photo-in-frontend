@@ -17,7 +17,7 @@ type Props = {
   id: string;
   dataType: string;
   reload: (newDataType: string) => void;
-  reloadCurrent: () => void;
+  mutate: () => void;
 };
 
 const AdminDetail = (props: Props) => {
@@ -25,7 +25,7 @@ const AdminDetail = (props: Props) => {
     await fetch(`/api/task/${String(props.id)}/reassign`, {
       method: 'PUT',
     });
-    props.reloadCurrent();
+    props.mutate();
   };
 
   const onReassign = (): void => {

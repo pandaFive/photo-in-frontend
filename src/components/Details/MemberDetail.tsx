@@ -19,7 +19,7 @@ type Props = {
   url: string;
   date: string;
   reload: (newDataType: string) => void;
-  reloadCurrent: () => void;
+  mutate: () => void;
 };
 
 const MemberDetail = (props: Props) => {
@@ -27,14 +27,14 @@ const MemberDetail = (props: Props) => {
     await fetch(`/api/task/${String(props.id)}/ng`, {
       method: 'PUT',
     });
-    props.reloadCurrent();
+    props.mutate();
   };
 
   const changeComplete = async () => {
     await fetch(`/api/task/${String(props.id)}/complete`, {
       method: 'PUT',
     });
-    props.reloadCurrent();
+    props.mutate();
   };
 
   const onNG = (): void => {
