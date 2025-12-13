@@ -9,7 +9,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
@@ -34,9 +34,8 @@ const sortTasks = (list: string[], sortType: string) => {
 };
 
 const TaskList = (props: Props) => {
-  const [data, setData] = useState<Task[]>([]);
   const [sortType, setSortType] = useState<string>('time');
-  const { data: fetchedData, dataType, isLoading, error, changeDataType, reloadCurrent } =
+  const { data, dataType, isLoading, error, changeDataType, reloadCurrent } =
     useTaskListData({ account: props.account, id: props.id });
 
   const onChangeType = useCallback((type: string) => {
@@ -59,11 +58,6 @@ const TaskList = (props: Props) => {
   const section = useMemo(() => {
     return sortTasks(Object.keys(mutateData), sortType);
   }, [mutateData, sortType]);
-
-  // 取得データが変わったときのみローカルstateへ反映（派生計算のため）
-  useEffect(() => {
-    setData(fetchedData);
-  }, [fetchedData]);
 
   return (
     <Box

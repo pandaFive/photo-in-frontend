@@ -8,7 +8,7 @@ export const getMemberAssignTask = async (
     const res = await fetch(`/api/account/${id}/tasks`, {
       method: 'GET',
       signal,
-      next: { revalidate: 60 }, // 1分ごとに再検証
+      cache: 'no-store',
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;

@@ -5,7 +5,7 @@ export const getAllTasks = async (signal?: AbortSignal): Promise<Task[]> => {
     const res = await fetch(`/api/tasks/all?type=all`, {
       method: 'GET',
       signal,
-      next: { revalidate: 60 }, // 1分ごとに再検証
+      cache: 'no-store',
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;
@@ -20,7 +20,7 @@ export const getNGTasks = async (signal?: AbortSignal): Promise<Task[]> => {
     const res = await fetch(`/api/tasks/ng`, {
       method: 'GET',
       signal,
-      next: { revalidate: 60 }, // 1分ごとに再検証
+      cache: 'no-store',
     });
     const result: Task[] = (await res.json()) as Task[];
     return result;
