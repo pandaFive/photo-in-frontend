@@ -34,6 +34,7 @@ const mockProps = {
   dataType: 'OK',
   reload: jest.fn(),
   mutate: jest.fn(),
+  taskId: 123,
 };
 
 describe('AdminDetail', () => {

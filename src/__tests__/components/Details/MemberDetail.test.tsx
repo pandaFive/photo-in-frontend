@@ -49,6 +49,7 @@ describe('MemberDetail', () => {
     date: '2023-01-01',
     reload: jest.fn(),
     mutate: jest.fn(),
+    taskId: 1,
   };
 
   it('renders correctly when loaded', () => {

@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { memo } from 'react';
+import { KeyedMutator } from 'swr';
 
 import AdminDetail from '@/src/components/Details/AdminDetail';
 import MemberDetail from '@/src/components/Details/MemberDetail';
@@ -20,7 +21,8 @@ type Props = {
   type: string;
   dataType: string;
   reload: (newDataType: string) => void;
-  mutate: () => void;
+  mutate: KeyedMutator<Task[]>;
+  taskId: number;
 };
 
 const TaskAccordion = (props: Props) => {
@@ -128,6 +130,7 @@ const TaskAccordion = (props: Props) => {
             isLoaded={loaded}
             mutate={props.mutate}
             reload={props.reload}
+            taskId={props.taskId}
             url={fileUrl}
           />
         ) : (
@@ -141,6 +144,7 @@ const TaskAccordion = (props: Props) => {
             isLoaded={loaded}
             mutate={props.mutate}
             reload={props.reload}
+            taskId={props.taskId}
             url={fileUrl}
           />
         )}
