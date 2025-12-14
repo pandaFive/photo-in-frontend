@@ -49,10 +49,6 @@ const TaskList = (props: Props) => {
     [changeDataType],
   );
 
-  const handleMutate = useCallback(() => {
-    void mutate();
-  }, [mutate]);
-
   // dataとsortTypeからmutateDataを計算（メモ化）
   const mutateData = useMemo(() => {
     return grouping(data, sortType);
@@ -162,9 +158,10 @@ const TaskList = (props: Props) => {
                   dataType={dataType}
                   index={index}
                   key={task.id}
-                  mutate={handleMutate}
+                  mutate={mutate}
                   reload={onChangeDataType}
                   task={task}
+                  taskId={task.id}
                   type={props.account.role}
                 />
               ))}

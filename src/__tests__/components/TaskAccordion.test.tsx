@@ -45,6 +45,7 @@ describe('TaskAccordion', () => {
         dataType="test"
         reload={mockReload}
         mutate={mockMutate}
+        taskId={mockTask.id}
       />,
     );
 
@@ -69,6 +70,7 @@ describe('TaskAccordion', () => {
         dataType="test"
         reload={mockReload}
         mutate={mockMutate}
+        taskId={mockTask.id}
       />,
     );
 
@@ -98,6 +100,7 @@ describe('TaskAccordion', () => {
         dataType="test"
         reload={mockReload}
         mutate={mockMutate}
+        taskId={mockTask.id}
       />,
     );
 
@@ -115,6 +118,7 @@ describe('TaskAccordion', () => {
         dataType="test"
         reload={mockReload}
         mutate={mockMutate}
+        taskId={mockTask.id}
       />,
     );
 
