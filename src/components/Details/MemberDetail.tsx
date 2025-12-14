@@ -25,37 +25,39 @@ type Props = {
 
 const MemberDetail = (props: Props) => {
   const changeNG = async () => {
-    // 楽観的にUIから削除
-    void props.mutate(
-      (currentData) => currentData?.filter((task) => task.id !== props.taskId),
-      { revalidate: false },
+    await props.mutate(
+      async (currentData) => {
+        const res = await fetch(`/api/task/${String(props.id)}/ng`, {
+          method: 'PUT',
+        });
+        if (!res.ok) throw new Error('Failed to mark as NG');
+        return currentData?.filter((task) => task.id !== props.taskId);
+      },
+      {
+        optimisticData: (currentData) =>
+          currentData?.filter((task) => task.id !== props.taskId),
+        rollbackOnError: true,
+        revalidate: false,
+      },
     );
-
-    try {
-      await fetch(`/api/task/${String(props.id)}/ng`, {
-        method: 'PUT',
-      });
-      void props.mutate(); // 成功時にサーバーデータで確定
-    } catch (error) {
-      void props.mutate(); // 失敗時はロールバック
-    }
   };
 
   const changeComplete = async () => {
-    // 楽観的にUIから削除
-    void props.mutate(
-      (currentData) => currentData?.filter((task) => task.id !== props.taskId),
-      { revalidate: false },
+    await props.mutate(
+      async (currentData) => {
+        const res = await fetch(`/api/task/${String(props.id)}/complete`, {
+          method: 'PUT',
+        });
+        if (!res.ok) throw new Error('Failed to mark as complete');
+        return currentData?.filter((task) => task.id !== props.taskId);
+      },
+      {
+        optimisticData: (currentData) =>
+          currentData?.filter((task) => task.id !== props.taskId),
+        rollbackOnError: true,
+        revalidate: false,
+      },
     );
-
-    try {
-      await fetch(`/api/task/${String(props.id)}/complete`, {
-        method: 'PUT',
-      });
-      void props.mutate(); // 成功時にサーバーデータで確定
-    } catch (error) {
-      void props.mutate(); // 失敗時はロールバック
-    }
   };
 
   const onNG = (): void => {

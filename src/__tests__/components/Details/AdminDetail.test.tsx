@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AdminDetail from '@/src/components/Details/AdminDetail';
 
@@ -22,22 +22,33 @@ jest.mock('@/src/components/LoadCircle', () => {
   };
 });
 
-// テストで使用するプロップス
-const mockProps = {
-  account: { id: 1, name: 'Test User', area: [], role: 'admin', token: '' },
-  comments: [],
-  cycleId: 1,
-  isLoaded: true,
-  url: 'https://example.com',
-  date: '2023-01-01',
-  id: '123',
-  dataType: 'OK',
-  reload: jest.fn(),
-  mutate: jest.fn(),
-  taskId: 123,
-};
-
 describe('AdminDetail', () => {
+  // mutateモック: 第一引数が関数の場合は実行してfetch呼び出しをトリガー
+  const mockMutate = jest.fn(async (fn) => {
+    if (typeof fn === 'function') {
+      await fn([]);
+    }
+  });
+
+  // テストで使用するプロップス
+  const mockProps = {
+    account: { id: 1, name: 'Test User', area: [], role: 'admin', token: '' },
+    comments: [],
+    cycleId: 1,
+    isLoaded: true,
+    url: 'https://example.com',
+    date: '2023-01-01',
+    id: '123',
+    dataType: 'OK',
+    reload: jest.fn(),
+    mutate: mockMutate,
+    taskId: 123,
+  };
+
+  beforeEach(() => {
+    mockMutate.mockClear();
+  });
+
   it('renders correctly when loaded', () => {
     render(<AdminDetail {...mockProps} />);
 
@@ -90,12 +101,11 @@ describe('AdminDetail', () => {
     const reassignButton = screen.getByText('再アサイン');
     fireEvent.click(reassignButton);
 
-    // fetch呼び出しを待つ
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(global.fetch).toHaveBeenCalledWith('/api/task/123/reassign', {
-      method: 'PUT',
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/task/123/reassign', {
+        method: 'PUT',
+      });
+      expect(mockMutate).toHaveBeenCalled();
     });
-    expect(mockProps.mutate).toHaveBeenCalled();
   });
 });

@@ -33,6 +33,13 @@ global.fetch = jest.fn(() =>
 ) as jest.Mock;
 
 describe('MemberDetail', () => {
+  // mutateモック: 第一引数が関数の場合は実行してfetch呼び出しをトリガー
+  const mockMutate = jest.fn(async (fn) => {
+    if (typeof fn === 'function') {
+      await fn([]);
+    }
+  });
+
   const mockProps = {
     account: {
       id: 1,
@@ -48,9 +55,14 @@ describe('MemberDetail', () => {
     url: 'https://example.com',
     date: '2023-01-01',
     reload: jest.fn(),
-    mutate: jest.fn(),
+    mutate: mockMutate,
     taskId: 1,
   };
+
+  beforeEach(() => {
+    mockMutate.mockClear();
+    (global.fetch as jest.Mock).mockClear();
+  });
 
   it('renders correctly when loaded', () => {
     render(<MemberDetail {...mockProps} />);
@@ -77,7 +89,7 @@ describe('MemberDetail', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/task/1/complete', {
         method: 'PUT',
       });
-      expect(mockProps.mutate).toHaveBeenCalled();
+      expect(mockMutate).toHaveBeenCalled();
     });
   });
 
@@ -90,7 +102,7 @@ describe('MemberDetail', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/task/1/ng', {
         method: 'PUT',
       });
-      expect(mockProps.mutate).toHaveBeenCalled();
+      expect(mockMutate).toHaveBeenCalled();
     });
   });
 });

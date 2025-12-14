@@ -23,20 +23,21 @@ type Props = {
 
 const AdminDetail = (props: Props) => {
   const putReassign = async () => {
-    // 楽観的にUIから削除
-    void props.mutate(
-      (currentData) => currentData?.filter((task) => task.id !== props.taskId),
-      { revalidate: false },
+    await props.mutate(
+      async (currentData) => {
+        const res = await fetch(`/api/task/${String(props.id)}/reassign`, {
+          method: 'PUT',
+        });
+        if (!res.ok) throw new Error('Failed to reassign');
+        return currentData?.filter((task) => task.id !== props.taskId);
+      },
+      {
+        optimisticData: (currentData) =>
+          currentData?.filter((task) => task.id !== props.taskId),
+        rollbackOnError: true,
+        revalidate: false,
+      },
     );
-
-    try {
-      await fetch(`/api/task/${String(props.id)}/reassign`, {
-        method: 'PUT',
-      });
-      void props.mutate(); // 成功時にサーバーデータで確定
-    } catch (error) {
-      void props.mutate(); // 失敗時はロールバック
-    }
   };
 
   const onReassign = (): void => {
