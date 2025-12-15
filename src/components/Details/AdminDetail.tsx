@@ -5,6 +5,7 @@ import { KeyedMutator } from 'swr';
 import { BasicButton } from '@/src/components/Buttons/BasicButton';
 import CommentList from '@/src/components/CommentList';
 import LoadCircle from '@/src/components/LoadCircle';
+import { useTaskMutation } from '@/src/mutations';
 import { AccountData, Comment, Task } from '@/src/types';
 
 type Props = {
@@ -22,26 +23,10 @@ type Props = {
 };
 
 const AdminDetail = (props: Props) => {
-  const putReassign = async () => {
-    await props.mutate(
-      async (currentData) => {
-        const res = await fetch(`/api/task/${String(props.id)}/reassign`, {
-          method: 'PUT',
-        });
-        if (!res.ok) throw new Error('Failed to reassign');
-        return currentData?.filter((task) => task.id !== props.taskId);
-      },
-      {
-        optimisticData: (currentData) =>
-          currentData?.filter((task) => task.id !== props.taskId),
-        rollbackOnError: true,
-        revalidate: false,
-      },
-    );
-  };
+  const { reassign } = useTaskMutation(props.mutate);
 
   const onReassign = (): void => {
-    putReassign().catch((e) => console.error(e));
+    reassign(props.taskId, props.id).catch((e) => console.error(e));
   };
   return (
     <AccordionDetails>

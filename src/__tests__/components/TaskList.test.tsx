@@ -4,13 +4,13 @@ import '@testing-library/jest-dom';
 import TaskList from '@/src/components/TaskList';
 import { AccountData, Task } from '@/src/types';
 
-// useTaskListDataをモック
+// useTaskListをモック
 const mockMutate = jest.fn();
 const mockChangeDataType = jest.fn();
-const mockUseTaskListData = jest.fn();
+const mockUseTaskList = jest.fn();
 
-jest.mock('@/src/util/hooks/useTaskListData', () => ({
-  useTaskListData: (params: unknown) => mockUseTaskListData(params),
+jest.mock('@/src/queries', () => ({
+  useTaskList: (params: unknown) => mockUseTaskList(params),
 }));
 
 // TaskAccordionをモック
@@ -66,11 +66,11 @@ describe('TaskList', () => {
   beforeEach(() => {
     mockMutate.mockClear();
     mockChangeDataType.mockClear();
-    mockUseTaskListData.mockClear();
+    mockUseTaskList.mockClear();
   });
 
   test('renders TaskList for member and fetches member tasks', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: mockTasks,
       dataType: 'active',
       isLoading: false,
@@ -82,7 +82,7 @@ describe('TaskList', () => {
     render(<TaskList id={1} account={mockMemberAccount} />);
 
     await waitFor(() => {
-      expect(mockUseTaskListData).toHaveBeenCalledWith({
+      expect(mockUseTaskList).toHaveBeenCalledWith({
         account: mockMemberAccount,
         id: 1,
       });
@@ -90,7 +90,7 @@ describe('TaskList', () => {
   });
 
   test('renders TaskList for admin and fetches all tasks', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: mockTasks,
       dataType: 'active',
       isLoading: false,
@@ -102,7 +102,7 @@ describe('TaskList', () => {
     render(<TaskList id={2} account={mockAdminAccount} />);
 
     await waitFor(() => {
-      expect(mockUseTaskListData).toHaveBeenCalledWith({
+      expect(mockUseTaskList).toHaveBeenCalledWith({
         account: mockAdminAccount,
         id: 2,
       });
@@ -110,7 +110,7 @@ describe('TaskList', () => {
   });
 
   test('displays loading indicator when loading', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: [],
       dataType: 'active',
       isLoading: true,
@@ -125,7 +125,7 @@ describe('TaskList', () => {
   });
 
   test('handles fetch error gracefully', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: [],
       dataType: 'active',
       isLoading: false,
@@ -142,7 +142,7 @@ describe('TaskList', () => {
   });
 
   test('displays tasks after loading', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: mockTasks,
       dataType: 'active',
       isLoading: false,
@@ -160,7 +160,7 @@ describe('TaskList', () => {
   });
 
   test('admin can see NG button group', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: mockTasks,
       dataType: 'active',
       isLoading: false,
@@ -177,7 +177,7 @@ describe('TaskList', () => {
   });
 
   test('member cannot see NG button group', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: mockTasks,
       dataType: 'active',
       isLoading: false,
@@ -189,14 +189,14 @@ describe('TaskList', () => {
     render(<TaskList id={1} account={mockMemberAccount} />);
 
     await waitFor(() => {
-      expect(mockUseTaskListData).toHaveBeenCalled();
+      expect(mockUseTaskList).toHaveBeenCalled();
     });
 
     expect(screen.queryByRole('button', { name: 'NG' })).not.toBeInTheDocument();
   });
 
   test('switches sort type', async () => {
-    mockUseTaskListData.mockReturnValue({
+    mockUseTaskList.mockReturnValue({
       data: mockTasks,
       dataType: 'active',
       isLoading: false,

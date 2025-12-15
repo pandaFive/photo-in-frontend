@@ -13,10 +13,10 @@ import { useCallback, useMemo, useState } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
+import { useTaskList } from '@/src/queries';
 import { AccountData } from '@/src/types';
 import { Task } from '@/src/types';
 import { grouping } from '@/src/util/grouping';
-import { useTaskListData } from '@/src/util/hooks/useTaskListData';
 
 type Props = {
   id: number;
@@ -36,7 +36,7 @@ const sortTasks = (list: string[], sortType: string) => {
 const TaskList = (props: Props) => {
   const [sortType, setSortType] = useState<string>('time');
   const { data, dataType, isLoading, error, changeDataType, mutate } =
-    useTaskListData({ account: props.account, id: props.id });
+    useTaskList({ account: props.account, id: props.id });
 
   const onChangeType = useCallback((type: string) => {
     setSortType(type);

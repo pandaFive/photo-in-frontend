@@ -8,6 +8,7 @@ import {
 } from '@/src/components/Buttons/BasicButton';
 import CommentList from '@/src/components/CommentList';
 import LoadCircle from '@/src/components/LoadCircle';
+import { useTaskMutation } from '@/src/mutations';
 import { AccountData, Comment, Task } from '@/src/types';
 
 type Props = {
@@ -24,48 +25,14 @@ type Props = {
 };
 
 const MemberDetail = (props: Props) => {
-  const changeNG = async () => {
-    await props.mutate(
-      async (currentData) => {
-        const res = await fetch(`/api/task/${String(props.id)}/ng`, {
-          method: 'PUT',
-        });
-        if (!res.ok) throw new Error('Failed to mark as NG');
-        return currentData?.filter((task) => task.id !== props.taskId);
-      },
-      {
-        optimisticData: (currentData) =>
-          currentData?.filter((task) => task.id !== props.taskId),
-        rollbackOnError: true,
-        revalidate: false,
-      },
-    );
-  };
-
-  const changeComplete = async () => {
-    await props.mutate(
-      async (currentData) => {
-        const res = await fetch(`/api/task/${String(props.id)}/complete`, {
-          method: 'PUT',
-        });
-        if (!res.ok) throw new Error('Failed to mark as complete');
-        return currentData?.filter((task) => task.id !== props.taskId);
-      },
-      {
-        optimisticData: (currentData) =>
-          currentData?.filter((task) => task.id !== props.taskId),
-        rollbackOnError: true,
-        revalidate: false,
-      },
-    );
-  };
+  const { completeTask, markAsNG } = useTaskMutation(props.mutate);
 
   const onNG = (): void => {
-    changeNG().catch((e) => console.error(e));
+    markAsNG(props.taskId, props.id).catch((e) => console.error(e));
   };
 
   const onComplete = (): void => {
-    changeComplete().catch((e) => console.error(e));
+    completeTask(props.taskId, props.id).catch((e) => console.error(e));
   };
 
   return (
