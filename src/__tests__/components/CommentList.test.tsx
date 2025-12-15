@@ -1,14 +1,21 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CommentList from '@/src/components/CommentList';
 import { AccountData, Comment } from '@/src/types';
 
-// fetch-comment関数をモック
-jest.mock('@/src/util/fetch-comment', () => ({
-  fetchDeleteComment: jest.fn().mockResolvedValue(undefined),
-  fetchPostComment: jest.fn().mockResolvedValue({ id: 999 }),
-  fetchPutComment: jest.fn().mockResolvedValue(undefined),
+// useCommentMutationをモック
+jest.mock('@/src/mutations', () => ({
+  useCommentMutation: () => ({
+    createComment: jest.fn().mockResolvedValue({ success: true, data: { id: 999 } }),
+    updateComment: jest.fn().mockResolvedValue({ success: true }),
+    deleteComment: jest.fn().mockResolvedValue({ success: true }),
+  }),
+}));
+
+// infra/timeをモック
+jest.mock('@/src/infra/time', () => ({
+  getNow: () => new Date('2023-01-01T00:00:00Z'),
 }));
 
 // MUI X DataGridをモック
