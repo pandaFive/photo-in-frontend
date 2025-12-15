@@ -24,21 +24,21 @@ jest.mock('@/src/components/LoadCircle', () => {
   };
 });
 
-// フェッチのモック
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve({}),
+// useTaskMutationのモック
+const mockCompleteTask = jest.fn().mockResolvedValue({ success: true });
+const mockMarkAsNG = jest.fn().mockResolvedValue({ success: true });
+
+jest.mock('@/src/mutations', () => ({
+  useTaskMutation: () => ({
+    completeTask: mockCompleteTask,
+    markAsNG: mockMarkAsNG,
+    reassign: jest.fn(),
+    isPending: jest.fn().mockReturnValue(false),
   }),
-) as jest.Mock;
+}));
 
 describe('MemberDetail', () => {
-  // mutateモック: 第一引数が関数の場合は実行してfetch呼び出しをトリガー
-  const mockMutate = jest.fn(async (fn) => {
-    if (typeof fn === 'function') {
-      await fn([]);
-    }
-  });
+  const mockMutate = jest.fn();
 
   const mockProps = {
     account: {
@@ -61,7 +61,8 @@ describe('MemberDetail', () => {
 
   beforeEach(() => {
     mockMutate.mockClear();
-    (global.fetch as jest.Mock).mockClear();
+    mockCompleteTask.mockClear();
+    mockMarkAsNG.mockClear();
   });
 
   it('renders correctly when loaded', () => {
@@ -80,29 +81,23 @@ describe('MemberDetail', () => {
     expect(screen.getByTestId('load-circle')).toBeInTheDocument();
   });
 
-  it('calls changeComplete when 完了 button is clicked', async () => {
+  it('calls completeTask when 完了 button is clicked', async () => {
     render(<MemberDetail {...mockProps} />);
 
     fireEvent.click(screen.getByText('完了'));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/task/1/complete', {
-        method: 'PUT',
-      });
-      expect(mockMutate).toHaveBeenCalled();
+      expect(mockCompleteTask).toHaveBeenCalledWith(1, '1');
     });
   });
 
-  it('calls changeNG when NG button is clicked', async () => {
+  it('calls markAsNG when NG button is clicked', async () => {
     render(<MemberDetail {...mockProps} />);
 
     fireEvent.click(screen.getByText('NG'));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/task/1/ng', {
-        method: 'PUT',
-      });
-      expect(mockMutate).toHaveBeenCalled();
+      expect(mockMarkAsNG).toHaveBeenCalledWith(1, '1');
     });
   });
 });

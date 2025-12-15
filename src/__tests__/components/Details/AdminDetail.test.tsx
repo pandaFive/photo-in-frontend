@@ -22,6 +22,18 @@ jest.mock('@/src/components/LoadCircle', () => {
   };
 });
 
+// useTaskMutationのモック
+const mockReassign = jest.fn().mockResolvedValue({ success: true });
+
+jest.mock('@/src/mutations', () => ({
+  useTaskMutation: () => ({
+    completeTask: jest.fn(),
+    markAsNG: jest.fn(),
+    reassign: mockReassign,
+    isPending: jest.fn().mockReturnValue(false),
+  }),
+}));
+
 describe('AdminDetail', () => {
   // mutateモック: 第一引数が関数の場合は実行してfetch呼び出しをトリガー
   const mockMutate = jest.fn(async (fn) => {
@@ -47,6 +59,7 @@ describe('AdminDetail', () => {
 
   beforeEach(() => {
     mockMutate.mockClear();
+    mockReassign.mockClear();
   });
 
   it('renders correctly when loaded', () => {
@@ -75,37 +88,14 @@ describe('AdminDetail', () => {
     expect(screen.queryByText('再アサイン')).not.toBeInTheDocument();
   });
 
-  it('calls mutate function when reassign button is clicked', async () => {
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({}),
-        text: () => Promise.resolve(''),
-        blob: () => Promise.resolve(new Blob()),
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-        formData: () => Promise.resolve(new FormData()),
-        headers: new Headers(),
-        redirected: false,
-        status: 200,
-        statusText: 'OK',
-        type: 'default' as ResponseType,
-        url: 'https://example.com',
-        clone: function () {
-          return Promise.resolve(this);
-        },
-      } as unknown as Response),
-    );
-
+  it('calls reassign when reassign button is clicked', async () => {
     render(<AdminDetail {...mockProps} dataType="NG" />);
 
     const reassignButton = screen.getByText('再アサイン');
     fireEvent.click(reassignButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/task/123/reassign', {
-        method: 'PUT',
-      });
-      expect(mockMutate).toHaveBeenCalled();
+      expect(mockReassign).toHaveBeenCalledWith(123, '123');
     });
   });
 });
