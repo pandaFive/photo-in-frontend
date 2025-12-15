@@ -5,6 +5,7 @@ import React, { useState, useRef } from 'react';
 
 import EmptySendDialog from '@/src/components/EmptySendDialog';
 import IncorrectUploadDialog from '@/src/components/IncorrectUploadDialog';
+import { useFileUpload } from '@/src/mutations';
 
 type Props = {
   areaNames: string[];
@@ -13,6 +14,7 @@ type Props = {
 const UploadButton = (props: Props) => {
   const [inputFiles, setInputFiles] = useState<File[]>([]);
   const inputFileRef = useRef<HTMLInputElement>(null);
+  const { uploadFiles, isUploading } = useFileUpload();
 
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const toggledSendOpen = () => {
@@ -77,53 +79,24 @@ const UploadButton = (props: Props) => {
     setInputFiles(Array.from(dt.files));
   };
 
-  const sendData = async (): Promise<void> => {
+  const onSend = async () => {
     if (!inputFileRef.current?.files || inputFileRef.current.files.length === 0) {
       toggledSendOpen();
       return;
     }
 
     const files = Array.from(inputFileRef.current.files);
+    const result = await uploadFiles(files);
 
-    // 全てのファイルをアップロード
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch(`/api/aws`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorBody = (await response.json()) as unknown;
-        const errorMessage =
-          typeof errorBody === 'object' &&
-          errorBody !== null &&
-          'error' in errorBody &&
-          typeof (errorBody as { error?: unknown }).error === 'string'
-            ? (errorBody as { error?: string }).error
-            : 'Unknown error';
-        throw new Error(`Failed to upload ${file.name}: ${errorMessage}`);
-      }
+    if (result.success) {
+      // アップロード成功後、ファイルリストをクリア
+      const dt = new DataTransfer();
+      inputFileRef.current.files = dt.files;
+      setInputFiles(Array.from(dt.files));
+    } else {
+      console.error('Upload failed:', result.error);
+      alert(`アップロードに失敗しました: ${result.error}`);
     }
-
-    // アップロード成功後、ファイルリストをクリア
-    const dt = new DataTransfer();
-    inputFileRef.current.files = dt.files;
-    setInputFiles(Array.from(dt.files));
-  };
-
-  const onSend = () => {
-    sendData()
-      .then()
-      .catch((error: unknown) => {
-        const message =
-          error instanceof Error ? error.message : 'Unknown error occurred';
-        console.error('Upload failed:', error);
-        // TODO: ユーザーにエラーを表示するダイアログを追加
-        alert(`アップロードに失敗しました: ${message}`);
-      });
   };
 
   return (
@@ -149,8 +122,13 @@ const UploadButton = (props: Props) => {
         open={incorrectDialogOpen}
         toggleDialog={toggleIncorrectOpen}
       />
-      <Button onClick={onSend} sx={{ ml: 1 }} variant="contained">
-        送信
+      <Button
+        disabled={isUploading}
+        onClick={() => void onSend()}
+        sx={{ ml: 1 }}
+        variant="contained"
+      >
+        {isUploading ? 'アップロード中...' : '送信'}
       </Button>
       <EmptySendDialog open={sendDialogOpen} toggleDialog={toggledSendOpen} />
       <div>

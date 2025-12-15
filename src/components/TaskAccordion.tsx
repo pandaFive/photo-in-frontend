@@ -6,14 +6,15 @@ import {
   Divider,
   Grid,
 } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { memo } from 'react';
 import { KeyedMutator } from 'swr';
 
 import AdminDetail from '@/src/components/Details/AdminDetail';
 import MemberDetail from '@/src/components/Details/MemberDetail';
 import { toLocaleDateString } from '@/src/domain/functions/date';
-import { AccountData, Comment, Task } from '@/src/types';
+import { useTaskDetail } from '@/src/queries';
+import { AccountData, Task } from '@/src/types';
 
 type Props = {
   account: AccountData;
@@ -27,69 +28,24 @@ type Props = {
 };
 
 const TaskAccordion = (props: Props) => {
-  const [fileUrl, setFileUrl] = useState('');
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  /**
-   * ファイルURLとコメントを並列で取得する
-   * AbortControllerを使用してコンポーネントアンマウント時にリクエストをキャンセル
-   */
-  const fetchData = async () => {
-    // 既存のリクエストがある場合はキャンセル
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
-
-    try {
-      // ファイルURLとコメントを並列で取得
-      const [fileRes, commentRes] = await Promise.all([
-        fetch(`/api/aws?key=${props.task.title}`, {
-          method: 'GET',
-          signal,
-        }),
-        fetch(
-          `/api/comments?taskId=${String(props.task.id)}&accountId=${String(props.account.id)}`,
-          {
-            method: 'GET',
-            signal,
-          },
-        ),
-      ]);
-
-      const url: string = (await fileRes.json()) as string;
-      const result: Comment[] = (await commentRes.json()) as Comment[];
-
-      setFileUrl(url);
-      setComments(result);
-      setLoaded(true);
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name !== 'AbortError') {
-        console.error('Failed to fetch task data:', err);
-      }
-    }
-  };
+  const {
+    fileUrl,
+    comments,
+    isLoaded,
+    fetchData,
+    cleanup,
+  } = useTaskDetail(props.task.id, props.task.title, props.account.id);
 
   const onClickArrow = () => {
-    if (!loaded) {
-      fetchData()
-        .then()
-        .catch((e) => console.error(e));
+    if (!isLoaded) {
+      void fetchData();
     }
   };
 
   // コンポーネントアンマウント時にリクエストをキャンセル
   useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
+    return cleanup;
+  }, [cleanup]);
 
   const formattedDate = toLocaleDateString(new Date(props.task.created_at));
 
@@ -128,7 +84,7 @@ const TaskAccordion = (props: Props) => {
             cycleId={props.task.assign_cycle_id}
             date={formattedDate}
             id={String(props.task.history_id)}
-            isLoaded={loaded}
+            isLoaded={isLoaded}
             mutate={props.mutate}
             reload={props.reload}
             taskId={props.taskId}
@@ -142,7 +98,7 @@ const TaskAccordion = (props: Props) => {
             dataType={props.dataType}
             date={formattedDate}
             id={String(props.task.id)}
-            isLoaded={loaded}
+            isLoaded={isLoaded}
             mutate={props.mutate}
             reload={props.reload}
             taskId={props.taskId}

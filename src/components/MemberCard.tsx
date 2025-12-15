@@ -13,8 +13,9 @@ import {
 } from '@mui/material';
 
 import CircleRate from '@/src/components/CircleRate';
+import { parseIsoToYYYYMMDD } from '@/src/domain/functions/date';
+import { useAccountMutation } from '@/src/mutations';
 import { MemberStatus } from '@/src/types';
-import { formatIsoToYYYYMMDD } from '@/src/util/format-date';
 
 type Props = {
   member: MemberStatus;
@@ -22,18 +23,18 @@ type Props = {
 };
 
 const MemberCard = (props: Props) => {
+  const { deleteAccount } = useAccountMutation();
+
   const onDelete = async () => {
     if (!confirm(`${props.member.name}を削除しますか？`)) {
       return;
     }
 
-    try {
-      await fetch(`/api/account/${props.member.id}`, {
-        method: 'DELETE',
-      });
+    const result = await deleteAccount(props.member.id);
+    if (result.success) {
       props.handleDelete(props.member.id);
-    } catch (err) {
-      console.error('Failed to delete member:', err);
+    } else {
+      console.error('Failed to delete member:', result.error);
     }
   };
 
@@ -42,7 +43,7 @@ const MemberCard = (props: Props) => {
       <Paper elevation={2} square={false}>
         <Card>
           <CardHeader
-            subheader={`最終更新：${formatIsoToYYYYMMDD(props.member.updatedAt)}`}
+            subheader={`最終更新：${parseIsoToYYYYMMDD(props.member.updatedAt)}`}
             title={`${props.member.name}`}
           />
           <Divider variant="middle" />
@@ -70,7 +71,7 @@ const MemberCard = (props: Props) => {
             >
               <Box sx={{ width: '20%' }}>
                 <Typography>
-                  登録日：{formatIsoToYYYYMMDD(props.member.createdAt)}
+                  登録日：{parseIsoToYYYYMMDD(props.member.createdAt)}
                 </Typography>
                 <Typography>
                   1日の最大撮影数：{props.member.capacity}
