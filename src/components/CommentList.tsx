@@ -24,13 +24,11 @@ import {
 import * as React from 'react';
 import { useMemo, useCallback } from 'react';
 
+import { getNow } from '@/src/infra/time';
+import { useCommentMutation } from '@/src/mutations';
+
 import { AccountData } from '../types';
 import { Comment } from '../types';
-import {
-  fetchDeleteComment,
-  fetchPostComment,
-  fetchPutComment,
-} from '../util/fetch-comment';
 
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -59,7 +57,7 @@ const EditToolbar = (props: EditToolbarProps) => {
         role,
         name,
         comment: '',
-        joinDate: new Date(),
+        joinDate: getNow(),
         isNew: true,
       },
     ]);
@@ -123,6 +121,8 @@ const CommentList = (props: Props) => {
   // 新規コメントかどうかを追跡（POST/PUTの判定に使用）
   const [flagNewComment, setFlagNewComment] = React.useState(false);
 
+  const { createComment, updateComment, deleteComment } = useCommentMutation();
+
   const role: string = props.account.role;
   const name: string = props.account.name;
 
@@ -149,10 +149,10 @@ const CommentList = (props: Props) => {
 
   const handleDeleteClick = useCallback((id: GridRowId) => () => {
     setRows((prev) => prev.filter((row) => row.id !== id));
-    fetchDeleteComment(id as number)
-      .then()
-      .catch((err) => console.error('Failed to delete comment:', err));
-  }, []);
+    deleteComment(id as number).catch((err) =>
+      console.error('Failed to delete comment:', err)
+    );
+  }, [deleteComment]);
 
   const handleCancelClick = useCallback((id: GridRowId) => () => {
     setRowModesModel((prev) => ({
@@ -176,35 +176,33 @@ const CommentList = (props: Props) => {
    * @param newRow - 保存する行データ
    * @param updatedRow - 更新後の行データ（新規作成時にIDを更新するために使用）
    */
-  const fetchPutOrPostComment = (
-    newRow: GridRowModel,
-    updatedRow: GridRowModel,
-  ) => {
-    if (flagNewComment) {
-      // 新規コメント作成
-      fetchPostComment(
-        newRow.comment as string,
-        props.account.id,
-        props.cycleId,
-      )
-        .then((response) => {
-          if (response) {
-            const newId = response.id;
-            const newUpdatedRow = { ...updatedRow, id: newId };
-            setRows(
-              rows.map((row) => (row.id === newRow.id ? newUpdatedRow : row)),
-            );
-          }
-        })
-        .catch((e) => console.error('Failed to post comment:', e));
-      setFlagNewComment(false);
-    } else {
-      // 既存コメント更新
-      fetchPutComment(newRow.comment as string, newRow.id as number)
-        .then()
-        .catch((e) => console.error('Failed to update comment:', e));
-    }
-  };
+  const saveComment = useCallback(
+    (newRow: GridRowModel, updatedRow: GridRowModel) => {
+      if (flagNewComment) {
+        // 新規コメント作成
+        createComment(newRow.comment as string, props.account.id, props.cycleId)
+          .then((result) => {
+            if (result.success && result.data) {
+              const newId = result.data.id;
+              const newUpdatedRow = { ...updatedRow, id: newId };
+              setRows((currentRows) =>
+                currentRows.map((row) =>
+                  row.id === newRow.id ? newUpdatedRow : row
+                )
+              );
+            }
+          })
+          .catch((e) => console.error('Failed to post comment:', e));
+        setFlagNewComment(false);
+      } else {
+        // 既存コメント更新
+        updateComment(newRow.comment as string, newRow.id as number).catch((e) =>
+          console.error('Failed to update comment:', e)
+        );
+      }
+    },
+    [flagNewComment, createComment, updateComment, props.account.id, props.cycleId]
+  );
 
   /**
    * 行の更新を処理し、必要に応じてAPIに保存する
@@ -213,15 +211,20 @@ const CommentList = (props: Props) => {
    * @param newRow - 更新された行データ
    * @returns 更新後の行データ
    */
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    if (flagCommentChange) {
-      fetchPutOrPostComment(newRow, updatedRow);
-      setFlagCommentChange(false);
-    }
-    return updatedRow;
-  };
+  const processRowUpdate = useCallback(
+    (newRow: GridRowModel) => {
+      const updatedRow = { ...newRow, isNew: false };
+      setRows((currentRows) =>
+        currentRows.map((row) => (row.id === newRow.id ? updatedRow : row))
+      );
+      if (flagCommentChange) {
+        saveComment(newRow, updatedRow);
+        setFlagCommentChange(false);
+      }
+      return updatedRow;
+    },
+    [flagCommentChange, saveComment]
+  );
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel);

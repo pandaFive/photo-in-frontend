@@ -1,24 +1,10 @@
 'use client';
+import { formatDateToEnglish } from '@/src/domain/functions/date';
+import { getNow } from '@/src/infra/time';
+
+/**
+ * @deprecated 代わりに domain/functions/date の formatDateToEnglish と infra/time の getNow を使用してください
+ */
 export default function getCurrentTime(): string {
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-
-  const currentDate = new Date();
-  const monthIndex = currentDate.getMonth();
-  const day = currentDate.getDate();
-  const year = currentDate.getFullYear();
-
-  return `${day} ${months[monthIndex]}, ${year}`;
+  return formatDateToEnglish(getNow());
 }

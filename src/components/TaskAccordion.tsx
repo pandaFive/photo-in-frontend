@@ -12,6 +12,7 @@ import { KeyedMutator } from 'swr';
 
 import AdminDetail from '@/src/components/Details/AdminDetail';
 import MemberDetail from '@/src/components/Details/MemberDetail';
+import { toLocaleDateString } from '@/src/domain/functions/date';
 import { AccountData, Comment, Task } from '@/src/types';
 
 type Props = {
@@ -90,7 +91,7 @@ const TaskAccordion = (props: Props) => {
     };
   }, []);
 
-  const date = new Date(props.task.created_at);
+  const formattedDate = toLocaleDateString(new Date(props.task.created_at));
 
   return (
     <Grid sx={{ mt: 1, mb: 1 }} width={'98%'}>
@@ -125,7 +126,7 @@ const TaskAccordion = (props: Props) => {
             account={props.account}
             comments={comments}
             cycleId={props.task.assign_cycle_id}
-            date={date.toLocaleDateString()}
+            date={formattedDate}
             id={String(props.task.history_id)}
             isLoaded={loaded}
             mutate={props.mutate}
@@ -139,7 +140,7 @@ const TaskAccordion = (props: Props) => {
             comments={comments}
             cycleId={props.task.assign_cycle_id}
             dataType={props.dataType}
-            date={date.toLocaleDateString()}
+            date={formattedDate}
             id={String(props.task.id)}
             isLoaded={loaded}
             mutate={props.mutate}

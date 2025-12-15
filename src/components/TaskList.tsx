@@ -13,6 +13,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
+import { sortDateStrings } from '@/src/domain/functions/date';
 import { useTaskList } from '@/src/queries';
 import { AccountData } from '@/src/types';
 import { Task } from '@/src/types';
@@ -23,11 +24,9 @@ type Props = {
   account: AccountData;
 };
 
-const sortTasks = (list: string[], sortType: string) => {
+const sortSectionKeys = (list: string[], sortType: string): string[] => {
   if (sortType === 'time') {
-    return list.toSorted(
-      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
-    );
+    return sortDateStrings(list);
   } else {
     return list.toSorted();
   }
@@ -56,7 +55,7 @@ const TaskList = (props: Props) => {
 
   // mutateDataとsortTypeからsectionを計算（メモ化）
   const section = useMemo(() => {
-    return sortTasks(Object.keys(mutateData), sortType);
+    return sortSectionKeys(Object.keys(mutateData), sortType);
   }, [mutateData, sortType]);
 
   return (
