@@ -2,6 +2,8 @@ import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import React from 'react';
 
+import { getCurrentYear } from '@/src/infra/time';
+
 const Footer: React.FC = () => {
   return (
     <Typography
@@ -14,7 +16,7 @@ const Footer: React.FC = () => {
       <Link color="inherit" href="https://mui.com/">
         Your Website
       </Link>{' '}
-      {new Date().getFullYear()}
+      {getCurrentYear()}
       {'.'}
     </Typography>
   );

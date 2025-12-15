@@ -1,3 +1,5 @@
+import { toLocaleDateString } from '@/src/domain/functions/date';
+
 import { Task, GroupType, GroupKey } from '../types';
 
 /**
@@ -9,7 +11,7 @@ import { Task, GroupType, GroupKey } from '../types';
 export const grouping = (items: Task[], groupKey: GroupKey): GroupType => {
   return items.reduce((acc: GroupType, item: Task) => {
     const key = groupKey === 'time'
-      ? new Date(item.created_at).toLocaleDateString()
+      ? toLocaleDateString(new Date(item.created_at))
       : item.area_name;
 
     if (!acc[key]) {
