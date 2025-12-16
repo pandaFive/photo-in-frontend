@@ -1,11 +1,12 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Chart from '@/src/components/Chart';
 
-// Server Actionをモック
-jest.mock('@/src/api/get-week-complete', () => ({
-  getWeekComplete: jest.fn(),
+// useWeekComplete hookをモック
+const mockUseWeekComplete = jest.fn();
+jest.mock('@/src/queries', () => ({
+  useWeekComplete: () => mockUseWeekComplete(),
 }));
 
 // MUI ThemeProviderをモック
@@ -41,86 +42,98 @@ jest.mock('@mui/x-charts/ChartsText', () => ({
   ChartsTextStyle: {},
 }));
 
-import { getWeekComplete } from '@/src/api/get-week-complete';
-
-const mockGetWeekComplete = getWeekComplete as jest.MockedFunction<
-  typeof getWeekComplete
->;
-
 describe('Chart', () => {
   beforeEach(() => {
-    mockGetWeekComplete.mockClear();
+    mockUseWeekComplete.mockClear();
   });
 
-  test('renders Chart component with title', async () => {
-    mockGetWeekComplete.mockResolvedValueOnce({});
+  test('renders Chart component with title', () => {
+    mockUseWeekComplete.mockReturnValue({
+      data: [],
+      max: 10,
+      isLoading: false,
+      error: null,
+    });
 
     render(<Chart />);
-
-    await waitFor(() => {
-      expect(mockGetWeekComplete).toHaveBeenCalled();
-    });
 
     // タイトルが表示されることを確認
     expect(screen.getByText("week's")).toBeInTheDocument();
   });
 
-  test('fetches and displays chart data on mount', async () => {
-    const mockData = {
-      '12月1日': 5,
-      '12月2日': 10,
-      '12月3日': 8,
-    };
-    mockGetWeekComplete.mockResolvedValueOnce(mockData);
+  test('renders chart with data points', () => {
+    const mockData = [
+      { date: '12月1日', amount: 5 },
+      { date: '12月2日', amount: 10 },
+      { date: '12月3日', amount: 8 },
+    ];
+    mockUseWeekComplete.mockReturnValue({
+      data: mockData,
+      max: 15,
+      isLoading: false,
+      error: null,
+    });
 
     render(<Chart />);
-
-    await waitFor(() => {
-      expect(mockGetWeekComplete).toHaveBeenCalledTimes(1);
-    });
 
     // LineChartがレンダリングされることを確認
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    expect(screen.getByText('LineChart Mock - 3 data points')).toBeInTheDocument();
   });
 
-  test('handles empty chart data', async () => {
-    mockGetWeekComplete.mockResolvedValueOnce({});
+  test('handles empty chart data', () => {
+    mockUseWeekComplete.mockReturnValue({
+      data: [],
+      max: 10,
+      isLoading: false,
+      error: null,
+    });
 
     render(<Chart />);
-
-    await waitFor(() => {
-      expect(mockGetWeekComplete).toHaveBeenCalled();
-    });
 
     // 空のデータでもコンポーネントがクラッシュしないことを確認
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    expect(screen.getByText('LineChart Mock - 0 data points')).toBeInTheDocument();
   });
 
-  test('handles fetch error gracefully', async () => {
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-
-    mockGetWeekComplete.mockRejectedValueOnce(new Error('Fetch failed'));
-
-    render(<Chart />);
-
-    await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalled();
-    });
-
-    consoleErrorSpy.mockRestore();
-  });
-
-  test('renders LineChart component', async () => {
-    mockGetWeekComplete.mockResolvedValueOnce({
-      '12月1日': 5,
+  test('displays error message when fetch fails', () => {
+    mockUseWeekComplete.mockReturnValue({
+      data: [],
+      max: 10,
+      isLoading: false,
+      error: 'データの取得に失敗しました',
     });
 
     render(<Chart />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    // エラーメッセージが表示されることを確認
+    expect(screen.getByText('データの取得に失敗しました')).toBeInTheDocument();
+  });
+
+  test('renders LineChart component when loading completes', () => {
+    mockUseWeekComplete.mockReturnValue({
+      data: [{ date: '12月1日', amount: 5 }],
+      max: 10,
+      isLoading: false,
+      error: null,
     });
+
+    render(<Chart />);
+
+    expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+  });
+
+  test('handles loading state', () => {
+    mockUseWeekComplete.mockReturnValue({
+      data: [],
+      max: 10,
+      isLoading: true,
+      error: null,
+    });
+
+    render(<Chart />);
+
+    // ローディング中もコンポーネントがレンダリングされる
+    expect(screen.getByTestId('line-chart')).toBeInTheDocument();
   });
 });
