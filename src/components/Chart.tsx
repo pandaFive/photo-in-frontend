@@ -4,53 +4,23 @@ import { LineChart, axisClasses } from '@mui/x-charts';
 import { ChartsTextStyle } from '@mui/x-charts/ChartsText';
 import * as React from 'react';
 
-import { getWeekComplete } from '@/src/api/get-week-complete';
 import Title from '@/src/components/Title';
-import { getDatesForPastWeek } from '@/src/domain/functions/date';
-import { getNow } from '@/src/infra/time';
+import { useWeekComplete } from '@/src/queries';
 
-const Y_AXIS_PADDING = 5; // Y軸の最大値に追加する余白
-const DEFAULT_MAX_VALUE = 10; // デフォルトの最大値
-
-interface Data {
-  date: string;
-  amount: number | null;
-}
-
-function createData(date: string, amount: number | null): Data {
-  return { date, amount };
-}
+const DEFAULT_MAX_VALUE = 10;
 
 const Chart = () => {
-  const [data, setData] = React.useState<Data[]>([]);
-  const [max, setMax] = React.useState<number>(DEFAULT_MAX_VALUE);
   const theme = useTheme();
+  const { data, max, isLoading, error } = useWeekComplete();
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getWeekComplete();
-        const datesForPastWeek: string[] = getDatesForPastWeek(getNow());
-
-        // データの変換（副作用なし）
-        const newData: Data[] = datesForPastWeek.map((dateString) => {
-          const amount = response[dateString] ? (response[dateString] as number) : 0;
-          return createData(dateString, amount);
-        });
-
-        // データから最大値を計算
-        const maxAmount = Math.max(...newData.map((d) => d.amount ?? 0));
-        const newMax = maxAmount > 0 ? maxAmount + Y_AXIS_PADDING : DEFAULT_MAX_VALUE;
-
-        setData(newData);
-        setMax(newMax);
-      } catch (error) {
-        console.error('Error fetching data: ', error);
-      }
-    };
-
-    void fetchData();
-  }, []); // 依存配列からmaxを削除し、初回マウント時のみ実行
+  if (error) {
+    return (
+      <React.Fragment>
+        <Title>week&apos;s</Title>
+        <div style={{ color: 'red' }}>{error}</div>
+      </React.Fragment>
+    );
+  }
 
   return (
     <React.Fragment>
@@ -103,7 +73,7 @@ const Chart = () => {
                 transform: 'revert',
               },
               tickLabelStyle: theme.typography.body2 as ChartsTextStyle,
-              max: max,
+              max: isLoading ? DEFAULT_MAX_VALUE : max,
               tickNumber: 5,
             },
           ]}

@@ -2,16 +2,13 @@
 
 ## 優先度: 高
 
-### 1. Chart.tsx SWR Query化
-- [ ] `src/queries/useWeekComplete.ts` 作成
-- [ ] `src/api/get-week-complete.ts` をquery hookに置換
-- [ ] Chart.tsx の useEffect内fetch → useWeekComplete使用
+（なし - Phase 4完了）
 
 ---
 
 ## 優先度: 中
 
-### 2. Server Actions統一（src/api/*.ts）
+### 1. Server Actions統一（src/api/*.ts）
 現在は直接fetchを使用、httpClient統一は任意
 - `get-account-status.ts`
 - `get-account-tasks.ts`
@@ -28,16 +25,17 @@
 
 ## 優先度: 低
 
-### 3. Phase 5: テスト整備
+### 2. Phase 5: テスト整備
 - [ ] `src/domain/functions/date.ts` - 純粋関数テスト追加
 - [ ] `src/infra/http/client.ts` - httpClientテスト（MSW使用）
 - [ ] `src/queries/useTaskList.ts` - hookテスト
 - [ ] `src/queries/useTaskDetail.ts` - hookテスト
+- [ ] `src/queries/useWeekComplete.ts` - hookテスト
 - [ ] `src/mutations/useTaskMutation.ts` - hookテスト
 - [ ] `src/mutations/useCommentMutation.ts` - hookテスト
 - [ ] `src/mutations/useFileUpload.ts` - hookテスト
 
-### 4. エラー表示UI改善
+### 3. エラー表示UI改善
 - [ ] トースト通知コンポーネント追加
 - [ ] mutation失敗時のユーザー通知
 - [ ] ネットワークエラー時のリトライUI
@@ -64,6 +62,8 @@
 - [x] `src/mutations/useFileUpload.ts` - ファイルアップロード（httpClient.postFormData使用）
 - [x] `src/mutations/useAccountMutation.ts` - アカウントmutation
 - [x] TaskAccordion, CommentList, UploadButton, MemberCard更新
+- [x] `src/queries/useWeekComplete.ts` - 週間完了データquery
+- [x] Chart.tsx SWR Query化（useEffect内fetch → useWeekComplete使用）
 
 ### クリーンアップ
 - [x] `src/util/fetch-comment.ts` 削除 - useCommentMutationに置換
@@ -71,6 +71,7 @@
 - [x] `src/util/swr/fetcher.ts` 削除 - taskListFetcherに置換
 - [x] `src/__tests__/components/CommentList.test.tsx` - モック更新
 - [x] `src/mutations/useFileUpload.ts` - httpClient.postFormData化
+- [x] `src/__tests__/components/Chart.test.tsx` - useWeekCompleteモック更新
 
 ---
 
