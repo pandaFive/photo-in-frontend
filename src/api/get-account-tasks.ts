@@ -1,17 +1,16 @@
 'use server';
 
-import { Task } from '../types';
+import { serverHttpClient } from '@/src/infra/http';
+import { Task } from '@/src/types';
 
 export const getAccountTasks = async (id: string): Promise<Task[]> => {
-  try {
-    const res = await fetch(`${process.env.API_HOST}/account/tasks?id=${id}`, {
-      // next: { revalidate: 60 }, // 1分ごとに再検証
-      cache: 'no-store',
-    });
-    const result: Task[] = (await res.json()) as Task[];
-    return result;
-  } catch (err) {
-    console.error('Failed to fetch account tasks:', err);
-    return [];
+  const result = await serverHttpClient.get<Task[]>(`/account/tasks?id=${id}`, {
+    cache: 'no-store',
+  });
+
+  if (result.ok) {
+    return result.value;
   }
+  console.error('Failed to fetch account tasks:', result.error.message);
+  return [];
 };

@@ -1,5 +1,7 @@
 'use server';
 
+import { serverHttpClient } from '@/src/infra/http';
+
 export interface Account {
   id: string;
   role: string;
@@ -7,22 +9,19 @@ export interface Account {
   name: string;
 }
 
-export async function postLogin(name: string, password: string) {
-  try {
-    const res = await fetch(`${process.env.API_HOST}/account/login`, {
-      method: 'POST',
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        account: { name: name, password: password },
-      }),
-    });
-    const account: Account = (await res.json()) as Account;
-    return account;
-  } catch (err) {
-    console.error(err);
-    return {};
+export async function postLogin(
+  name: string,
+  password: string,
+): Promise<Account | Record<string, never>> {
+  const result = await serverHttpClient.post<Account>(
+    '/account/login',
+    { account: { name, password } },
+    { cache: 'no-store' },
+  );
+
+  if (result.ok) {
+    return result.value;
   }
+  console.error('Login failed:', result.error.message);
+  return {};
 }

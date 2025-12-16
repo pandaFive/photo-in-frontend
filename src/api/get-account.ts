@@ -1,22 +1,21 @@
 'use server';
 
-import { AccountData } from '../types';
-import { getCookies } from '../util/cookies';
+import { serverHttpClient } from '@/src/infra/http';
+import { AccountData } from '@/src/types';
+import { getCookies } from '@/src/util/cookies';
 
-type response = {
+type AccountResponse = {
   account: AccountData;
 };
 
-export const getAccount = async () => {
+export const getAccount = async (): Promise<AccountData | null> => {
   const token = getCookies('token');
-  const res = await fetch(`${process.env.API_HOST}/account`, {
+  const result = await serverHttpClient.get<AccountResponse>('/account', {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (!res.ok) {
-    return null;
-  } else {
-    const currentAccount: response = (await res.json()) as response;
-    return currentAccount.account;
+  if (result.ok) {
+    return result.value.account;
   }
+  return null;
 };

@@ -8,26 +8,16 @@
 
 ## 優先度: 中
 
-### 1. Server Actions統一（src/api/*.ts）
-現在は直接fetchを使用、httpClient統一は任意
-- `get-account-status.ts`
-- `get-account-tasks.ts`
-- `get-account.ts`
-- `get-areas.ts`
-- `get-tasks.ts`
-- `get-unfulfilled-count.ts`
-- `get-week-complete.ts`
-- `post-login.ts`
-- `post-signup.ts`
-- `post-task-create.ts`
+（なし - Server Actions統一完了）
 
 ---
 
 ## 優先度: 低
 
-### 2. Phase 5: テスト整備
+### 1. Phase 5: テスト整備
 - [ ] `src/domain/functions/date.ts` - 純粋関数テスト追加
 - [ ] `src/infra/http/client.ts` - httpClientテスト（MSW使用）
+- [ ] `src/infra/http/serverClient.ts` - serverHttpClientテスト
 - [ ] `src/queries/useTaskList.ts` - hookテスト
 - [ ] `src/queries/useTaskDetail.ts` - hookテスト
 - [ ] `src/queries/useWeekComplete.ts` - hookテスト
@@ -35,7 +25,7 @@
 - [ ] `src/mutations/useCommentMutation.ts` - hookテスト
 - [ ] `src/mutations/useFileUpload.ts` - hookテスト
 
-### 3. エラー表示UI改善
+### 2. エラー表示UI改善
 - [ ] トースト通知コンポーネント追加
 - [ ] mutation失敗時のユーザー通知
 - [ ] ネットワークエラー時のリトライUI
@@ -46,7 +36,7 @@
 
 ### Phase 1-2: 基盤整備
 - [x] `src/domain/types/error.ts` - Result型、DomainError
-- [x] `src/infra/http/client.ts` - 統一HTTPクライアント
+- [x] `src/infra/http/client.ts` - 統一HTTPクライアント（クライアント用）
 - [x] `src/api/tasks/fetchers.ts` - SWR fetcher
 - [x] `src/queries/useTaskList.ts` - タスク一覧query
 - [x] `src/mutations/useTaskMutation.ts` - タスクmutation
@@ -64,6 +54,19 @@
 - [x] TaskAccordion, CommentList, UploadButton, MemberCard更新
 - [x] `src/queries/useWeekComplete.ts` - 週間完了データquery
 - [x] Chart.tsx SWR Query化（useEffect内fetch → useWeekComplete使用）
+
+### Server Actions統一
+- [x] `src/infra/http/serverClient.ts` - Server Actions用HTTPクライアント
+- [x] `get-account-status.ts` - serverHttpClient化
+- [x] `get-account-tasks.ts` - serverHttpClient化
+- [x] `get-account.ts` - serverHttpClient化
+- [x] `get-areas.ts` - serverHttpClient化
+- [x] `get-tasks.ts` - serverHttpClient化
+- [x] `get-unfulfilled-count.ts` - serverHttpClient化
+- [x] `get-week-complete.ts` - serverHttpClient化
+- [x] `post-login.ts` - serverHttpClient化
+- [x] `post-signup.ts` - serverHttpClient化
+- [x] `post-task-create.ts` - serverHttpClient化
 
 ### クリーンアップ
 - [x] `src/util/fetch-comment.ts` 削除 - useCommentMutationに置換
@@ -85,6 +88,8 @@ queries / mutations
 api (adapters, fetchers)
     ↓ (client経由)
 infra (http, time)
+  ├── httpClient (クライアント用)
+  └── serverHttpClient (Server Actions用)
 
 domain ← 全層から参照可能（逆方向禁止）
 ```
