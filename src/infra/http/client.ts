@@ -161,4 +161,46 @@ export const httpClient = {
       return err(createNetworkError(String(e)));
     }
   },
+
+  /**
+   * FormDataをPOSTするリクエスト（ファイルアップロード用）
+   * Content-Typeはブラウザが自動設定（multipart/form-data + boundary）
+   */
+  postFormData: async <T>(
+    url: string,
+    formData: FormData,
+    options?: RequestOptions,
+  ): Promise<Result<T>> => {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        signal: options?.signal,
+        headers: options?.headers, // Content-Typeは設定しない
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const message = await res.text().catch(() => 'Unknown error');
+        return err(createApiError(res.status, message));
+      }
+
+      // 空レスポンスの場合がある
+      const text = await res.text();
+      if (!text) {
+        return ok({} as T);
+      }
+
+      try {
+        const data = JSON.parse(text) as T;
+        return ok(data);
+      } catch {
+        return ok({} as T);
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') {
+        throw e;
+      }
+      return err(createNetworkError(String(e)));
+    }
+  },
 };
