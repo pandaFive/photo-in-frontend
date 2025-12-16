@@ -1,20 +1,13 @@
 'use server';
 
-import { Area } from '../types';
+import { serverHttpClient } from '@/src/infra/http';
+import { Area } from '@/src/types';
 
-export const getAreas = async () => {
-  try {
-    const res = await fetch(`${process.env.API_HOST}/areas`, {
-      method: 'GET',
-    });
-    if (res.ok) {
-      const result: Area[] = (await res.json()) as Area[];
-      return result;
-    } else {
-      return [];
-    }
-  } catch (err) {
-    console.error(err);
-    return [];
+export const getAreas = async (): Promise<Area[]> => {
+  const result = await serverHttpClient.get<Area[]>('/areas');
+
+  if (result.ok) {
+    return result.value;
   }
+  return [];
 };

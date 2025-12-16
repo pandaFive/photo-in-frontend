@@ -1,6 +1,7 @@
 'use server';
 
-import { AccountData } from '../types';
+import { serverHttpClient } from '@/src/infra/http';
+import { AccountData } from '@/src/types';
 
 export const postSignup = async (
   name: string,
@@ -8,28 +9,24 @@ export const postSignup = async (
   area: string[],
   role: string,
   capacity: number,
-) => {
-  try {
-    const res = await fetch(`${process.env.API_HOST}/accounts`, {
-      method: 'POST',
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
+): Promise<AccountData | Record<string, never>> => {
+  const result = await serverHttpClient.post<AccountData>(
+    '/accounts',
+    {
+      account: {
+        name,
+        password,
+        area,
+        role,
+        capacity,
       },
-      body: JSON.stringify({
-        account: {
-          name: name,
-          password: password,
-          area: area,
-          role: role,
-          capacity: capacity,
-        },
-      }),
-    });
-    const account: AccountData = (await res.json()) as AccountData;
-    return account;
-  } catch (err) {
-    console.error(err);
-    return {};
+    },
+    { cache: 'no-store' },
+  );
+
+  if (result.ok) {
+    return result.value;
   }
+  console.error('Signup failed:', result.error.message);
+  return {};
 };
