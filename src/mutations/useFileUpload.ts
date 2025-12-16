@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
 
+import { httpClient } from '@/src/infra/http';
+
 type UploadResult = {
   success: boolean;
   error?: string;
@@ -51,21 +53,12 @@ export const useFileUpload = () => {
           const formData = new FormData();
           formData.append('file', file);
 
-          const response = await fetch('/api/aws', {
-            method: 'POST',
-            body: formData,
-          });
+          const result = await httpClient.postFormData('/api/aws', formData);
 
-          if (!response.ok) {
-            const errorBody = (await response.json()) as unknown;
-            const errorMessage =
-              typeof errorBody === 'object' &&
-              errorBody !== null &&
-              'error' in errorBody &&
-              typeof (errorBody as { error?: unknown }).error === 'string'
-                ? (errorBody as { error?: string }).error
-                : 'Unknown error';
-            throw new Error(`Failed to upload ${file.name}: ${errorMessage}`);
+          if (!result.ok) {
+            throw new Error(
+              `Failed to upload ${file.name}: ${result.error.message}`,
+            );
           }
         }
 
@@ -91,7 +84,7 @@ export const useFileUpload = () => {
         return { success: false, error: message };
       }
     },
-    []
+    [],
   );
 
   return {
