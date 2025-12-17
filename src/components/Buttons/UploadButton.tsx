@@ -1,10 +1,11 @@
 'use client';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Button, Box } from '@mui/material';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 
 import EmptySendDialog from '@/src/components/EmptySendDialog';
 import IncorrectUploadDialog from '@/src/components/IncorrectUploadDialog';
+import { useToast } from '@/src/context/ToastContext';
 import { useFileUpload } from '@/src/mutations';
 
 type Props = {
@@ -15,16 +16,17 @@ const UploadButton = (props: Props) => {
   const [inputFiles, setInputFiles] = useState<File[]>([]);
   const inputFileRef = useRef<HTMLInputElement>(null);
   const { uploadFiles, isUploading } = useFileUpload();
+  const { showSuccess, showErrorWithRetry } = useToast();
 
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
-  const toggledSendOpen = () => {
-    setSendDialogOpen(!sendDialogOpen);
-  };
+  const toggledSendOpen = useCallback(() => {
+    setSendDialogOpen((prev) => !prev);
+  }, []);
 
   const [incorrectDialogOpen, setIncorrectDialogOpen] = useState(false);
-  const toggleIncorrectOpen = () => {
-    setIncorrectDialogOpen(!incorrectDialogOpen);
-  };
+  const toggleIncorrectOpen = useCallback(() => {
+    setIncorrectDialogOpen((prev) => !prev);
+  }, []);
 
   const changeUploadFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const target: HTMLInputElement = event.target;
@@ -79,7 +81,15 @@ const UploadButton = (props: Props) => {
     setInputFiles(Array.from(dt.files));
   };
 
-  const onSend = async () => {
+  const clearFiles = useCallback(() => {
+    if (inputFileRef.current) {
+      const dt = new DataTransfer();
+      inputFileRef.current.files = dt.files;
+      setInputFiles(Array.from(dt.files));
+    }
+  }, []);
+
+  const onSend = useCallback(async () => {
     if (!inputFileRef.current?.files || inputFileRef.current.files.length === 0) {
       toggledSendOpen();
       return;
@@ -89,15 +99,16 @@ const UploadButton = (props: Props) => {
     const result = await uploadFiles(files);
 
     if (result.success) {
-      // アップロード成功後、ファイルリストをクリア
-      const dt = new DataTransfer();
-      inputFileRef.current.files = dt.files;
-      setInputFiles(Array.from(dt.files));
+      clearFiles();
+      showSuccess('ファイルをアップロードしました');
     } else {
       console.error('Upload failed:', result.error);
-      alert(`アップロードに失敗しました: ${result.error}`);
+      showErrorWithRetry(
+        result.error ?? 'アップロードに失敗しました',
+        () => void onSend(),
+      );
     }
-  };
+  }, [uploadFiles, clearFiles, showSuccess, showErrorWithRetry, toggledSendOpen]);
 
   return (
     <Box sx={{ mb: 2 }}>

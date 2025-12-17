@@ -1,3 +1,5 @@
+'use client';
+
 import { AccordionDetails, Typography } from '@mui/material';
 import Link from 'next/link';
 import { KeyedMutator } from 'swr';
@@ -5,6 +7,7 @@ import { KeyedMutator } from 'swr';
 import { BasicButton } from '@/src/components/Buttons/BasicButton';
 import CommentList from '@/src/components/CommentList';
 import LoadCircle from '@/src/components/LoadCircle';
+import { useToast } from '@/src/context/ToastContext';
 import { useTaskMutation } from '@/src/mutations';
 import { AccountData, Comment, Task } from '@/src/types';
 
@@ -24,9 +27,24 @@ type Props = {
 
 const AdminDetail = (props: Props) => {
   const { reassign } = useTaskMutation(props.mutate);
+  const { showSuccess, showErrorWithRetry } = useToast();
 
   const onReassign = (): void => {
-    reassign(props.taskId, props.id).catch((e) => console.error(e));
+    reassign(props.taskId, props.id)
+      .then((result) => {
+        if (result.success) {
+          showSuccess('タスクを再アサインしました');
+        } else {
+          showErrorWithRetry(
+            result.error ?? '再アサインに失敗しました',
+            () => onReassign(),
+          );
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+        showErrorWithRetry('再アサインに失敗しました', () => onReassign());
+      });
   };
   return (
     <AccordionDetails>

@@ -4,6 +4,18 @@ import '@testing-library/jest-dom';
 import CommentList from '@/src/components/CommentList';
 import { AccountData, Comment } from '@/src/types';
 
+// useToastをモック
+jest.mock('@/src/context/ToastContext', () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+    showError: jest.fn(),
+    showSuccess: jest.fn(),
+    showErrorWithRetry: jest.fn(),
+    removeToast: jest.fn(),
+    toasts: [],
+  }),
+}));
+
 // useCommentMutationをモック
 jest.mock('@/src/mutations', () => ({
   useCommentMutation: () => ({

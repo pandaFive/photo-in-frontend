@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Box,
@@ -13,6 +15,7 @@ import {
 } from '@mui/material';
 
 import CircleRate from '@/src/components/CircleRate';
+import { useToast } from '@/src/context/ToastContext';
 import { parseIsoToYYYYMMDD } from '@/src/domain/functions/date';
 import { useAccountMutation } from '@/src/mutations';
 import { MemberStatus } from '@/src/types';
@@ -24,6 +27,7 @@ type Props = {
 
 const MemberCard = (props: Props) => {
   const { deleteAccount } = useAccountMutation();
+  const { showSuccess, showErrorWithRetry } = useToast();
 
   const onDelete = async () => {
     if (!confirm(`${props.member.name}を削除しますか？`)) {
@@ -33,8 +37,13 @@ const MemberCard = (props: Props) => {
     const result = await deleteAccount(props.member.id);
     if (result.success) {
       props.handleDelete(props.member.id);
+      showSuccess('メンバーを削除しました');
     } else {
       console.error('Failed to delete member:', result.error);
+      showErrorWithRetry(
+        result.error ?? 'メンバーの削除に失敗しました',
+        () => void onDelete(),
+      );
     }
   };
 

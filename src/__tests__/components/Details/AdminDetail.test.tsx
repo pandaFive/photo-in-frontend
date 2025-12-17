@@ -3,6 +3,18 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AdminDetail from '@/src/components/Details/AdminDetail';
 
+// useToastをモック
+jest.mock('@/src/context/ToastContext', () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+    showError: jest.fn(),
+    showSuccess: jest.fn(),
+    showErrorWithRetry: jest.fn(),
+    removeToast: jest.fn(),
+    toasts: [],
+  }),
+}));
+
 // モックの準備
 jest.mock('next/link', () => {
   return ({ children, href }) => {

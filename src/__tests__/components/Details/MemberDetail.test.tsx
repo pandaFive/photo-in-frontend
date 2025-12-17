@@ -5,6 +5,18 @@ import MemberDetail from '@/src/components/Details/MemberDetail';
 
 import { Comment } from '@/src/types';
 
+// useToastをモック
+jest.mock('@/src/context/ToastContext', () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+    showError: jest.fn(),
+    showSuccess: jest.fn(),
+    showErrorWithRetry: jest.fn(),
+    removeToast: jest.fn(),
+    toasts: [],
+  }),
+}));
+
 // モックの準備
 jest.mock('next/link', () => {
   return ({ children, href }) => {
