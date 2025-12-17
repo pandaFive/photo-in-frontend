@@ -14,10 +14,7 @@
 
 ## 優先度: 低
 
-### 1. Phase 5: テスト整備
-- [ ] `src/domain/functions/date.ts` - 純粋関数テスト追加
-- [ ] `src/infra/http/client.ts` - httpClientテスト（MSW使用）
-- [ ] `src/infra/http/serverClient.ts` - serverHttpClientテスト
+### 1. Phase 5: テスト整備（残り）
 - [ ] `src/queries/useTaskList.ts` - hookテスト
 - [ ] `src/queries/useTaskDetail.ts` - hookテスト
 - [ ] `src/queries/useWeekComplete.ts` - hookテスト
@@ -68,6 +65,11 @@
 - [x] `post-signup.ts` - serverHttpClient化
 - [x] `post-task-create.ts` - serverHttpClient化
 
+### Phase 5: テスト整備
+- [x] `src/domain/functions/date.ts` - 純粋関数テスト（21件）
+- [x] `src/infra/http/client.ts` - httpClientテスト（16件）
+- [x] `src/infra/http/serverClient.ts` - serverHttpClientテスト（12件）
+
 ### クリーンアップ
 - [x] `src/util/fetch-comment.ts` 削除 - useCommentMutationに置換
 - [x] `src/util/hooks/useTaskListData.ts` 削除 - useTaskListに置換
@@ -93,3 +95,13 @@ infra (http, time)
 
 domain ← 全層から参照可能（逆方向禁止）
 ```
+
+## テストカバレッジ
+
+| カテゴリ | テスト数 |
+|---------|---------|
+| domain/functions/date | 21件 |
+| infra/http/client | 16件 |
+| infra/http/serverClient | 12件 |
+| コンポーネント | 57件 |
+| **合計** | **106件** |
