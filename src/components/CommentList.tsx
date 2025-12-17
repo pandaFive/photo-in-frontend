@@ -24,6 +24,7 @@ import {
 import * as React from 'react';
 import { useMemo, useCallback } from 'react';
 
+import { useToast } from '@/src/context/ToastContext';
 import { getNow } from '@/src/infra/time';
 import { useCommentMutation } from '@/src/mutations';
 
@@ -122,6 +123,7 @@ const CommentList = (props: Props) => {
   const [flagNewComment, setFlagNewComment] = React.useState(false);
 
   const { createComment, updateComment, deleteComment } = useCommentMutation();
+  const { showSuccess, showError } = useToast();
 
   const role: string = props.account.role;
   const name: string = props.account.name;
@@ -149,10 +151,19 @@ const CommentList = (props: Props) => {
 
   const handleDeleteClick = useCallback((id: GridRowId) => () => {
     setRows((prev) => prev.filter((row) => row.id !== id));
-    deleteComment(id as number).catch((err) =>
-      console.error('Failed to delete comment:', err)
-    );
-  }, [deleteComment]);
+    deleteComment(id as number)
+      .then((result) => {
+        if (result.success) {
+          showSuccess('コメントを削除しました');
+        } else {
+          showError(result.error ?? 'コメントの削除に失敗しました');
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to delete comment:', err);
+        showError('コメントの削除に失敗しました');
+      });
+  }, [deleteComment, showSuccess, showError]);
 
   const handleCancelClick = useCallback((id: GridRowId) => () => {
     setRowModesModel((prev) => ({
@@ -190,18 +201,33 @@ const CommentList = (props: Props) => {
                   row.id === newRow.id ? newUpdatedRow : row
                 )
               );
+              showSuccess('コメントを投稿しました');
+            } else {
+              showError(result.error ?? 'コメントの投稿に失敗しました');
             }
           })
-          .catch((e) => console.error('Failed to post comment:', e));
+          .catch((e) => {
+            console.error('Failed to post comment:', e);
+            showError('コメントの投稿に失敗しました');
+          });
         setFlagNewComment(false);
       } else {
         // 既存コメント更新
-        updateComment(newRow.comment as string, newRow.id as number).catch((e) =>
-          console.error('Failed to update comment:', e)
-        );
+        updateComment(newRow.comment as string, newRow.id as number)
+          .then((result) => {
+            if (result.success) {
+              showSuccess('コメントを更新しました');
+            } else {
+              showError(result.error ?? 'コメントの更新に失敗しました');
+            }
+          })
+          .catch((e) => {
+            console.error('Failed to update comment:', e);
+            showError('コメントの更新に失敗しました');
+          });
       }
     },
-    [flagNewComment, createComment, updateComment, props.account.id, props.cycleId]
+    [flagNewComment, createComment, updateComment, props.account.id, props.cycleId, showSuccess, showError]
   );
 
   /**

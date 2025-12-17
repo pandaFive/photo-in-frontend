@@ -4,6 +4,18 @@ import '@testing-library/jest-dom';
 import TaskAccordion from '@/src/components/TaskAccordion';
 import { AccountData, Task } from '@/src/types';
 
+// useToastをモック
+jest.mock('@/src/context/ToastContext', () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+    showError: jest.fn(),
+    showSuccess: jest.fn(),
+    showErrorWithRetry: jest.fn(),
+    removeToast: jest.fn(),
+    toasts: [],
+  }),
+}));
+
 // モックの関数とデータを準備
 const mockFetch = jest.fn();
 global.fetch = mockFetch;

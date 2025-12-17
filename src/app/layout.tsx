@@ -5,6 +5,8 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 
 import Footer from '@/src/components/Footer';
 import Header from '@/src/components/Header';
+import { ToastContainer } from '@/src/components/Toast';
+import { ToastProvider } from '@/src/context/ToastContext';
 
 import theme from '../theme';
 
@@ -27,12 +29,15 @@ export default function RootLayout({
       <body>
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Box sx={{ display: 'flex', backgroundColor: '#f9f9f9' }}>
-              <Header />
-              {children}
-            </Box>
-            <Footer />
+            <ToastProvider>
+              <CssBaseline />
+              <Box sx={{ display: 'flex', backgroundColor: '#f9f9f9' }}>
+                <Header />
+                {children}
+              </Box>
+              <Footer />
+              <ToastContainer />
+            </ToastProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>
