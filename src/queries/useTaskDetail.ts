@@ -15,15 +15,29 @@ type TaskDetailState = {
   error: string | null;
 };
 
+// モジュールレベルのキャッシュ（コンポーネントのアンマウントに影響されない）
+// キーは文字列に統一（型の不一致を防ぐ）
+const taskDetailCache = new Map<string, TaskDetailData>();
+const fetchingTasks = new Set<string>();
+
+/** キャッシュにデータが存在するかチェック */
+export const isTaskDetailCached = (taskId: number): boolean => {
+  return taskDetailCache.has(String(taskId));
+};
+
 /**
  * タスク詳細データ（ファイルURL・コメント）の遅延読み込み用hook
  * アコーディオン展開時に手動でfetchをトリガー
  */
 export const useTaskDetail = (taskId: number, taskTitle: string, accountId: number) => {
+  const cacheKey = String(taskId);
+
+  // キャッシュからの初期値を設定
+  const cachedData = taskDetailCache.get(cacheKey);
   const [state, setState] = useState<TaskDetailState>({
-    data: null,
+    data: cachedData ?? null,
     isLoading: false,
-    isLoaded: false,
+    isLoaded: !!cachedData,
     error: null,
   });
 
@@ -33,8 +47,11 @@ export const useTaskDetail = (taskId: number, taskTitle: string, accountId: numb
    * データを取得（手動トリガー）
    */
   const fetchData = useCallback(async () => {
-    // 既にロード済みの場合はスキップ
-    if (state.isLoaded) return;
+    // 既にキャッシュ済みまたはフェッチ中の場合はスキップ
+    if (taskDetailCache.has(cacheKey) || fetchingTasks.has(cacheKey)) {
+      return;
+    }
+    fetchingTasks.add(cacheKey);
 
     // 既存のリクエストがある場合はキャンセル
     if (abortControllerRef.current) {
@@ -63,18 +80,25 @@ export const useTaskDetail = (taskId: number, taskTitle: string, accountId: numb
         throw new Error(commentsResult.error.message);
       }
 
+      const data = {
+        fileUrl: fileResult.value,
+        comments: commentsResult.value,
+      };
+
+      // キャッシュに保存
+      taskDetailCache.set(cacheKey, data);
+      fetchingTasks.delete(cacheKey);
+
       setState({
-        data: {
-          fileUrl: fileResult.value,
-          comments: commentsResult.value,
-        },
+        data,
         isLoading: false,
         isLoaded: true,
         error: null,
       });
     } catch (err: unknown) {
+      fetchingTasks.delete(cacheKey);
+
       if (err instanceof Error && err.name === 'AbortError') {
-        // キャンセルされた場合は何もしない
         return;
       }
 
@@ -86,7 +110,7 @@ export const useTaskDetail = (taskId: number, taskTitle: string, accountId: numb
       }));
       console.error('Failed to fetch task data:', err);
     }
-  }, [taskId, taskTitle, accountId, state.isLoaded]);
+  }, [cacheKey, taskId, taskTitle, accountId]);
 
   /**
    * クリーンアップ（コンポーネントアンマウント時に呼び出し）

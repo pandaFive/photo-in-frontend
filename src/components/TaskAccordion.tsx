@@ -1,19 +1,19 @@
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PlaceIcon from '@mui/icons-material/Place';
 import {
   AccordionSummary,
   Accordion,
+  Box,
+  Chip,
   Typography,
-  Divider,
-  Grid,
 } from '@mui/material';
-import { useEffect } from 'react';
-import { memo } from 'react';
+import { useEffect, memo, useState, useCallback } from 'react';
 import { KeyedMutator } from 'swr';
 
 import AdminDetail from '@/src/components/Details/AdminDetail';
 import MemberDetail from '@/src/components/Details/MemberDetail';
 import { toLocaleDateString } from '@/src/domain/functions/date';
-import { useTaskDetail } from '@/src/queries';
+import { useTaskDetail, isTaskDetailCached } from '@/src/queries';
 import { AccountData, Task } from '@/src/types';
 
 type Props = {
@@ -28,21 +28,23 @@ type Props = {
 };
 
 const TaskAccordion = (props: Props) => {
-  const {
-    fileUrl,
-    comments,
-    isLoaded,
-    fetchData,
-    cleanup,
-  } = useTaskDetail(props.task.id, props.task.title, props.account.id);
+  const [expanded, setExpanded] = useState(false);
+  const { fileUrl, comments, isLoaded, fetchData, cleanup } = useTaskDetail(
+    props.task.id,
+    props.task.title,
+    props.account.id,
+  );
 
-  const onClickArrow = () => {
-    if (!isLoaded) {
-      void fetchData();
-    }
-  };
+  const handleChange = useCallback(
+    (_event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpanded(isExpanded);
+      if (isExpanded && !isTaskDetailCached(props.task.id)) {
+        void fetchData();
+      }
+    },
+    [props.task.id, fetchData],
+  );
 
-  // コンポーネントアンマウント時にリクエストをキャンセル
   useEffect(() => {
     return cleanup;
   }, [cleanup]);
@@ -50,32 +52,79 @@ const TaskAccordion = (props: Props) => {
   const formattedDate = toLocaleDateString(new Date(props.task.created_at));
 
   return (
-    <Grid sx={{ mt: 1, mb: 1 }} width={'98%'}>
+    <Box sx={{ mb: 1 }}>
       <Accordion
+        expanded={expanded}
+        onChange={handleChange}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          borderTop: 1,
-          borderTopColor: '#efefef',
+          borderRadius: 2,
+          boxShadow: 'none',
+          border: '1px solid',
+          borderColor: 'divider',
+          '&:before': {
+            display: 'none',
+          },
+          '&.Mui-expanded': {
+            margin: 0,
+            borderColor: '#667eea',
+          },
+          transition: 'border-color 0.2s ease',
+          '&:hover': {
+            borderColor: 'rgba(102, 126, 234, 0.5)',
+          },
         }}
       >
         <AccordionSummary
-          aria-controls="task content"
-          expandIcon={<ArrowDropDownIcon />}
-          id="task header"
-          onClick={onClickArrow}
+          aria-controls={`task-${props.task.id}-content`}
+          expandIcon={
+            <ExpandMoreIcon
+              sx={{
+                color: '#667eea',
+              }}
+            />
+          }
+          id={`task-${props.task.id}-header`}
+          sx={{
+            '&:hover': {
+              bgcolor: 'rgba(102, 126, 234, 0.04)',
+            },
+            '& .MuiAccordionSummary-content': {
+              alignItems: 'center',
+              gap: 2,
+            },
+          }}
         >
           <Typography
-            mx={2}
-            width={150}
-          >{`${String(props.index + 1)}.  地域：${props.task.area_name}`}</Typography>
-          <Divider
-            flexItem
-            orientation="vertical"
-            sx={{ borderRightWidth: 1, borderColor: 'gray' }}
+            sx={{
+              fontWeight: 600,
+              color: '#667eea',
+              minWidth: 32,
+            }}
+          >
+            {props.index + 1}
+          </Typography>
+          <Chip
+            icon={<PlaceIcon sx={{ fontSize: 16 }} />}
+            label={props.task.area_name}
+            size="small"
+            sx={{
+              bgcolor: 'rgba(102, 126, 234, 0.1)',
+              color: '#667eea',
+              fontWeight: 500,
+              '& .MuiChip-icon': {
+                color: '#667eea',
+              },
+            }}
           />
-          <Typography mx={2}>{props.task.title}</Typography>
+          <Typography
+            sx={{
+              flex: 1,
+              fontWeight: 500,
+              color: 'text.primary',
+            }}
+          >
+            {props.task.title}
+          </Typography>
         </AccordionSummary>
         {props.type === 'member' ? (
           <MemberDetail
@@ -106,7 +155,7 @@ const TaskAccordion = (props: Props) => {
           />
         )}
       </Accordion>
-    </Grid>
+    </Box>
   );
 };
 

@@ -1,10 +1,12 @@
 'use client';
 
-import { AccordionDetails, Typography } from '@mui/material';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { AccordionDetails, Box, Button, Chip, Divider } from '@mui/material';
 import Link from 'next/link';
 import { KeyedMutator } from 'swr';
 
-import { BasicButton } from '@/src/components/Buttons/BasicButton';
 import CommentList from '@/src/components/CommentList';
 import LoadCircle from '@/src/components/LoadCircle';
 import { useToast } from '@/src/context/ToastContext';
@@ -46,25 +48,80 @@ const AdminDetail = (props: Props) => {
         showErrorWithRetry('再アサインに失敗しました', () => onReassign());
       });
   };
+
   return (
-    <AccordionDetails>
-      <Link href={props.url} target="_blank">
-        {'Open File in New Tab'}
-      </Link>
-      <Typography>{`登録日時：${props.date}`}</Typography>
+    <AccordionDetails sx={{ bgcolor: '#fafbfc', pt: 2 }}>
+      {/* 情報バー */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 2,
+          mb: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Chip
+            icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />}
+            label={`登録日: ${props.date}`}
+            size="small"
+            sx={{ bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}
+          />
+          <Link href={props.url} passHref target="_blank">
+            <Button
+              endIcon={<OpenInNewIcon sx={{ fontSize: 16 }} />}
+              size="small"
+              sx={{
+                color: '#667eea',
+                textTransform: 'none',
+                fontWeight: 500,
+                '&:hover': {
+                  bgcolor: 'rgba(102, 126, 234, 0.08)',
+                },
+              }}
+            >
+              ファイルを開く
+            </Button>
+          </Link>
+        </Box>
+        {props.dataType === 'NG' && (
+          <Button
+            onClick={onReassign}
+            size="small"
+            startIcon={<RefreshIcon />}
+            sx={{
+              bgcolor: '#667eea',
+              color: 'white',
+              borderRadius: 2,
+              px: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': {
+                bgcolor: '#5a6fd6',
+              },
+            }}
+            variant="contained"
+          >
+            再アサイン
+          </Button>
+        )}
+      </Box>
+
+      <Divider sx={{ mb: 2 }} />
+
+      {/* コメントセクション */}
       {!props.isLoaded ? (
-        <LoadCircle />
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <LoadCircle />
+        </Box>
       ) : (
         <CommentList
           account={props.account}
           comments={props.comments}
           cycleId={props.cycleId}
         />
-      )}
-      {props.dataType === 'NG' ? (
-        <BasicButton onClick={onReassign} str="再アサイン" />
-      ) : (
-        <></>
       )}
     </AccordionDetails>
   );

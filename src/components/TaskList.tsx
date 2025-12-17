@@ -1,10 +1,13 @@
 'use client';
 
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import {
+  Alert,
   Box,
   Button,
   ButtonGroup,
-  Divider,
+  Chip,
+  Container,
   Paper,
   Toolbar,
   Typography,
@@ -22,6 +25,29 @@ import { grouping } from '@/src/util/grouping';
 type Props = {
   id: number;
   account: AccountData;
+};
+
+const buttonGroupStyle = {
+  '& .MuiButton-root': {
+    borderRadius: 0,
+    bgcolor: '#667eea',
+    px: 2.5,
+    '&:hover': {
+      bgcolor: '#5a6fd6',
+    },
+    '&.Mui-disabled': {
+      bgcolor: 'rgba(102, 126, 234, 0.5)',
+      color: 'white',
+    },
+  },
+  '& .MuiButton-root:first-of-type': {
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  '& .MuiButton-root:last-of-type': {
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
 };
 
 const sortSectionKeys = (list: string[], sortType: string): string[] => {
@@ -48,172 +74,201 @@ const TaskList = (props: Props) => {
     [changeDataType],
   );
 
-  // dataとsortTypeからmutateDataを計算（メモ化）
   const mutateData = useMemo(() => {
     return grouping(data, sortType);
   }, [data, sortType]);
 
-  // mutateDataとsortTypeからsectionを計算（メモ化）
   const section = useMemo(() => {
     return sortSectionKeys(Object.keys(mutateData), sortType);
   }, [mutateData, sortType]);
+
+  const totalTasks = data.length;
 
   return (
     <Box
       sx={{
         flexGrow: 1,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        minHeight: '100vh',
+        bgcolor: '#f5f7fa',
       }}
     >
-      <Box
-        component="main"
-        sx={{
-          overflow: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          maxWidth: '1500px',
-        }}
-      >
-        <Toolbar />
-        {error && (
-          <Typography color="error" sx={{ mt: 1 }}>
-            {error}
-          </Typography>
-        )}
-        <Box
+      <Toolbar />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* ページヘッダー */}
+        <Paper
+          elevation={0}
           sx={{
-            display: 'flex',
-            justifyContent: 'space-evenly',
-            width: '400px',
+            p: 3,
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: '#667eea',
+            color: 'white',
           }}
         >
-          <ButtonGroup
-            aria-label="sort type"
-            disableElevation
+          <Box
             sx={{
-              mt: 2,
               display: 'flex',
-              justifyContent: 'center',
-              '& .MuiButton-root': {
-                borderRadius: 0,
-                bgcolor: '#667eea',
-                '&:hover': {
-                  bgcolor: '#5a6fd6',
-                },
-                '&.Mui-disabled': {
-                  bgcolor: 'rgba(102, 126, 234, 0.5)',
-                  color: 'white',
-                },
-              },
-              '& .MuiButton-root:first-of-type': {
-                borderTopLeftRadius: 8,
-                borderBottomLeftRadius: 8,
-              },
-              '& .MuiButton-root:last-of-type': {
-                borderTopRightRadius: 8,
-                borderBottomRightRadius: 8,
-              },
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 2,
             }}
-            variant="contained"
           >
-            <Button
-              disabled={sortType === 'time'}
-              onClick={() => onChangeType('time')}
-            >
-              日付
-            </Button>
-            <Button
-              disabled={sortType === 'area'}
-              onClick={() => onChangeType('area')}
-            >
-              地域
-            </Button>
-          </ButtonGroup>
-          {props.account.role !== 'member' ? (
-            <ButtonGroup
-              aria-label="data type"
-              disableElevation
-              sx={{
-                mt: 2,
-                display: 'flex',
-                justifyContent: 'center',
-                '& .MuiButton-root': {
-                  borderRadius: 0,
-                  bgcolor: '#667eea',
-                  '&:hover': {
-                    bgcolor: '#5a6fd6',
-                  },
-                  '&.Mui-disabled': {
-                    bgcolor: 'rgba(102, 126, 234, 0.5)',
-                    color: 'white',
-                  },
-                },
-                '& .MuiButton-root:first-of-type': {
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                },
-                '& .MuiButton-root:last-of-type': {
-                  borderTopRightRadius: 8,
-                  borderBottomRightRadius: 8,
-                },
-              }}
-              variant="contained"
-            >
-              <Button
-                disabled={dataType === 'active'}
-                onClick={() => onChangeDataType('active')}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                  borderRadius: 2,
+                  p: 1.5,
+                  display: 'flex',
+                }}
               >
-                ALL
-              </Button>
-              <Button
-                disabled={dataType === 'NG'}
-                onClick={() => onChangeDataType('NG')}
+                <FormatListBulletedIcon sx={{ fontSize: 32 }} />
+              </Box>
+              <Box>
+                <Typography sx={{ fontWeight: 700, fontSize: '1.5rem' }}>
+                  タスク一覧
+                </Typography>
+                <Typography sx={{ opacity: 0.9, fontSize: '0.875rem' }}>
+                  {totalTasks}件のタスク
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <ButtonGroup
+                aria-label="sort type"
+                disableElevation
+                sx={buttonGroupStyle}
+                variant="contained"
               >
-                NG
-              </Button>
-            </ButtonGroup>
-          ) : (
-            <></>
-          )}
-        </Box>
+                <Button
+                  disabled={sortType === 'time'}
+                  onClick={() => onChangeType('time')}
+                >
+                  日付順
+                </Button>
+                <Button
+                  disabled={sortType === 'area'}
+                  onClick={() => onChangeType('area')}
+                >
+                  地域順
+                </Button>
+              </ButtonGroup>
+              {props.account.role !== 'member' && (
+                <ButtonGroup
+                  aria-label="data type"
+                  disableElevation
+                  sx={buttonGroupStyle}
+                  variant="contained"
+                >
+                  <Button
+                    disabled={dataType === 'active'}
+                    onClick={() => onChangeDataType('active')}
+                  >
+                    すべて
+                  </Button>
+                  <Button
+                    disabled={dataType === 'NG'}
+                    onClick={() => onChangeDataType('NG')}
+                  >
+                    NG
+                  </Button>
+                </ButtonGroup>
+              )}
+            </Box>
+          </Box>
+        </Paper>
+
+        {/* エラー表示 */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* タスク一覧 */}
         {isLoading ? (
-          <LoadCircle />
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <LoadCircle />
+          </Box>
+        ) : section.length === 0 ? (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              borderRadius: 3,
+              textAlign: 'center',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+            }}
+          >
+            <Typography color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+              タスクがありません
+            </Typography>
+          </Paper>
         ) : (
-          section?.map((sectionName: string) => (
+          section.map((sectionName: string) => (
             <Paper
-              elevation={6}
+              elevation={0}
               key={sectionName}
-              sx={{ m: 2, p: 2, width: '1000px' }}
+              sx={{
+                mb: 3,
+                borderRadius: 3,
+                overflow: 'hidden',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+              }}
             >
-              <Typography component="h4" key={sectionName} variant="h4">
-                {sectionName}
-              </Typography>
-              <Typography
-                component="h5"
-                variant="h5"
-              >{`${mutateData[sectionName]?.length}件`}</Typography>
-              <Divider />
-              {mutateData[sectionName]?.map((task: Task, index: number) => (
-                <TaskAccordion
-                  account={props.account}
-                  dataType={dataType}
-                  index={index}
-                  key={task.id}
-                  mutate={mutate}
-                  reload={onChangeDataType}
-                  task={task}
-                  taskId={task.id}
-                  type={props.account.role}
+              {/* セクションヘッダー */}
+              <Box
+                sx={{
+                  px: 3,
+                  py: 2,
+                  bgcolor: '#f8f9fc',
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '1.1rem',
+                    color: 'text.primary',
+                  }}
+                >
+                  {sectionName}
+                </Typography>
+                <Chip
+                  label={`${mutateData[sectionName]?.length}件`}
+                  size="small"
+                  sx={{
+                    bgcolor: '#667eea',
+                    color: 'white',
+                    fontWeight: 600,
+                  }}
                 />
-              ))}
+              </Box>
+              {/* タスクアコーディオン */}
+              <Box sx={{ p: 2 }}>
+                {mutateData[sectionName]?.map((task: Task, index: number) => (
+                  <TaskAccordion
+                    account={props.account}
+                    dataType={dataType}
+                    index={index}
+                    key={task.id}
+                    mutate={mutate}
+                    reload={onChangeDataType}
+                    task={task}
+                    taskId={task.id}
+                    type={props.account.role}
+                  />
+                ))}
+              </Box>
             </Paper>
           ))
         )}
-      </Box>
+      </Container>
     </Box>
   );
 };
