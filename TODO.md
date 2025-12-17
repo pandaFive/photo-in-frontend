@@ -14,10 +14,7 @@
 
 ## 優先度: 低
 
-### 1. エラー表示UI改善
-- [ ] トースト通知コンポーネント追加
-- [ ] mutation失敗時のユーザー通知
-- [ ] ネットワークエラー時のリトライUI
+（なし - UI改善完了）
 
 ---
 
@@ -76,6 +73,13 @@
 - [x] `src/__tests__/components/CommentList.test.tsx` - モック更新
 - [x] `src/mutations/useFileUpload.ts` - httpClient.postFormData化
 - [x] `src/__tests__/components/Chart.test.tsx` - useWeekCompleteモック更新
+
+### UI改善
+- [x] `src/context/ToastContext.tsx` - Toast Context & Provider
+- [x] `src/components/Toast.tsx` - トースト通知コンポーネント
+- [x] MemberCard, CommentList, UploadButton, AdminDetail, MemberDetail - useToast統合
+- [x] mutation成功/失敗時のユーザー通知
+- [x] ネットワークエラー時のリトライUIボタン
 
 ---
 
