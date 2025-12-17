@@ -14,13 +14,7 @@
 
 ## 優先度: 低
 
-### 1. Phase 5: テスト整備（残り）
-- [ ] `src/queries/useTaskList.ts` - hookテスト
-- [ ] `src/queries/useTaskDetail.ts` - hookテスト
-- [ ] `src/queries/useWeekComplete.ts` - hookテスト
-- [ ] `src/mutations/useTaskMutation.ts` - hookテスト
-
-### 2. エラー表示UI改善
+### 1. エラー表示UI改善
 - [ ] トースト通知コンポーネント追加
 - [ ] mutation失敗時のユーザー通知
 - [ ] ネットワークエラー時のリトライUI
@@ -70,6 +64,10 @@
 - [x] `src/mutations/useCommentMutation.ts` - hookテスト（8件）
 - [x] `src/mutations/useFileUpload.ts` - hookテスト（9件）
 - [x] `src/mutations/useAccountMutation.ts` - hookテスト（5件）
+- [x] `src/queries/useTaskList.ts` - hookテスト（12件）
+- [x] `src/queries/useTaskDetail.ts` - hookテスト（11件）
+- [x] `src/queries/useWeekComplete.ts` - hookテスト（13件）
+- [x] `src/mutations/useTaskMutation.ts` - hookテスト（16件）
 
 ### クリーンアップ
 - [x] `src/util/fetch-comment.ts` 削除 - useCommentMutationに置換
@@ -104,8 +102,12 @@ domain ← 全層から参照可能（逆方向禁止）
 | domain/functions/date | 21件 |
 | infra/http/client | 16件 |
 | infra/http/serverClient | 12件 |
+| queries/useTaskList | 12件 |
+| queries/useTaskDetail | 11件 |
+| queries/useWeekComplete | 13件 |
 | mutations/useCommentMutation | 8件 |
 | mutations/useFileUpload | 9件 |
 | mutations/useAccountMutation | 5件 |
-| コンポーネント | 57件 |
-| **合計** | **128件** |
+| mutations/useTaskMutation | 16件 |
+| コンポーネント | 52件 |
+| **合計** | **175件** |
