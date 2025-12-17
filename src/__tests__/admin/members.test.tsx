@@ -59,10 +59,10 @@ describe('Members Component', () => {
     render(<Members />);
 
     await waitFor(() => {
-      expect(screen.getByText('現在の撮影者数：2')).toBeInTheDocument();
+      expect(screen.getByText('2名の撮影者が登録されています')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('撮影者を追加する')).toBeInTheDocument();
+    expect(screen.getByText('撮影者を追加')).toBeInTheDocument();
     expect(screen.getByTestId('member-card-1')).toBeInTheDocument();
     expect(screen.getByTestId('member-card-2')).toBeInTheDocument();
   });
@@ -71,14 +71,13 @@ describe('Members Component', () => {
     render(<Members />);
 
     await waitFor(() => {
-      expect(screen.getByText('現在の撮影者数：2')).toBeInTheDocument();
+      expect(screen.getByText('2名の撮影者が登録されています')).toBeInTheDocument();
     });
 
-    // fireEvent.click(screen.getByText('Delete'));
     fireEvent.click(screen.getByLabelText('delete1'));
 
     await waitFor(() => {
-      expect(screen.getByText('現在の撮影者数：1')).toBeInTheDocument();
+      expect(screen.getByText('1名の撮影者が登録されています')).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId('member-card-1')).not.toBeInTheDocument();
