@@ -37,3 +37,4 @@ next-env.d.ts
 
 # dev end file
 .env*.development
+CLAUDE.md
