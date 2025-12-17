@@ -1,15 +1,18 @@
 'use client';
 
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import { styled, Theme, CSSObject } from '@mui/material/styles';
 
-import { mainListItems, secondaryListItems } from '@/src/components/ListItems';
+import {
+  MainListItems,
+  SecondaryListItems,
+} from '@/src/components/ListItems';
 
-import theme from '../theme';
 const drawerWidth: number = 240;
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -50,11 +53,19 @@ const DrawerContainer = styled(MuiDrawer, {
   boxSizing: 'border-box',
   ...(open && {
     ...openedMixin(theme),
-    '& .MuiDrawer-paper': openedMixin(theme),
+    '& .MuiDrawer-paper': {
+      ...openedMixin(theme),
+      borderRight: 'none',
+      boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
+    },
   }),
   ...(!open && {
     ...closedMixin(theme),
-    '& .MuiDrawer-paper': closedMixin(theme),
+    '& .MuiDrawer-paper': {
+      ...closedMixin(theme),
+      borderRight: 'none',
+      boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
+    },
   }),
 }));
 
@@ -67,20 +78,26 @@ const Drawer = (props: Props) => {
   return (
     <DrawerContainer open={props.open} variant="permanent">
       <DrawerHeader>
-        <IconButton onClick={props.toggleDrawer}>
-          {theme.direction === 'rtl' ? (
-            <ChevronLeftIcon />
-          ) : (
-            <ChevronLeftIcon />
-          )}
+        <IconButton
+          onClick={props.toggleDrawer}
+          sx={{
+            color: '#667eea',
+            '&:hover': {
+              bgcolor: 'rgba(102, 126, 234, 0.08)',
+            },
+          }}
+        >
+          <ChevronLeftIcon />
         </IconButton>
       </DrawerHeader>
       <Divider />
-      <List component="nav">
-        {mainListItems}
-        <Divider sx={{ my: 1 }} />
-        {secondaryListItems}
-      </List>
+      <Box sx={{ py: 1 }}>
+        <List component="nav" sx={{ px: 1 }}>
+          <MainListItems open={props.open} />
+          <Divider sx={{ my: 2, mx: 1 }} />
+          <SecondaryListItems open={props.open} />
+        </List>
+      </Box>
     </DrawerContainer>
   );
 };
