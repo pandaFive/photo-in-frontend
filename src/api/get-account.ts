@@ -4,18 +4,35 @@ import { serverHttpClient } from '@/src/infra/http';
 import { AccountData } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
 
-type AccountResponse = {
-  account: AccountData;
+// バックエンドが返す実際のレスポンス構造
+type AccountApiResponse = {
+  id: number;
+  name: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  capacity: number;
 };
 
 export const getAccount = async (): Promise<AccountData | null> => {
   const token = getCookies('token');
-  const result = await serverHttpClient.get<AccountResponse>('/account', {
+
+  if (!token) {
+    return null;
+  }
+
+  const result = await serverHttpClient.get<AccountApiResponse>('/account', {
     headers: { Authorization: `Bearer ${token}` },
   });
 
   if (result.ok) {
-    return result.value.account;
+    return {
+      id: result.value.id,
+      name: result.value.name,
+      role: result.value.role,
+      area: [],
+      token: token,
+    };
   }
   return null;
 };
