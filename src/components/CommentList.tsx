@@ -70,7 +70,17 @@ const EditToolbar = (props: EditToolbarProps) => {
 
   return (
     <GridToolbarContainer>
-      <Button color="primary" onClick={handleClick} startIcon={<AddIcon />}>
+      <Button
+        onClick={handleClick}
+        startIcon={<AddIcon />}
+        sx={{
+          borderRadius: 2,
+          color: '#667eea',
+          '&:hover': {
+            bgcolor: 'rgba(102, 126, 234, 0.08)',
+          },
+        }}
+      >
         Add comment
       </Button>
     </GridToolbarContainer>

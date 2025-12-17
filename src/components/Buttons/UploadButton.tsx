@@ -116,6 +116,13 @@ const UploadButton = (props: Props) => {
         component="label"
         role={undefined}
         startIcon={<CloudUploadIcon />}
+        sx={{
+          borderRadius: 2,
+          bgcolor: '#667eea',
+          '&:hover': {
+            bgcolor: '#5a6fd6',
+          },
+        }}
         tabIndex={-1}
         variant="contained"
       >
@@ -136,7 +143,17 @@ const UploadButton = (props: Props) => {
       <Button
         disabled={isUploading}
         onClick={() => void onSend()}
-        sx={{ ml: 1 }}
+        sx={{
+          ml: 1,
+          borderRadius: 2,
+          bgcolor: '#667eea',
+          '&:hover': {
+            bgcolor: '#5a6fd6',
+          },
+          '&.Mui-disabled': {
+            bgcolor: 'rgba(102, 126, 234, 0.5)',
+          },
+        }}
         variant="contained"
       >
         {isUploading ? 'アップロード中...' : '送信'}
@@ -146,7 +163,19 @@ const UploadButton = (props: Props) => {
         {selectedFileArray.map((file, index) => (
           <div key={file.name}>
             <div>{file.name}</div>
-            <Button onClick={() => handleDelete(index)} variant="outlined">
+            <Button
+              onClick={() => handleDelete(index)}
+              sx={{
+                borderRadius: 2,
+                borderColor: '#667eea',
+                color: '#667eea',
+                '&:hover': {
+                  borderColor: '#5a6fd6',
+                  bgcolor: 'rgba(102, 126, 234, 0.04)',
+                },
+              }}
+              variant="outlined"
+            >
               削除
             </Button>
           </div>
