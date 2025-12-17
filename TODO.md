@@ -19,8 +19,6 @@
 - [ ] `src/queries/useTaskDetail.ts` - hookテスト
 - [ ] `src/queries/useWeekComplete.ts` - hookテスト
 - [ ] `src/mutations/useTaskMutation.ts` - hookテスト
-- [ ] `src/mutations/useCommentMutation.ts` - hookテスト
-- [ ] `src/mutations/useFileUpload.ts` - hookテスト
 
 ### 2. エラー表示UI改善
 - [ ] トースト通知コンポーネント追加
@@ -69,6 +67,9 @@
 - [x] `src/domain/functions/date.ts` - 純粋関数テスト（21件）
 - [x] `src/infra/http/client.ts` - httpClientテスト（16件）
 - [x] `src/infra/http/serverClient.ts` - serverHttpClientテスト（12件）
+- [x] `src/mutations/useCommentMutation.ts` - hookテスト（8件）
+- [x] `src/mutations/useFileUpload.ts` - hookテスト（9件）
+- [x] `src/mutations/useAccountMutation.ts` - hookテスト（5件）
 
 ### クリーンアップ
 - [x] `src/util/fetch-comment.ts` 削除 - useCommentMutationに置換
@@ -103,5 +104,8 @@ domain ← 全層から参照可能（逆方向禁止）
 | domain/functions/date | 21件 |
 | infra/http/client | 16件 |
 | infra/http/serverClient | 12件 |
+| mutations/useCommentMutation | 8件 |
+| mutations/useFileUpload | 9件 |
+| mutations/useAccountMutation | 5件 |
 | コンポーネント | 57件 |
-| **合計** | **106件** |
+| **合計** | **128件** |
