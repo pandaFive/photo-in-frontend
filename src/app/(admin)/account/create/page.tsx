@@ -180,7 +180,19 @@ const AccountCreate = () => {
             <Button
               disabled={isSubmitting}
               size="medium"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{
+                mt: 3,
+                mb: 2,
+                borderRadius: 2,
+                bgcolor: '#667eea',
+                px: 4,
+                '&:hover': {
+                  bgcolor: '#5a6fd6',
+                },
+                '&.Mui-disabled': {
+                  bgcolor: 'rgba(102, 126, 234, 0.5)',
+                },
+              }}
               type="submit"
               variant="contained"
             >

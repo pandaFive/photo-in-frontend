@@ -94,7 +94,17 @@ const SignInSide = () => {
               /> */}
               <Button
                 fullWidth
-                sx={{ mt: 3, mb: 2 }}
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  borderRadius: 2,
+                  bgcolor: '#667eea',
+                  py: 1.5,
+                  fontWeight: 600,
+                  '&:hover': {
+                    bgcolor: '#5a6fd6',
+                  },
+                }}
                 type="submit"
                 variant="contained"
               >

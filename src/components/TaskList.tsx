@@ -94,7 +94,30 @@ const TaskList = (props: Props) => {
           <ButtonGroup
             aria-label="sort type"
             disableElevation
-            sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+            sx={{
+              mt: 2,
+              display: 'flex',
+              justifyContent: 'center',
+              '& .MuiButton-root': {
+                borderRadius: 0,
+                bgcolor: '#667eea',
+                '&:hover': {
+                  bgcolor: '#5a6fd6',
+                },
+                '&.Mui-disabled': {
+                  bgcolor: 'rgba(102, 126, 234, 0.5)',
+                  color: 'white',
+                },
+              },
+              '& .MuiButton-root:first-of-type': {
+                borderTopLeftRadius: 8,
+                borderBottomLeftRadius: 8,
+              },
+              '& .MuiButton-root:last-of-type': {
+                borderTopRightRadius: 8,
+                borderBottomRightRadius: 8,
+              },
+            }}
             variant="contained"
           >
             <Button
@@ -114,7 +137,30 @@ const TaskList = (props: Props) => {
             <ButtonGroup
               aria-label="data type"
               disableElevation
-              sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+              sx={{
+                mt: 2,
+                display: 'flex',
+                justifyContent: 'center',
+                '& .MuiButton-root': {
+                  borderRadius: 0,
+                  bgcolor: '#667eea',
+                  '&:hover': {
+                    bgcolor: '#5a6fd6',
+                  },
+                  '&.Mui-disabled': {
+                    bgcolor: 'rgba(102, 126, 234, 0.5)',
+                    color: 'white',
+                  },
+                },
+                '& .MuiButton-root:first-of-type': {
+                  borderTopLeftRadius: 8,
+                  borderBottomLeftRadius: 8,
+                },
+                '& .MuiButton-root:last-of-type': {
+                  borderTopRightRadius: 8,
+                  borderBottomRightRadius: 8,
+                },
+              }}
               variant="contained"
             >
               <Button
