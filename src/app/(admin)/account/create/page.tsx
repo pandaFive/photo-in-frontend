@@ -1,11 +1,13 @@
 'use client';
 
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import {
+  Alert,
   Box,
   Button,
   Container,
+  Paper,
   TextField,
-  Input,
   Toolbar,
   Typography,
 } from '@mui/material';
@@ -65,142 +67,231 @@ const AccountCreate = () => {
       setIsSubmitting(false);
     }
   };
+
   return (
     <Box
       sx={{
         flexGrow: 1,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
+        minHeight: '100vh',
+        bgcolor: '#f5f7fa',
       }}
     >
-      <Box
-        component="main"
-        sx={{ backgroundColor: '#f9f9f9', flexGrow: 1, overflow: 'auto' }}
-      >
-        <Toolbar />
-        <Container
-          maxWidth="xl"
+      <Toolbar />
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        {/* ページヘッダー */}
+        <Paper
+          elevation={0}
           sx={{
-            mt: 4,
+            p: 3,
             mb: 4,
-            display: 'flex',
-            justifyContent: 'center',
-            flexDirection: 'column',
+            borderRadius: 3,
+            bgcolor: '#667eea',
+            color: 'white',
           }}
         >
-          <Typography variant="h4">Create New Account</Typography>
-          {error && (
-            <Typography color="error" sx={{ mt: 2 }}>
-              {error}
-            </Typography>
-          )}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                borderRadius: 2,
+                p: 1.5,
+                display: 'flex',
+              }}
+            >
+              <PersonAddIcon sx={{ fontSize: 32 }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 700, fontSize: '1.5rem' }}>
+                新規アカウント作成
+              </Typography>
+              <Typography sx={{ opacity: 0.9, fontSize: '0.875rem' }}>
+                撮影者の情報を入力してください
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+
+        {/* エラー表示 */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* フォーム */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+          }}
+        >
           <Box
             component="form"
             noValidate
             onSubmit={(event) => {
               void handleSubmit(event);
             }}
-            sx={{ mt: 2 }}
           >
-            <Box
-              alignItems={'center'}
-              display={'flex'}
-              sx={{ backgroundColor: 'background.paper', mb: 1 }}
-            >
-              <Typography sx={{ m: 2, width: '15%' }}>Account name</Typography>
+            {/* アカウント名 */}
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  mb: 1,
+                  color: 'text.primary',
+                }}
+              >
+                アカウント名
+              </Typography>
               <TextField
-                aria-label="Account Name"
                 autoComplete="text"
                 autoFocus
+                fullWidth
                 id="name"
-                label="Account Name"
-                margin="normal"
                 name="name"
+                placeholder="例: 山田太郎"
                 required
                 size="small"
-                sx={{ width: '20%' }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
               />
             </Box>
-            <Box
-              alignItems={'center'}
-              display={'flex'}
-              sx={{ backgroundColor: 'background.paper', mb: 1 }}
-            >
-              <Typography sx={{ m: 2, width: '15%' }}>password</Typography>
+
+            {/* パスワード */}
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  mb: 1,
+                  color: 'text.primary',
+                }}
+              >
+                パスワード
+              </Typography>
               <TextField
-                aria-label="password"
-                autoComplete="password"
-                autoFocus
+                autoComplete="new-password"
+                fullWidth
+                helperText="8文字以上で入力してください"
                 id="password"
-                label="password"
-                margin="normal"
                 name="password"
                 required
                 size="small"
-                sx={{ width: '20%' }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
                 type="password"
               />
             </Box>
-            <Box
-              alignItems={'center'}
-              display={'flex'}
-              sx={{ backgroundColor: 'background.paper', mb: 1 }}
-            >
-              <Typography sx={{ m: 2, width: '15%' }}>
-                1日当たりのキャパシティ
+
+            {/* キャパシティ */}
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  mb: 1,
+                  color: 'text.primary',
+                }}
+              >
+                1日あたりのキャパシティ
               </Typography>
-              <Input
-                defaultValue={0}
+              <TextField
+                defaultValue={1}
+                fullWidth
+                helperText="1日に対応可能な撮影件数"
+                inputProps={{ min: 1 }}
                 name="capacity"
                 required
                 size="small"
+                sx={{
+                  maxWidth: 200,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
                 type="number"
               />
             </Box>
-            <Box
-              alignItems={'center'}
-              display={'flex'}
-              sx={{ backgroundColor: 'background.paper', mb: 1 }}
-            >
-              <Typography sx={{ m: 2, width: '15%' }}>
+
+            {/* 撮影可能エリア */}
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  mb: 1,
+                  color: 'text.primary',
+                }}
+              >
                 撮影可能エリア
               </Typography>
-              <AreaListCheck />
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: '#f5f7fa',
+                  borderRadius: 2,
+                }}
+              >
+                <AreaListCheck />
+              </Box>
             </Box>
-            <Box
-              alignItems={'center'}
-              display={'flex'}
-              sx={{ backgroundColor: 'background.paper', mb: 1 }}
-            >
-              <Typography sx={{ m: 2, width: '15%' }}>Role</Typography>
-              <RoleRadioButton />
+
+            {/* Role */}
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  mb: 1,
+                  color: 'text.primary',
+                }}
+              >
+                権限
+              </Typography>
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: '#f5f7fa',
+                  borderRadius: 2,
+                }}
+              >
+                <RoleRadioButton />
+              </Box>
             </Box>
-            <Button
-              disabled={isSubmitting}
-              size="medium"
-              sx={{
-                mt: 3,
-                mb: 2,
-                borderRadius: 2,
-                bgcolor: '#667eea',
-                px: 4,
-                '&:hover': {
-                  bgcolor: '#5a6fd6',
-                },
-                '&.Mui-disabled': {
-                  bgcolor: 'rgba(102, 126, 234, 0.5)',
-                },
-              }}
-              type="submit"
-              variant="contained"
-            >
-              {isSubmitting ? '作成中...' : '新規作成'}
-            </Button>
+
+            {/* 送信ボタン */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                disabled={isSubmitting}
+                size="large"
+                startIcon={<PersonAddIcon />}
+                sx={{
+                  borderRadius: 2,
+                  bgcolor: '#667eea',
+                  px: 4,
+                  py: 1.5,
+                  fontWeight: 600,
+                  '&:hover': {
+                    bgcolor: '#5a6fd6',
+                  },
+                  '&.Mui-disabled': {
+                    bgcolor: 'rgba(102, 126, 234, 0.5)',
+                    color: 'white',
+                  },
+                }}
+                type="submit"
+                variant="contained"
+              >
+                {isSubmitting ? '作成中...' : 'アカウントを作成'}
+              </Button>
+            </Box>
           </Box>
-        </Container>
-      </Box>
+        </Paper>
+      </Container>
     </Box>
   );
 };
