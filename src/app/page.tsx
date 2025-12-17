@@ -9,19 +9,12 @@ import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import * as React from 'react';
 
 import { loginAction } from '../util/actions/login';
 
 const defaultTheme = createTheme();
 
 const SignInSide = () => {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    void loginAction(data);
-  };
-
   return (
     <ThemeProvider theme={defaultTheme}>
       <Grid component="main" container sx={{ height: '100vh' }}>
@@ -72,12 +65,9 @@ const SignInSide = () => {
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
-            <Box
-              component="form"
-              noValidate
-              onSubmit={handleSubmit}
-              sx={{ mt: 1 }}
-            >
+            {/* eslint-disable @typescript-eslint/no-misused-promises */}
+            <form action={loginAction} style={{ marginTop: '8px' }}>
+              {/* eslint-enable @typescript-eslint/no-misused-promises */}
               <TextField
                 autoComplete="text"
                 autoFocus
@@ -110,7 +100,7 @@ const SignInSide = () => {
               >
                 Sign In
               </Button>
-            </Box>
+            </form>
           </Box>
         </Grid>
       </Grid>
