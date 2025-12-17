@@ -16,11 +16,11 @@ const Dashboard = async () => {
   const areaNames: string[] = (await getAreas()).map((area) => area.name);
   // const areaNames: string[] = areas?.map((area) => area.name);
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', flexGrow: 1 }}>
       <Box
         component="main"
         sx={{
-          backgroundColor: '#f9f9f9',
+          bgcolor: '#f5f7fa',
           flexGrow: 1,
           overflow: 'auto',
         }}

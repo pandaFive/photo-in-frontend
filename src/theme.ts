@@ -11,12 +11,22 @@ const roboto = Roboto({
 const theme = createTheme({
   palette: {
     mode: 'light',
+    primary: {
+      main: '#667eea',
+      dark: '#5a6fd6',
+      light: '#8494ef',
+      contrastText: '#ffffff',
+    },
     background: {
-      default: '#f5f5f5',
+      default: '#f5f7fa',
+      paper: '#ffffff',
     },
   },
   typography: {
     fontFamily: roboto.style.fontFamily,
+  },
+  shape: {
+    borderRadius: 8,
   },
   components: {
     MuiAlert: {
@@ -26,6 +36,27 @@ const theme = createTheme({
             backgroundColor: '#60a5fa',
           }),
         }),
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 600,
+        },
+        contained: {
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+          },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
       },
     },
   },
