@@ -29,16 +29,16 @@ describe('AccountCreate', () => {
 
   test('renders the component', () => {
     render(<AccountCreate />);
-    expect(screen.getByText('Create New Account')).toBeInTheDocument();
+    expect(screen.getByText('新規アカウント作成')).toBeInTheDocument();
   });
 
   test('renders form fields', () => {
     render(<AccountCreate />);
-    expect(screen.getByText('Account name')).toBeInTheDocument();
-    expect(screen.getByLabelText('password')).toBeInTheDocument();
-    expect(screen.getByText('1日当たりのキャパシティ')).toBeInTheDocument();
+    expect(screen.getByText('アカウント名')).toBeInTheDocument();
+    expect(screen.getByText('パスワード')).toBeInTheDocument();
+    expect(screen.getByText('1日あたりのキャパシティ')).toBeInTheDocument();
     expect(screen.getByText('撮影可能エリア')).toBeInTheDocument();
-    expect(screen.getByText('Role')).toBeInTheDocument();
+    expect(screen.getByText('権限')).toBeInTheDocument();
   });
 
   test('renders AreaListCheck and RoleRadioButton components', () => {
@@ -49,7 +49,7 @@ describe('AccountCreate', () => {
 
   test('shows error when name is empty', async () => {
     render(<AccountCreate />);
-    const submitButton = screen.getByRole('button', { name: '新規作成' });
+    const submitButton = screen.getByRole('button', { name: /アカウントを作成/i });
 
     fireEvent.click(submitButton);
 
@@ -62,9 +62,9 @@ describe('AccountCreate', () => {
 
   test('shows error when password is too short', async () => {
     render(<AccountCreate />);
-    const nameInput = screen.getByLabelText(/Account Name/i, { selector: 'input' });
-    const passwordInput = screen.getByLabelText(/password/i, { selector: 'input' });
-    const submitButton = screen.getByRole('button', { name: '新規作成' });
+    const nameInput = screen.getByPlaceholderText('例: 山田太郎');
+    const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
+    const submitButton = screen.getByRole('button', { name: /アカウントを作成/i });
 
     fireEvent.change(nameInput, { target: { value: 'TestUser' } });
     fireEvent.change(passwordInput, { target: { value: 'short' } });
@@ -80,10 +80,10 @@ describe('AccountCreate', () => {
 
   test('shows error when capacity is invalid', async () => {
     render(<AccountCreate />);
-    const nameInput = screen.getByLabelText(/Account Name/i, { selector: 'input' });
-    const passwordInput = screen.getByLabelText(/password/i, { selector: 'input' });
+    const nameInput = screen.getByPlaceholderText('例: 山田太郎');
+    const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
     const capacityInput = screen.getByRole('spinbutton');
-    const submitButton = screen.getByRole('button', { name: '新規作成' });
+    const submitButton = screen.getByRole('button', { name: /アカウントを作成/i });
 
     fireEvent.change(nameInput, { target: { value: 'TestUser' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123' } });
@@ -100,10 +100,10 @@ describe('AccountCreate', () => {
 
   test('submits form with correct data', async () => {
     render(<AccountCreate />);
-    const nameInput = screen.getByLabelText(/Account Name/i, { selector: 'input' });
-    const passwordInput = screen.getByLabelText(/password/i, { selector: 'input' });
+    const nameInput = screen.getByPlaceholderText('例: 山田太郎');
+    const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
     const capacityInput = screen.getByRole('spinbutton');
-    const submitButton = screen.getByRole('button', { name: '新規作成' });
+    const submitButton = screen.getByRole('button', { name: /アカウントを作成/i });
 
     // 必須フィールドを入力
     fireEvent.change(nameInput, { target: { value: 'TestUser' } });

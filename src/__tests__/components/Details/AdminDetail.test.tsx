@@ -77,8 +77,8 @@ describe('AdminDetail', () => {
   it('renders correctly when loaded', () => {
     render(<AdminDetail {...mockProps} />);
 
-    expect(screen.getByText('Open File in New Tab')).toBeInTheDocument();
-    expect(screen.getByText('登録日時：2023-01-01')).toBeInTheDocument();
+    expect(screen.getByText('ファイルを開く')).toBeInTheDocument();
+    expect(screen.getByText('登録日: 2023-01-01')).toBeInTheDocument();
     expect(screen.getByTestId('comment-list')).toBeInTheDocument();
   });
 

@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useTaskDetail } from '@/src/queries/useTaskDetail';
+import { useTaskDetail, clearTaskDetailCache } from '@/src/queries/useTaskDetail';
 import { httpClient } from '@/src/infra/http';
 
 // httpClientをモック
@@ -19,6 +19,7 @@ const mockComments = [
 describe('useTaskDetail', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    clearTaskDetailCache();
   });
 
   describe('initial state', () => {

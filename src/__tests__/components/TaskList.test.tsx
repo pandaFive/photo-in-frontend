@@ -16,7 +16,7 @@ jest.mock('@/src/queries', () => ({
 // TaskAccordionをモック
 jest.mock('@/src/components/TaskAccordion', () => {
   return function MockTaskAccordion({ task }: { task: Task }) {
-    return <div data-testid={`task-${task.id}`}>{task.title}</div>;
+    return <div data-testid={`task-${task.id}`}>{task.task_title}</div>;
   };
 });
 
@@ -46,7 +46,7 @@ const mockAdminAccount: AccountData = {
 const mockTasks: Task[] = [
   {
     id: 1,
-    title: 'Task 1',
+    task_title: 'Task 1',
     area_name: 'Area A',
     assign_cycle_id: 1,
     created_at: '2023-01-01T00:00:00Z',
@@ -54,7 +54,7 @@ const mockTasks: Task[] = [
   },
   {
     id: 2,
-    title: 'Task 2',
+    task_title: 'Task 2',
     area_name: 'Area B',
     assign_cycle_id: 2,
     created_at: '2023-01-02T00:00:00Z',
@@ -211,8 +211,8 @@ describe('TaskList', () => {
       expect(screen.getByText('Task 1')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText('地域'));
+    fireEvent.click(screen.getByText('地域順'));
 
-    expect(screen.getByText('地域')).toBeDisabled();
+    expect(screen.getByText('地域順')).toBeDisabled();
   });
 });

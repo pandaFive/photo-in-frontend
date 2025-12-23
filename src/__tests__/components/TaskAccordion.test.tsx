@@ -16,9 +16,22 @@ jest.mock('@/src/context/ToastContext', () => ({
   }),
 }));
 
-// モックの関数とデータを準備
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+// useTaskDetailをモック
+const mockFetchData = jest.fn();
+const mockCleanup = jest.fn();
+
+jest.mock('@/src/queries', () => ({
+  useTaskDetail: () => ({
+    fileUrl: 'http://example.com/file',
+    comments: [{ id: 1, content: 'Test Comment' }],
+    isLoaded: true,
+    isLoading: false,
+    error: null,
+    fetchData: mockFetchData,
+    cleanup: mockCleanup,
+  }),
+  isTaskDetailCached: () => false,
+}));
 
 const mockAccount: AccountData = {
   id: 1,
@@ -42,7 +55,8 @@ const mockMutate = jest.fn();
 
 describe('TaskAccordion', () => {
   beforeEach(() => {
-    mockFetch.mockClear();
+    mockFetchData.mockClear();
+    mockCleanup.mockClear();
     mockReload.mockClear();
     mockMutate.mockClear();
   });
@@ -65,14 +79,6 @@ describe('TaskAccordion', () => {
   });
 
   test('expands accordion and fetches data on click', async () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        json: () => Promise.resolve('http://example.com/file'),
-      })
-      .mockResolvedValueOnce({
-        json: () => Promise.resolve([{ id: 1, content: 'Test Comment' }]),
-      });
-
     render(
       <TaskAccordion
         account={mockAccount}
@@ -90,15 +96,7 @@ describe('TaskAccordion', () => {
     fireEvent.click(accordionSummary);
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/aws?key=Test Task',
-        expect.any(Object),
-      );
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/comments?taskId=1&accountId=1',
-        expect.any(Object),
-      );
+      expect(mockFetchData).toHaveBeenCalled();
     });
   });
 
@@ -117,7 +115,7 @@ describe('TaskAccordion', () => {
     );
 
     // MemberDetailコンポーネントの特定の要素をチェック
-    expect(screen.getByText('Open File in New Tab')).toBeInTheDocument();
+    expect(screen.getByText('ファイルを開く')).toBeInTheDocument();
   });
 
   test('renders AdminDetail for admin type', () => {
@@ -136,6 +134,6 @@ describe('TaskAccordion', () => {
 
     // AdminDetailコンポーネントの特定の要素をチェック
     // 注意: これはAdminDetailコンポーネントの実装に依存します
-    expect(screen.getByText('Open File in New Tab')).toBeInTheDocument();
+    expect(screen.getByText('ファイルを開く')).toBeInTheDocument();
   });
 });
