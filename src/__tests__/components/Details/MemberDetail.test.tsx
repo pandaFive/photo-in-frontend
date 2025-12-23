@@ -80,8 +80,8 @@ describe('MemberDetail', () => {
   it('renders correctly when loaded', () => {
     render(<MemberDetail {...mockProps} />);
 
-    expect(screen.getByText('Open File in New Tab')).toBeInTheDocument();
-    expect(screen.getByText('振り分け日時：2023-01-01')).toBeInTheDocument();
+    expect(screen.getByText('ファイルを開く')).toBeInTheDocument();
+    expect(screen.getByText('振り分け日: 2023-01-01')).toBeInTheDocument();
     expect(screen.getByTestId('comment-list')).toBeInTheDocument();
     expect(screen.getByText('完了')).toBeInTheDocument();
     expect(screen.getByText('NG')).toBeInTheDocument();

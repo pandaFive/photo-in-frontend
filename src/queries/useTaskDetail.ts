@@ -25,6 +25,12 @@ export const isTaskDetailCached = (taskId: number): boolean => {
   return taskDetailCache.has(String(taskId));
 };
 
+/** キャッシュをクリア（テスト用） */
+export const clearTaskDetailCache = (): void => {
+  taskDetailCache.clear();
+  fetchingTasks.clear();
+};
+
 /**
  * タスク詳細データ（ファイルURL・コメント）の遅延読み込み用hook
  * アコーディオン展開時に手動でfetchをトリガー
