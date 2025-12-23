@@ -15,23 +15,19 @@ const mockHttpClient = httpClient as jest.Mocked<typeof httpClient>;
 const mockTasks: Task[] = [
   {
     id: 1,
-    title: 'Task 1',
-    areaId: 1,
-    areaName: 'Area 1',
-    historyId: 'h1',
-    createdAt: '2024-01-01',
-    limitDate: '2024-01-10',
-    tags: [],
+    task_title: 'Task 1',
+    area_name: 'Area 1',
+    history_id: 1,
+    assign_cycle_id: 1,
+    created_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 2,
-    title: 'Task 2',
-    areaId: 2,
-    areaName: 'Area 2',
-    historyId: 'h2',
-    createdAt: '2024-01-02',
-    limitDate: '2024-01-11',
-    tags: [],
+    task_title: 'Task 2',
+    area_name: 'Area 2',
+    history_id: 2,
+    assign_cycle_id: 2,
+    created_at: '2024-01-02T00:00:00Z',
   },
 ];
 

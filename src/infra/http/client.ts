@@ -19,7 +19,7 @@ const parseErrorMessage = (text: string): string => {
   if (!text) return 'Unknown error';
   try {
     const json = JSON.parse(text) as Record<string, unknown>;
-    if (Array.isArray(json.errors)) {
+    if (Array.isArray(json.errors) && json.errors.length > 0) {
       return (json.errors as string[]).join(', ');
     }
     if (typeof json.message === 'string') {
