@@ -31,7 +31,7 @@ const TaskAccordion = (props: Props) => {
   const [expanded, setExpanded] = useState(false);
   const { fileUrl, comments, isLoaded, fetchData, cleanup } = useTaskDetail(
     props.task.id,
-    props.task.title,
+    props.task.task_title,
     props.account.id,
   );
 
@@ -123,7 +123,7 @@ const TaskAccordion = (props: Props) => {
               color: 'text.primary',
             }}
           >
-            {props.task.title}
+            {props.task.task_title}
           </Typography>
         </AccordionSummary>
         {props.type === 'member' ? (

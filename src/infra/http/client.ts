@@ -12,6 +12,29 @@ type RequestOptions = {
 };
 
 /**
+ * エラーレスポンスからメッセージを抽出
+ * { errors: string[] } 形式と旧形式の両方に対応
+ */
+const parseErrorMessage = (text: string): string => {
+  if (!text) return 'Unknown error';
+  try {
+    const json = JSON.parse(text) as Record<string, unknown>;
+    if (Array.isArray(json.errors)) {
+      return (json.errors as string[]).join(', ');
+    }
+    if (typeof json.message === 'string') {
+      return json.message;
+    }
+    if (typeof json.error === 'string') {
+      return json.error;
+    }
+  } catch {
+    // JSONパースに失敗した場合はそのままテキストを返す
+  }
+  return text;
+};
+
+/**
  * HTTPクライアント
  * 全てのHTTPリクエストをResult型で返す
  */
@@ -28,8 +51,8 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const message = await res.text().catch(() => 'Unknown error');
-        return err(createApiError(res.status, message));
+        const text = await res.text().catch(() => '');
+        return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
       const data = (await res.json()) as T;
@@ -63,8 +86,8 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const message = await res.text().catch(() => 'Unknown error');
-        return err(createApiError(res.status, message));
+        const text = await res.text().catch(() => '');
+        return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
       const data = (await res.json()) as T;
@@ -99,8 +122,8 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const message = await res.text().catch(() => 'Unknown error');
-        return err(createApiError(res.status, message));
+        const text = await res.text().catch(() => '');
+        return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
       // PUTは空レスポンスの場合がある
@@ -138,8 +161,8 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const message = await res.text().catch(() => 'Unknown error');
-        return err(createApiError(res.status, message));
+        const text = await res.text().catch(() => '');
+        return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
       // DELETEは空レスポンスの場合がある
@@ -180,8 +203,8 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const message = await res.text().catch(() => 'Unknown error');
-        return err(createApiError(res.status, message));
+        const errorText = await res.text().catch(() => '');
+        return err(createApiError(res.status, parseErrorMessage(errorText)));
       }
 
       // 空レスポンスの場合がある

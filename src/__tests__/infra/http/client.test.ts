@@ -47,6 +47,38 @@ describe('httpClient', () => {
       }
     });
 
+    test('parses JSON error response with errors array', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        text: () => Promise.resolve(JSON.stringify({ errors: ['unauthorized', 'invalid token'], status: 401 })),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.type).toBe('api');
+        expect(result.error.status).toBe(401);
+        expect(result.error.message).toBe('unauthorized, invalid token');
+      }
+    });
+
+    test('parses JSON error response with single error in array', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 422,
+        text: () => Promise.resolve(JSON.stringify({ errors: ['Validation failed'], status: 422 })),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Validation failed');
+      }
+    });
+
     test('returns network error on fetch failure', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 

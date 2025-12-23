@@ -1,6 +1,6 @@
 export type Task = {
   id: number;
-  title: string;
+  task_title: string;
   area_name: string;
   history_id: number;
   assign_cycle_id: number;
