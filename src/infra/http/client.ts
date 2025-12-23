@@ -13,7 +13,15 @@ type RequestOptions = {
 
 /**
  * エラーレスポンスからメッセージを抽出
- * { errors: string[] } 形式と旧形式の両方に対応
+ *
+ * 対応形式:
+ * - { errors: string[] } - 配列要素をカンマ区切りで結合
+ * - { message: string } - messageプロパティを返却
+ * - { error: string } - errorプロパティを返却
+ * - 上記以外のJSON/非JSON - 元のテキストをそのまま返却
+ *
+ * @param text - エラーレスポンスのボディテキスト
+ * @returns 抽出されたエラーメッセージ、空の場合は'Unknown error'
  */
 const parseErrorMessage = (text: string): string => {
   if (!text) return 'Unknown error';

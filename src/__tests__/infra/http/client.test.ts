@@ -79,6 +79,70 @@ describe('httpClient', () => {
       }
     });
 
+    test('parses JSON error response with message field', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: () => Promise.resolve(JSON.stringify({ message: 'Internal server error' })),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.type).toBe('api');
+        expect(result.error.status).toBe(500);
+        expect(result.error.message).toBe('Internal server error');
+      }
+    });
+
+    test('parses JSON error response with error field', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        text: () => Promise.resolve(JSON.stringify({ error: 'Access denied' })),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.type).toBe('api');
+        expect(result.error.status).toBe(403);
+        expect(result.error.message).toBe('Access denied');
+      }
+    });
+
+    test('handles empty errors array gracefully', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        text: () => Promise.resolve(JSON.stringify({ errors: [] })),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('{"errors":[]}');
+      }
+    });
+
+    test('handles empty error response body', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: () => Promise.resolve(''),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Unknown error');
+      }
+    });
+
     test('returns network error on fetch failure', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
