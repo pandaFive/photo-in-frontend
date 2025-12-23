@@ -1,5 +1,4 @@
 'use client';
-import { Title } from '@mui/icons-material';
 import {
   Table,
   TableBody,
@@ -10,6 +9,7 @@ import {
 import React from 'react';
 
 import { getAccountStatus } from '@/src/api/get-account-status';
+import Title from '@/src/components/Title';
 import { MemberStatus } from '@/src/types';
 
 const Orders = () => {
