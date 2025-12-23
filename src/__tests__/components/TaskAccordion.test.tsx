@@ -43,7 +43,7 @@ const mockAccount: AccountData = {
 
 const mockTask: Task = {
   id: 1,
-  title: 'Test Task',
+  task_title: 'Test Task',
   area_name: 'Test Area',
   assign_cycle_id: 1,
   created_at: '2023-01-01T00:00:00Z',

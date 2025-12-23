@@ -31,37 +31,35 @@ jest.mock('@/src/api/tasks', () => ({
 const mockMemberAccount: AccountData = {
   id: 1,
   name: 'Test Member',
-  email: 'member@test.com',
+  area: ['Area 1'],
   role: 'member',
+  token: 'mock-token-member',
 };
 
 const mockAdminAccount: AccountData = {
   id: 2,
   name: 'Test Admin',
-  email: 'admin@test.com',
+  area: ['Area 1', 'Area 2'],
   role: 'admin',
+  token: 'mock-token-admin',
 };
 
 const mockTasks: Task[] = [
   {
     id: 1,
-    title: 'Task 1',
-    areaId: 1,
-    areaName: 'Area 1',
-    historyId: 'h1',
-    createdAt: '2024-01-01',
-    limitDate: '2024-01-10',
-    tags: [],
+    task_title: 'Task 1',
+    area_name: 'Area 1',
+    history_id: 1,
+    assign_cycle_id: 1,
+    created_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 2,
-    title: 'Task 2',
-    areaId: 2,
-    areaName: 'Area 2',
-    historyId: 'h2',
-    createdAt: '2024-01-02',
-    limitDate: '2024-01-11',
-    tags: [],
+    task_title: 'Task 2',
+    area_name: 'Area 2',
+    history_id: 2,
+    assign_cycle_id: 2,
+    created_at: '2024-01-02T00:00:00Z',
   },
 ];
 
