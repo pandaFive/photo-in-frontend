@@ -30,9 +30,9 @@ describe('serverHttpClient', () => {
       expect(parseErrorMessage(json)).toBe('Field required, Invalid format');
     });
 
-    test('{ errors: [] }空配列の場合は元テキストを返す', () => {
+    test('{ errors: [] }空配列の場合はUnknown errorを返す', () => {
       const json = JSON.stringify({ errors: [] });
-      expect(parseErrorMessage(json)).toBe(json);
+      expect(parseErrorMessage(json)).toBe('Unknown error');
     });
 
     test('{ message: string }形式をパース', () => {

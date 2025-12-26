@@ -88,6 +88,12 @@ export const toDisplayError = (error: DomainError): string => {
 };
 
 /**
+ * 不正リクエストエラー（400）かどうかを判定
+ */
+export const isBadRequest = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 400;
+
+/**
  * 認証エラー（401）かどうかを判定
  */
 export const isUnauthorized = (error: DomainError): boolean =>
@@ -98,6 +104,12 @@ export const isUnauthorized = (error: DomainError): boolean =>
  */
 export const isForbidden = (error: DomainError): boolean =>
   error.type === 'api' && error.status === 403;
+
+/**
+ * 未検出エラー（404）かどうかを判定
+ */
+export const isNotFound = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 404;
 
 /**
  * 競合エラー（409）かどうかを判定

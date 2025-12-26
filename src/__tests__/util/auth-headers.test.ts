@@ -9,6 +9,9 @@ jest.mock('next/headers', () => ({
 
 const mockCookies = cookies as jest.MockedFunction<typeof cookies>;
 
+// console.warnのモック
+const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
+
 describe('getAuthHeaders', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -37,7 +40,7 @@ describe('getAuthHeaders', () => {
   });
 
   describe('トークンが存在しない場合', () => {
-    test('cookieが取得できない場合は空オブジェクトを返す', () => {
+    test('cookieが取得できない場合は空オブジェクトを返し警告を出力', () => {
       mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue(undefined),
       } as unknown as ReturnType<typeof cookies>);
@@ -45,9 +48,12 @@ describe('getAuthHeaders', () => {
       const result = getAuthHeaders();
 
       expect(result).toEqual({});
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        '[getAuthHeaders] 認証トークンが見つかりません',
+      );
     });
 
-    test('cookieのvalueがundefinedの場合は空オブジェクトを返す', () => {
+    test('cookieのvalueがundefinedの場合は空オブジェクトを返し警告を出力', () => {
       mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: undefined }),
       } as unknown as ReturnType<typeof cookies>);
@@ -55,6 +61,9 @@ describe('getAuthHeaders', () => {
       const result = getAuthHeaders();
 
       expect(result).toEqual({});
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        '[getAuthHeaders] 認証トークンが見つかりません',
+      );
     });
   });
 
@@ -72,7 +81,7 @@ describe('getAuthHeaders', () => {
   });
 
   describe('空文字トークンの場合', () => {
-    test('空文字のトークンでもAuthorizationヘッダーを返す', () => {
+    test('空文字のトークンは空オブジェクトを返し警告を出力', () => {
       mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: '' }),
       } as unknown as ReturnType<typeof cookies>);
@@ -81,6 +90,21 @@ describe('getAuthHeaders', () => {
 
       // 空文字は falsy なので空オブジェクトを返す
       expect(result).toEqual({});
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        '[getAuthHeaders] 認証トークンが見つかりません',
+      );
+    });
+  });
+
+  describe('トークンが存在する場合の警告', () => {
+    test('トークンがある場合は警告を出力しない', () => {
+      mockCookies.mockReturnValue({
+        get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+      } as unknown as ReturnType<typeof cookies>);
+
+      getAuthHeaders();
+
+      expect(mockConsoleWarn).not.toHaveBeenCalled();
     });
   });
 });

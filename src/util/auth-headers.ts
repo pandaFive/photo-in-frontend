@@ -8,5 +8,9 @@ import { cookies } from 'next/headers';
  */
 export const getAuthHeaders = (): Record<string, string> => {
   const token = cookies().get('token')?.value;
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  if (!token) {
+    console.warn('[getAuthHeaders] 認証トークンが見つかりません');
+    return {};
+  }
+  return { Authorization: `Bearer ${token}` };
 };

@@ -4,9 +4,11 @@ import {
   createNetworkError,
   DomainError,
   err,
+  isBadRequest,
   isConflict,
   isDomainError,
   isForbidden,
+  isNotFound,
   isServiceUnavailable,
   isUnauthorized,
   NetworkError,
@@ -88,6 +90,23 @@ describe('error helpers', () => {
     });
   });
 
+  describe('isBadRequest', () => {
+    test('400 APIエラーをtrueと判定', () => {
+      const error: DomainError = { type: 'api', status: 400, message: 'Bad Request' };
+      expect(isBadRequest(error)).toBe(true);
+    });
+
+    test('他のステータスコードはfalse', () => {
+      const error: DomainError = { type: 'api', status: 401, message: 'Unauthorized' };
+      expect(isBadRequest(error)).toBe(false);
+    });
+
+    test('NetworkErrorはfalse', () => {
+      const error: DomainError = { type: 'network', message: 'Error' };
+      expect(isBadRequest(error)).toBe(false);
+    });
+  });
+
   describe('isUnauthorized', () => {
     test('401 APIエラーをtrueと判定', () => {
       const error: DomainError = { type: 'api', status: 401, message: 'Unauthorized' };
@@ -119,6 +138,23 @@ describe('error helpers', () => {
     test('NetworkErrorはfalse', () => {
       const error: DomainError = { type: 'network', message: 'Error' };
       expect(isForbidden(error)).toBe(false);
+    });
+  });
+
+  describe('isNotFound', () => {
+    test('404 APIエラーをtrueと判定', () => {
+      const error: DomainError = { type: 'api', status: 404, message: 'Not Found' };
+      expect(isNotFound(error)).toBe(true);
+    });
+
+    test('他のステータスコードはfalse', () => {
+      const error: DomainError = { type: 'api', status: 400, message: 'Bad Request' };
+      expect(isNotFound(error)).toBe(false);
+    });
+
+    test('NetworkErrorはfalse', () => {
+      const error: DomainError = { type: 'network', message: 'Error' };
+      expect(isNotFound(error)).toBe(false);
     });
   });
 

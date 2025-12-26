@@ -35,7 +35,11 @@ export const parseErrorMessage = (text: string): string => {
   if (!text) return 'Unknown error';
   try {
     const json = JSON.parse(text) as Record<string, unknown>;
-    if (Array.isArray(json.errors) && json.errors.length > 0) {
+    if (Array.isArray(json.errors)) {
+      // 空配列の場合はUnknown errorを返す
+      if (json.errors.length === 0) {
+        return 'Unknown error';
+      }
       return (json.errors as string[]).join(', ');
     }
     if (typeof json.message === 'string') {
