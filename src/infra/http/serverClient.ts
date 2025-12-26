@@ -31,7 +31,7 @@ type ServerRequestOptions = {
  * @param text - エラーレスポンスのボディテキスト
  * @returns 抽出されたエラーメッセージ、空の場合は'Unknown error'
  */
-const parseErrorMessage = (text: string): string => {
+export const parseErrorMessage = (text: string): string => {
   if (!text) return 'Unknown error';
   try {
     const json = JSON.parse(text) as Record<string, unknown>;

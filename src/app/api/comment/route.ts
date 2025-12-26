@@ -12,7 +12,16 @@ type Body = {
 };
 
 export const POST = async (request: NextRequest) => {
-  const body: Body = (await request.json()) as Body;
+  let body: Body;
+  try {
+    body = (await request.json()) as Body;
+  } catch {
+    return NextResponse.json(
+      { errors: ['リクエストボディのJSON形式が不正です'] },
+      { status: 400 },
+    );
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/comments`, {
       method: 'POST',
@@ -42,7 +51,16 @@ export const POST = async (request: NextRequest) => {
 };
 
 export const PUT = async (request: NextRequest) => {
-  const body: Body = (await request.json()) as Body;
+  let body: Body;
+  try {
+    body = (await request.json()) as Body;
+  } catch {
+    return NextResponse.json(
+      { errors: ['リクエストボディのJSON形式が不正です'] },
+      { status: 400 },
+    );
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/comments/${body.id}`, {
       method: 'PUT',
@@ -74,6 +92,13 @@ export const PUT = async (request: NextRequest) => {
 export const DELETE = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const commentId = searchParams.get('commentId');
+
+  if (!commentId || isNaN(Number(commentId))) {
+    return NextResponse.json(
+      { errors: ['commentIdが不正または未指定です'] },
+      { status: 400 },
+    );
+  }
 
   try {
     const res = await fetch(`${process.env.API_HOST}/comments/${commentId}`, {
