@@ -124,7 +124,8 @@ describe('httpClient', () => {
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error.message).toBe('{"errors":[]}');
+        // 空のerrors配列の場合はUnknown errorを返す
+        expect(result.error.message).toBe('Unknown error');
       }
     });
 
@@ -265,7 +266,7 @@ describe('httpClient', () => {
       }
     });
 
-    test('handles non-JSON response', async () => {
+    test('handles non-JSON response as error', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         text: () => Promise.resolve('OK'),
@@ -273,7 +274,11 @@ describe('httpClient', () => {
 
       const result = await httpClient.put('/api/test/1');
 
-      expect(result.ok).toBe(true);
+      // 非JSONレスポンスはエラーとして扱う（サイレント失敗防止）
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Invalid JSON response from server');
+      }
     });
   });
 

@@ -3,6 +3,8 @@
  * Next.js Server Components/Actionsから外部APIを呼び出す際に使用
  */
 
+import { z } from 'zod';
+
 import {
   Result,
   ok,
@@ -10,48 +12,35 @@ import {
   createApiError,
   createNetworkError,
 } from '@/src/domain/types/error';
+import { validateResponse } from '@/src/infra/validation';
+import { parseErrorMessage } from '@/src/util/parse-error';
+
+// 後方互換性のため再エクスポート
+export { parseErrorMessage };
 
 type CacheOption = 'force-cache' | 'no-store';
 
-type ServerRequestOptions = {
+type ServerRequestOptions<T = unknown> = {
   headers?: Record<string, string>;
   cache?: CacheOption;
   revalidate?: number; // seconds
+  /** オプショナルなzodスキーマ。指定時はレスポンスをバリデーション */
+  schema?: z.ZodSchema<T>;
 };
 
 /**
- * エラーレスポンスからメッセージを抽出
- *
- * 対応形式:
- * - { errors: string[] } - 配列要素をカンマ区切りで結合
- * - { message: string } - messageプロパティを返却
- * - { error: string } - errorプロパティを返却
- * - 上記以外のJSON/非JSON - 元のテキストをそのまま返却
- *
- * @param text - エラーレスポンスのボディテキスト
- * @returns 抽出されたエラーメッセージ、空の場合は'Unknown error'
+ * zodスキーマでデータをバリデーション
+ * スキーマが未指定の場合はそのまま返す（後方互換性）
+ * CODE-002: validateResponseを使用して重複を排除
  */
-export const parseErrorMessage = (text: string): string => {
-  if (!text) return 'Unknown error';
-  try {
-    const json = JSON.parse(text) as Record<string, unknown>;
-    if (Array.isArray(json.errors)) {
-      // 空配列の場合はUnknown errorを返す
-      if (json.errors.length === 0) {
-        return 'Unknown error';
-      }
-      return (json.errors as string[]).join(', ');
-    }
-    if (typeof json.message === 'string') {
-      return json.message;
-    }
-    if (typeof json.error === 'string') {
-      return json.error;
-    }
-  } catch {
-    // JSONパースに失敗した場合はそのままテキストを返す
+const validateWithSchema = <T>(
+  data: unknown,
+  schema?: z.ZodSchema<T>,
+): Result<T> => {
+  if (!schema) {
+    return ok(data as T);
   }
-  return text;
+  return validateResponse(schema, data);
 };
 
 /**
@@ -94,7 +83,7 @@ export const serverHttpClient = {
    */
   get: async <T>(
     path: string,
-    options?: ServerRequestOptions,
+    options?: ServerRequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const url = `${getApiHost()}${path}`;
@@ -111,8 +100,8 @@ export const serverHttpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data = (await res.json()) as T;
-      return ok(data);
+      const data: unknown = await res.json();
+      return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
     }
@@ -124,7 +113,7 @@ export const serverHttpClient = {
   post: async <T>(
     path: string,
     body?: unknown,
-    options?: ServerRequestOptions,
+    options?: ServerRequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const url = `${getApiHost()}${path}`;
@@ -145,8 +134,8 @@ export const serverHttpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data = (await res.json()) as T;
-      return ok(data);
+      const data: unknown = await res.json();
+      return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
     }

@@ -7,6 +7,8 @@ const createJestConfig = nextJest({
 
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  // Node環境テスト用の事前セットアップ（環境変数等）
+  setupFiles: ['<rootDir>/jest.setup.node.ts'],
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.+)$': '<rootDir>/$1',

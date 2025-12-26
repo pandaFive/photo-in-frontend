@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   Result,
   ok,
@@ -5,41 +7,29 @@ import {
   createApiError,
   createNetworkError,
 } from '@/src/domain/types/error';
+import { validateResponse } from '@/src/infra/validation';
+import { parseErrorMessage } from '@/src/util/parse-error';
 
-type RequestOptions = {
+type RequestOptions<T = unknown> = {
   signal?: AbortSignal;
   headers?: Record<string, string>;
+  /** オプショナルなzodスキーマ。指定時はレスポンスをバリデーション */
+  schema?: z.ZodSchema<T>;
 };
 
 /**
- * エラーレスポンスからメッセージを抽出
- *
- * 対応形式:
- * - { errors: string[] } - 配列要素をカンマ区切りで結合
- * - { message: string } - messageプロパティを返却
- * - { error: string } - errorプロパティを返却
- * - 上記以外のJSON/非JSON - 元のテキストをそのまま返却
- *
- * @param text - エラーレスポンスのボディテキスト
- * @returns 抽出されたエラーメッセージ、空の場合は'Unknown error'
+ * zodスキーマでデータをバリデーション
+ * スキーマが未指定の場合はそのまま返す（後方互換性）
+ * CODE-002: validateResponseを使用して重複を排除
  */
-const parseErrorMessage = (text: string): string => {
-  if (!text) return 'Unknown error';
-  try {
-    const json = JSON.parse(text) as Record<string, unknown>;
-    if (Array.isArray(json.errors) && json.errors.length > 0) {
-      return (json.errors as string[]).join(', ');
-    }
-    if (typeof json.message === 'string') {
-      return json.message;
-    }
-    if (typeof json.error === 'string') {
-      return json.error;
-    }
-  } catch {
-    // JSONパースに失敗した場合はそのままテキストを返す
+const validateWithSchema = <T>(
+  data: unknown,
+  schema?: z.ZodSchema<T>,
+): Result<T> => {
+  if (!schema) {
+    return ok(data as T);
   }
-  return text;
+  return validateResponse(schema, data);
 };
 
 /**
@@ -50,7 +40,10 @@ export const httpClient = {
   /**
    * GETリクエスト
    */
-  get: async <T>(url: string, options?: RequestOptions): Promise<Result<T>> => {
+  get: async <T>(
+    url: string,
+    options?: RequestOptions<T>,
+  ): Promise<Result<T>> => {
     try {
       const res = await fetch(url, {
         method: 'GET',
@@ -63,8 +56,8 @@ export const httpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data = (await res.json()) as T;
-      return ok(data);
+      const data: unknown = await res.json();
+      return validateWithSchema(data, options?.schema);
     } catch (e) {
       // AbortErrorは再throwして呼び出し側でハンドリング
       if (e instanceof Error && e.name === 'AbortError') {
@@ -80,7 +73,7 @@ export const httpClient = {
   post: async <T>(
     url: string,
     body?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const res = await fetch(url, {
@@ -98,8 +91,8 @@ export const httpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data = (await res.json()) as T;
-      return ok(data);
+      const data: unknown = await res.json();
+      return validateWithSchema(data, options?.schema);
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
         throw e;
@@ -114,7 +107,7 @@ export const httpClient = {
   put: async <T>(
     url: string,
     body?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const res = await fetch(url, {
@@ -141,10 +134,11 @@ export const httpClient = {
       }
 
       try {
-        const data = JSON.parse(text) as T;
-        return ok(data);
+        const data: unknown = JSON.parse(text);
+        return validateWithSchema(data, options?.schema);
       } catch {
-        return ok({} as T);
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        return err(createApiError(422, 'Invalid JSON response from server'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
@@ -159,7 +153,7 @@ export const httpClient = {
    */
   delete: async <T>(
     url: string,
-    options?: RequestOptions,
+    options?: RequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const res = await fetch(url, {
@@ -180,10 +174,11 @@ export const httpClient = {
       }
 
       try {
-        const data = JSON.parse(text) as T;
-        return ok(data);
+        const data: unknown = JSON.parse(text);
+        return validateWithSchema(data, options?.schema);
       } catch {
-        return ok({} as T);
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        return err(createApiError(422, 'Invalid JSON response from server'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
@@ -200,7 +195,7 @@ export const httpClient = {
   postFormData: async <T>(
     url: string,
     formData: FormData,
-    options?: RequestOptions,
+    options?: RequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const res = await fetch(url, {
@@ -222,10 +217,11 @@ export const httpClient = {
       }
 
       try {
-        const data = JSON.parse(text) as T;
-        return ok(data);
+        const data: unknown = JSON.parse(text);
+        return validateWithSchema(data, options?.schema);
       } catch {
-        return ok({} as T);
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        return err(createApiError(422, 'Invalid JSON response from server'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {

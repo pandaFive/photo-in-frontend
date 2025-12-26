@@ -13,11 +13,35 @@ import { type NextRequest } from 'next/server';
 
 import postTaskCreate from '@/src/api/post-task-create';
 import { isErrorResponse } from '@/src/types';
+import { getAuthHeaders } from '@/src/util/auth-headers';
 
 // 定数定義
 const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const SIGNED_URL_EXPIRATION = 7200; // 2時間（秒）
+
+/**
+ * ファイル名をサニタイズしてパストラバーサル攻撃を防止
+ * SEC-008: ユーザー入力のファイル名がS3キーに直接使用される問題の対策
+ */
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .replace(/\.\./g, '_')          // パストラバーサル防止
+    .replace(/[/\\:*?"<>|]/g, '_')  // 危険な文字を置換
+    .replace(/^\.+/, '_')           // 先頭のドットを置換（隠しファイル防止）
+    .trim();
+};
+
+/**
+ * S3キーのバリデーション（パストラバーサル検出）
+ */
+const isValidS3Key = (key: string): boolean => {
+  // パストラバーサルパターンを検出
+  if (key.includes('..') || key.startsWith('/') || key.includes('//')) {
+    return false;
+  }
+  return true;
+};
 
 // 環境変数の検証
 if (!process.env.REGION || !process.env.ACCESS_KEY || !process.env.SECRET_ACCESS_KEY || !process.env.S3_BUCKET_NAME) {
@@ -33,6 +57,15 @@ const s3Client = new S3Client({
 });
 
 export const GET = async (request: NextRequest) => {
+  // 認証チェック
+  const authHeaders = getAuthHeaders();
+  if (!authHeaders.Authorization) {
+    return NextResponse.json(
+      { errors: ['認証が必要です'] },
+      { status: 401 }
+    );
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const key = searchParams.get('key');
 
@@ -40,6 +73,14 @@ export const GET = async (request: NextRequest) => {
   if (!key || typeof key !== 'string' || key.trim() === '') {
     return NextResponse.json(
       { errors: ['Invalid or missing key parameter'] },
+      { status: 400 }
+    );
+  }
+
+  // パストラバーサル攻撃の検出
+  if (!isValidS3Key(key)) {
+    return NextResponse.json(
+      { errors: ['Invalid key format'] },
       { status: 400 }
     );
   }
@@ -64,6 +105,15 @@ export const GET = async (request: NextRequest) => {
 };
 
 export const POST = async (request: Request) => {
+  // 認証チェック
+  const authHeaders = getAuthHeaders();
+  if (!authHeaders.Authorization) {
+    return NextResponse.json(
+      { errors: ['認証が必要です'] },
+      { status: 401 }
+    );
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -92,7 +142,9 @@ export const POST = async (request: Request) => {
       );
     }
 
-    const name: string = file.name || `upload-${Date.now()}`;
+    // ファイル名をサニタイズ（SEC-008対策）
+    const rawName = file.name || `upload-${Date.now()}`;
+    const name: string = sanitizeFileName(rawName);
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const uploadParams: PutObjectCommandInput = {
