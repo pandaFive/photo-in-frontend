@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment, CommentApiResponse } from '@/src/types';
 import { getAuthHeaders } from '@/src/util/auth-headers';
 
@@ -42,10 +43,11 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch(() => '');
-      return NextResponse.json({ errors: [errorText || 'エラーが発生しました'] }, { status: res.status });
+      return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    console.error(err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('[POST] /api/comment:', errorMessage);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
@@ -81,10 +83,11 @@ export const PUT = async (request: NextRequest) => {
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch(() => '');
-      return NextResponse.json({ errors: [errorText || 'エラーが発生しました'] }, { status: res.status });
+      return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    console.error(err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('[PUT] /api/comment:', errorMessage);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
@@ -114,10 +117,11 @@ export const DELETE = async (request: NextRequest) => {
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch(() => '');
-      return NextResponse.json({ errors: [errorText || 'エラーが発生しました'] }, { status: res.status });
+      return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    console.error(err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('[DELETE] /api/comment:', errorMessage);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };

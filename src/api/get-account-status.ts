@@ -7,7 +7,7 @@ import { getCookies } from '@/src/util/cookies';
 export async function getAccountStatus(): Promise<ApiResult<MemberStatus[]>> {
   const token = getCookies('token');
   if (!token) {
-    return null;
+    return { errors: ['認証が必要です'] };
   }
 
   const result = await serverHttpClient.get<MemberStatus[]>('/accounts', {

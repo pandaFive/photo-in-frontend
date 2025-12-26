@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 
+import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Area } from '@/src/types';
 import { getAuthHeaders } from '@/src/util/auth-headers';
 
@@ -18,10 +19,11 @@ export const GET = async () => {
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch(() => '');
-      return NextResponse.json({ errors: [errorText || 'エラーが発生しました'] }, { status: res.status });
+      return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    console.error(err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('[GET] /api/areas:', errorMessage);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
