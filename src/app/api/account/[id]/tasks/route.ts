@@ -4,26 +4,37 @@ import { NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Task } from '@/src/types';
+import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { validateId } from '@/src/util/validation';
 
 export const GET = async (
   request: Request,
   { params }: { params: { id: string } },
 ) => {
-  const id = params.id;
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
 
-  if (!id || id.trim() === '') {
-    return NextResponse.json(
-      { errors: ['IDが不正または未指定です'] },
-      { status: 400 },
-    );
+  // SEC-007: IDバリデーション（バウンドチェック含む）
+  const idResult = validateId(params.id);
+  if (!idResult.valid) {
+    return NextResponse.json({ errors: [idResult.error] }, { status: 400 });
+  }
+  const id = idResult.id;
+
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
   }
 
   try {
     const res = await fetch(`${process.env.API_HOST}/account/tasks?id=${id}`, {
       cache: 'no-store',
       headers: {
-        ...getAuthHeaders(),
+        ...authResult.headers,
       },
     });
 

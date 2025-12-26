@@ -4,26 +4,44 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment } from '@/src/types';
+import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { validateId } from '@/src/util/validation';
 
 export const GET = async (request: NextRequest) => {
-  const searchParams = request.nextUrl.searchParams;
-  const taskId = searchParams.get('taskId');
-  const accountId = searchParams.get('accountId');
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
 
-  // 入力バリデーション
-  if (!taskId || !accountId) {
+  const searchParams = request.nextUrl.searchParams;
+  const taskIdParam = searchParams.get('taskId');
+  const accountIdParam = searchParams.get('accountId');
+
+  // SEC-007: IDバリデーション（バウンドチェック含む）
+  const taskIdResult = validateId(taskIdParam);
+  if (!taskIdResult.valid) {
     return NextResponse.json(
-      { errors: ['taskIdとaccountIdは必須です'] },
+      { errors: [`taskId: ${taskIdResult.error}`] },
       { status: 400 },
     );
   }
 
-  if (isNaN(Number(taskId)) || isNaN(Number(accountId))) {
+  const accountIdResult = validateId(accountIdParam);
+  if (!accountIdResult.valid) {
     return NextResponse.json(
-      { errors: ['taskIdとaccountIdは数値である必要があります'] },
+      { errors: [`accountId: ${accountIdResult.error}`] },
       { status: 400 },
     );
+  }
+
+  const taskId = taskIdResult.id;
+  const accountId = accountIdResult.id;
+
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
   }
 
   try {
@@ -32,7 +50,7 @@ export const GET = async (request: NextRequest) => {
       {
         cache: 'no-store',
         headers: {
-          ...getAuthHeaders(),
+          ...authResult.headers,
         },
       },
     );

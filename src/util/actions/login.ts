@@ -13,6 +13,8 @@ export async function loginAction(formData: FormData) {
 
   if ('token' in result) {
     setCookies('token', result.token);
+    // SEC-006: 認可チェック用にロール情報をCookieに保存
+    setCookies('role', result.role);
     if (result.role === 'admin') {
       redirect('/dashboard', RedirectType.push);
     } else {

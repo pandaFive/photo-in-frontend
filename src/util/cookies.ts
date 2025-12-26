@@ -13,6 +13,8 @@ export const setCookies = (name: string, value: string) => {
     expires: Date.now() + 24 * 60 * 60 * 1000,
     httpOnly: true,
     path: '/',
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
   });
 };
 
