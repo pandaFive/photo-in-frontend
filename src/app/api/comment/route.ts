@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment, CommentApiResponse } from '@/src/types';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { validateId } from '@/src/util/validation';
 
 type Body = {
   id: number;
@@ -94,14 +95,17 @@ export const PUT = async (request: NextRequest) => {
 
 export const DELETE = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
-  const commentId = searchParams.get('commentId');
+  const commentIdParam = searchParams.get('commentId');
 
-  if (!commentId || isNaN(Number(commentId))) {
+  // SEC-007: IDバリデーション（バウンドチェック含む）
+  const commentIdResult = validateId(commentIdParam);
+  if (!commentIdResult.valid) {
     return NextResponse.json(
-      { errors: ['commentIdが不正または未指定です'] },
+      { errors: [commentIdResult.error] },
       { status: 400 },
     );
   }
+  const commentId = commentIdResult.id;
 
   try {
     const res = await fetch(`${process.env.API_HOST}/comments/${commentId}`, {

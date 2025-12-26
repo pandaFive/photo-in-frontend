@@ -5,26 +5,32 @@ import { NextRequest, NextResponse } from 'next/server';
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment } from '@/src/types';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { validateId } from '@/src/util/validation';
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
-  const taskId = searchParams.get('taskId');
-  const accountId = searchParams.get('accountId');
+  const taskIdParam = searchParams.get('taskId');
+  const accountIdParam = searchParams.get('accountId');
 
-  // 入力バリデーション
-  if (!taskId || !accountId) {
+  // SEC-007: IDバリデーション（バウンドチェック含む）
+  const taskIdResult = validateId(taskIdParam);
+  if (!taskIdResult.valid) {
     return NextResponse.json(
-      { errors: ['taskIdとaccountIdは必須です'] },
+      { errors: [`taskId: ${taskIdResult.error}`] },
       { status: 400 },
     );
   }
 
-  if (isNaN(Number(taskId)) || isNaN(Number(accountId))) {
+  const accountIdResult = validateId(accountIdParam);
+  if (!accountIdResult.valid) {
     return NextResponse.json(
-      { errors: ['taskIdとaccountIdは数値である必要があります'] },
+      { errors: [`accountId: ${accountIdResult.error}`] },
       { status: 400 },
     );
   }
+
+  const taskId = taskIdResult.id;
+  const accountId = accountIdResult.id;
 
   try {
     const res = await fetch(

@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { validateId } from '@/src/util/validation';
 
 type Result = {
   message: string;
@@ -14,14 +15,12 @@ export const PUT = async (
   request: Request,
   { params }: { params: { id: string } },
 ) => {
-  const id: string = params.id;
-
-  if (!id || id.trim() === '') {
-    return NextResponse.json(
-      { errors: ['IDが不正または未指定です'] },
-      { status: 400 },
-    );
+  // SEC-007: IDバリデーション（バウンドチェック含む）
+  const idResult = validateId(params.id);
+  if (!idResult.valid) {
+    return NextResponse.json({ errors: [idResult.error] }, { status: 400 });
   }
+  const id = idResult.id;
 
   try {
     const res = await fetch(`${process.env.API_HOST}/tasks/${id}/completed`, {

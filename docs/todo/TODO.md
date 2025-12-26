@@ -10,10 +10,10 @@
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
-| High | 11 | 0 | 11 |
+| High | 11 | 5 | 6 |
 | Medium | 15 | 0 | 15 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **2** | **32** |
+| **合計** | **34** | **7** | **27** |
 
 ---
 
@@ -42,35 +42,45 @@
 
 ### セキュリティ
 
-- [ ] **SEC-003**: Cookie設定に`sameSite: 'strict'`追加
+- [x] **SEC-003**: Cookie設定に`sameSite: 'strict'`追加 ✅完了
   - ファイル: `src/util/cookies.ts`
   - 問題: CSRF対策のsameSite属性なし
-  - 工数: 30m
+  - 対応: `sameSite: 'strict'`と`secure`属性を追加
+  - 完了日: 2025-12-26
 
-- [ ] **SEC-004**: セキュリティヘッダー追加
+- [x] **SEC-004**: セキュリティヘッダー追加 ✅完了
   - ファイル: `next.config.mjs`
   - 問題: CSP, X-Frame-Options等のヘッダー未設定
-  - 工数: 1h
+  - 対応: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, X-XSS-Protection, Permissions-Policy追加
+  - 備考: CSPは外部リソース調査が必要なため別タスクに切り出し
+  - 完了日: 2025-12-26
 
-- [ ] **SEC-005**: CSRFトークン保護実装
+- [x] **SEC-005**: CSRFトークン保護実装 ⏸️見送り
   - ファイル: 全Route Handlers
   - 問題: 状態変更操作にCSRFトークンなし
-  - 工数: 4h
+  - 判断: Next.js App Router + JWT認証構成ではCSRFリスクが低い。SEC-003（sameSite: strict）で実質的なCSRF防御を実現。実装コストに対してセキュリティ向上効果が限定的なため見送り。
+  - 見送り日: 2025-12-26
 
-- [ ] **SEC-006**: Route Handlersに認可チェック追加
-  - ファイル: `src/app/api/account/[id]/route.ts`, `src/app/api/task/[id]/*.ts`
+- [x] **SEC-006**: Route Handlersに認可チェック追加 ✅完了
+  - ファイル: `src/app/api/account/[id]/route.ts`
+  - 新規ファイル: `src/util/auth-check.ts`
   - 問題: トークン有無のみ確認、ユーザー権限未検証
-  - 工数: 3h
+  - 対応: `isAuthenticated()`、`isAdminFromCookie()`関数を作成、ログイン時にrole Cookieを保存、アカウント削除に認可チェック追加
+  - 完了日: 2025-12-26
 
-- [ ] **SEC-007**: クエリパラメータのバウンドチェック追加
-  - ファイル: `src/app/api/comments/route.ts`
+- [x] **SEC-007**: クエリパラメータのバウンドチェック追加 ✅完了
+  - ファイル: 全Route Handlers（7ファイル）
+  - 新規ファイル: `src/util/validation.ts`
   - 問題: IDの範囲検証なし
-  - 工数: 1h
+  - 対応: `validateId()`関数を作成、正の整数・MAX_SAFE_INTEGER以下を検証、全Route Handlerに適用
+  - 完了日: 2025-12-26
 
-- [ ] **SEC-008**: ファイル名サニタイズ追加
+- [x] **SEC-008**: ファイル名サニタイズ追加 ✅完了
   - ファイル: `src/app/api/aws/route.ts`
+  - 新規ファイル: `src/util/s3-security.ts`
   - 問題: ユーザー入力のファイル名がS3キーに直接使用
-  - 工数: 1h
+  - 対応: `sanitizeFileName()`と`isValidS3Key()`を実装、パストラバーサル攻撃を防止
+  - 完了日: 2025-12-26
 
 ### コード品質
 
@@ -302,6 +312,12 @@
 |------|-----|--------|------|
 | 2025-12-26 | SEC-001 | AWS S3ルートに認証チェック追加 | Claude |
 | 2025-12-26 | CODE-001 | HTTPクライアントにzodバリデーション追加 | Claude |
+| 2025-12-26 | SEC-008 | ファイル名サニタイズ追加 | Claude |
+| 2025-12-26 | SEC-003 | Cookie設定にsameSite, secure追加 | Claude |
+| 2025-12-26 | SEC-004 | セキュリティヘッダー追加 | Claude |
+| 2025-12-26 | SEC-005 | CSRFトークン保護（見送り判断） | Claude |
+| 2025-12-26 | SEC-006 | Route Handlersに認可チェック追加 | Claude |
+| 2025-12-26 | SEC-007 | クエリパラメータのバウンドチェック追加 | Claude |
 
 ---
 

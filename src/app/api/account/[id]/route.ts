@@ -4,20 +4,33 @@ import { NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { ResponseStatus } from '@/src/types';
+import { isAdminFromCookie, isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { validateId } from '@/src/util/validation';
 
 export const DELETE = async (
   request: Request,
   { params }: { params: { id: string } },
 ) => {
-  const id = params.id;
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
 
-  if (!id || id.trim() === '') {
+  // SEC-006: 認可チェック（管理者のみ）
+  if (!isAdminFromCookie()) {
     return NextResponse.json(
-      { errors: ['IDが不正または未指定です'] },
-      { status: 400 },
+      { errors: ['この操作には管理者権限が必要です'] },
+      { status: 403 },
     );
   }
+
+  // SEC-007: IDバリデーション（バウンドチェック含む）
+  const idResult = validateId(params.id);
+  if (!idResult.valid) {
+    return NextResponse.json({ errors: [idResult.error] }, { status: 400 });
+  }
+  const id = idResult.id;
 
   try {
     const res = await fetch(`${process.env.API_HOST}/accounts/${id}`, {
