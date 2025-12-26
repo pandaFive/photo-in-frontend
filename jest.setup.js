@@ -8,14 +8,17 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
 }));
 
 // MUI X Chartsで使用されるgetBoundingClientRectのモック
-Element.prototype.getBoundingClientRect = jest.fn(() => ({
-  width: 500,
-  height: 300,
-  top: 0,
-  left: 0,
-  bottom: 300,
-  right: 500,
-  x: 0,
-  y: 0,
-  toJSON: () => {},
-}));
+// Node環境（@jest-environment node）では Element が存在しないためガード
+if (typeof Element !== 'undefined') {
+  Element.prototype.getBoundingClientRect = jest.fn(() => ({
+    width: 500,
+    height: 300,
+    top: 0,
+    left: 0,
+    bottom: 300,
+    right: 500,
+    x: 0,
+    y: 0,
+    toJSON: () => {},
+  }));
+}

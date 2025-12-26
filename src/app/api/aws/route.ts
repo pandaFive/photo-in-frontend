@@ -13,6 +13,7 @@ import { type NextRequest } from 'next/server';
 
 import postTaskCreate from '@/src/api/post-task-create';
 import { isErrorResponse } from '@/src/types';
+import { getAuthHeaders } from '@/src/util/auth-headers';
 
 // 定数定義
 const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -33,6 +34,15 @@ const s3Client = new S3Client({
 });
 
 export const GET = async (request: NextRequest) => {
+  // 認証チェック
+  const authHeaders = getAuthHeaders();
+  if (!authHeaders.Authorization) {
+    return NextResponse.json(
+      { errors: ['認証が必要です'] },
+      { status: 401 }
+    );
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const key = searchParams.get('key');
 
@@ -64,6 +74,15 @@ export const GET = async (request: NextRequest) => {
 };
 
 export const POST = async (request: Request) => {
+  // 認証チェック
+  const authHeaders = getAuthHeaders();
+  if (!authHeaders.Authorization) {
+    return NextResponse.json(
+      { errors: ['認証が必要です'] },
+      { status: 401 }
+    );
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
