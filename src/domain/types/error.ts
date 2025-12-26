@@ -86,3 +86,39 @@ export const toDisplayError = (error: DomainError): string => {
       return `ネットワークエラー: ${error.message}`;
   }
 };
+
+/**
+ * 不正リクエストエラー（400）かどうかを判定
+ */
+export const isBadRequest = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 400;
+
+/**
+ * 認証エラー（401）かどうかを判定
+ */
+export const isUnauthorized = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 401;
+
+/**
+ * 権限エラー（403）かどうかを判定
+ */
+export const isForbidden = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 403;
+
+/**
+ * 未検出エラー（404）かどうかを判定
+ */
+export const isNotFound = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 404;
+
+/**
+ * 競合エラー（409）かどうかを判定
+ */
+export const isConflict = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 409;
+
+/**
+ * サービス利用不可エラー（503）かどうかを判定
+ */
+export const isServiceUnavailable = (error: DomainError): boolean =>
+  error.type === 'api' && error.status === 503;

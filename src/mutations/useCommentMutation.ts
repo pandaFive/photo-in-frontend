@@ -16,16 +16,15 @@ type MutationResult<T> = {
 export const useCommentMutation = () => {
   /**
    * 新しいコメントを作成
+   * account_idはサーバー側で認証ユーザーから自動設定される
    */
   const createComment = useCallback(
     async (
       content: string,
-      accountId: number,
       cycleId: number
     ): Promise<MutationResult<Comment>> => {
       const result = await httpClient.post<Comment>('/api/comment', {
         content,
-        accountId,
         taskId: cycleId,
       });
 

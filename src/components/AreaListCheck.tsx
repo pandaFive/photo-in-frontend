@@ -4,7 +4,7 @@ import { Checkbox, FormControlLabel, FormGroup, List } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getAreas } from '../api/get-areas';
-import { Area } from '../types';
+import { Area, isErrorResponse } from '../types';
 
 const AreaListCheck = () => {
   const [checked, setChecked] = useState([0]);
@@ -26,6 +26,10 @@ const AreaListCheck = () => {
   const getArea = useCallback(async () => {
     try {
       const res = await getAreas();
+      if (isErrorResponse(res)) {
+        console.error('Failed to fetch areas:', res.errors);
+        return;
+      }
       setArea(res);
     } catch (err) {
       console.error(err);

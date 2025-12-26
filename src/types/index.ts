@@ -55,9 +55,19 @@ export type GroupKey = 'time' | 'area';
 
 // API共通型
 export interface ErrorResponse {
-  message: string;
-  code?: string;
+  errors: string[];
 }
+
+/**
+ * ErrorResponseかどうかを判定する型ガード
+ * errors配列の要素が全てstring型であることも検証する
+ */
+export const isErrorResponse = (value: unknown): value is ErrorResponse =>
+  typeof value === 'object' &&
+  value !== null &&
+  'errors' in value &&
+  Array.isArray((value as ErrorResponse).errors) &&
+  (value as ErrorResponse).errors.every((e) => typeof e === 'string');
 
 export type ApiResult<T> = T | ErrorResponse;
 

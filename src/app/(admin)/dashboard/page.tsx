@@ -11,9 +11,13 @@ import UploadButton from '@/src/components/Buttons/UploadButton';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
+import { isErrorResponse } from '@/src/types';
 
 const Dashboard = async () => {
-  const areaNames: string[] = (await getAreas()).map((area) => area.name);
+  const areasResult = await getAreas();
+  const areaNames: string[] = isErrorResponse(areasResult)
+    ? []
+    : areasResult.map((area) => area.name);
   // const areaNames: string[] = areas?.map((area) => area.name);
   return (
     <Box sx={{ display: 'flex', flexGrow: 1 }}>

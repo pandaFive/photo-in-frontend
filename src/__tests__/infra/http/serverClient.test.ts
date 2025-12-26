@@ -1,4 +1,7 @@
-import { serverHttpClient } from '@/src/infra/http/serverClient';
+import {
+  parseErrorMessage,
+  serverHttpClient,
+} from '@/src/infra/http/serverClient';
 
 // fetchのモック
 const mockFetch = jest.fn();
@@ -15,6 +18,46 @@ describe('serverHttpClient', () => {
 
   afterEach(() => {
     process.env = originalEnv;
+  });
+
+  describe('parseErrorMessage', () => {
+    test('空文字列の場合はUnknown errorを返す', () => {
+      expect(parseErrorMessage('')).toBe('Unknown error');
+    });
+
+    test('{ errors: string[] }形式をカンマ区切りで結合', () => {
+      const json = JSON.stringify({ errors: ['Field required', 'Invalid format'] });
+      expect(parseErrorMessage(json)).toBe('Field required, Invalid format');
+    });
+
+    test('{ errors: [] }空配列の場合はUnknown errorを返す', () => {
+      const json = JSON.stringify({ errors: [] });
+      expect(parseErrorMessage(json)).toBe('Unknown error');
+    });
+
+    test('{ message: string }形式をパース', () => {
+      const json = JSON.stringify({ message: 'Something went wrong' });
+      expect(parseErrorMessage(json)).toBe('Something went wrong');
+    });
+
+    test('{ error: string }形式をパース', () => {
+      const json = JSON.stringify({ error: 'Not Found' });
+      expect(parseErrorMessage(json)).toBe('Not Found');
+    });
+
+    test('非JSON文字列はそのまま返す', () => {
+      expect(parseErrorMessage('Plain text error')).toBe('Plain text error');
+    });
+
+    test('認識できないJSON形式は元テキストを返す', () => {
+      const json = JSON.stringify({ status: 'failed', code: 500 });
+      expect(parseErrorMessage(json)).toBe(json);
+    });
+
+    test('errors配列内の単一要素を正しく処理', () => {
+      const json = JSON.stringify({ errors: ['Single error'] });
+      expect(parseErrorMessage(json)).toBe('Single error');
+    });
   });
 
   describe('get', () => {
