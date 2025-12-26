@@ -1,19 +1,12 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+
+import { getAuthHeaders } from '@/src/util/auth-headers';
 
 type Result = {
   message: string;
   result: boolean;
-};
-
-/**
- * 認証ヘッダーを取得
- */
-const getAuthHeader = (): Record<string, string> => {
-  const token = cookies().get('token')?.value;
-  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export const PUT = async (
@@ -26,7 +19,7 @@ export const PUT = async (
       method: 'PUT',
       cache: 'no-store',
       headers: {
-        ...getAuthHeader(),
+        ...getAuthHeaders(),
       },
     });
 

@@ -1,6 +1,7 @@
 'use server';
 
 import { serverHttpClient } from '@/src/infra/http';
+import { ErrorResponse } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
 
 type TaskResponse = {
@@ -9,7 +10,7 @@ type TaskResponse = {
 
 const postTaskCreate = async (
   name: string,
-): Promise<TaskResponse | Record<string, never>> => {
+): Promise<TaskResponse | ErrorResponse> => {
   const token = getCookies('token');
   const result = await serverHttpClient.post<TaskResponse>(
     '/tasks',
@@ -24,7 +25,7 @@ const postTaskCreate = async (
     return result.value;
   }
   console.error('Task creation failed:', result.error.message);
-  return {};
+  return { errors: [result.error.message] };
 };
 
 export default postTaskCreate;

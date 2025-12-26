@@ -1,17 +1,9 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { Comment } from '@/src/types';
-
-/**
- * 認証ヘッダーを取得
- */
-const getAuthHeader = (): Record<string, string> => {
-  const token = cookies().get('token')?.value;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { getAuthHeaders } from '@/src/util/auth-headers';
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
@@ -23,7 +15,7 @@ export const GET = async (request: NextRequest) => {
       {
         cache: 'no-store',
         headers: {
-          ...getAuthHeader(),
+          ...getAuthHeaders(),
         },
       },
     );

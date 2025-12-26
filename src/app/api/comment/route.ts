@@ -1,22 +1,14 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { Comment, CommentApiResponse } from '@/src/types';
+import { getAuthHeaders } from '@/src/util/auth-headers';
 
 type Body = {
   id: number;
   content: string;
   taskId: number;
-};
-
-/**
- * 認証ヘッダーを取得
- */
-const getAuthHeader = (): Record<string, string> => {
-  const token = cookies().get('token')?.value;
-  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export const POST = async (request: NextRequest) => {
@@ -27,7 +19,7 @@ export const POST = async (request: NextRequest) => {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeader(),
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({
         comment: {
@@ -57,7 +49,7 @@ export const PUT = async (request: NextRequest) => {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeader(),
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({
         comment: {
@@ -88,7 +80,7 @@ export const DELETE = async (request: NextRequest) => {
       method: 'DELETE',
       cache: 'no-store',
       headers: {
-        ...getAuthHeader(),
+        ...getAuthHeaders(),
       },
     });
 

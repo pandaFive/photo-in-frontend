@@ -1,10 +1,10 @@
 'use server';
 
 import { serverHttpClient } from '@/src/infra/http';
-import { Task } from '@/src/types';
+import { ErrorResponse, Task } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
 
-export async function getTasks(): Promise<Task[]> {
+export async function getTasks(): Promise<Task[] | ErrorResponse> {
   const token = getCookies('token');
   const result = await serverHttpClient.get<Task[]>('/tasks?type=all', {
     cache: 'no-store',
@@ -14,5 +14,6 @@ export async function getTasks(): Promise<Task[]> {
   if (result.ok) {
     return result.value;
   }
-  return [];
+  console.error('Failed to fetch tasks:', result.error.message);
+  return { errors: [result.error.message] };
 }

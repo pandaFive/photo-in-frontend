@@ -58,6 +58,15 @@ export interface ErrorResponse {
   errors: string[];
 }
 
+/**
+ * ErrorResponseかどうかを判定する型ガード
+ */
+export const isErrorResponse = (value: unknown): value is ErrorResponse =>
+  typeof value === 'object' &&
+  value !== null &&
+  'errors' in value &&
+  Array.isArray((value as ErrorResponse).errors);
+
 export type ApiResult<T> = T | ErrorResponse;
 
 // API固有のレスポンス型

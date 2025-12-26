@@ -12,6 +12,7 @@ import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
 
 import postTaskCreate from '@/src/api/post-task-create';
+import { isErrorResponse } from '@/src/types';
 
 // 定数定義
 const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -107,7 +108,11 @@ export const POST = async (request: Request) => {
     await s3Client.send(command);
 
     // タスク作成
-    await postTaskCreate(name);
+    const taskResult = await postTaskCreate(name);
+    if (isErrorResponse(taskResult)) {
+      console.error('Task creation failed:', taskResult.errors);
+      // タスク作成失敗してもファイルアップロードは成功しているので続行
+    }
 
     // 署名付きURLを生成してアクセス可能にする
     const getCommand = new GetObjectCommand({
