@@ -7,6 +7,8 @@ import {
   createApiError,
   createNetworkError,
 } from '@/src/domain/types/error';
+import { validateResponse } from '@/src/infra/validation';
+import { parseErrorMessage } from '@/src/util/parse-error';
 
 type RequestOptions<T = unknown> = {
   signal?: AbortSignal;
@@ -18,6 +20,7 @@ type RequestOptions<T = unknown> = {
 /**
  * zodスキーマでデータをバリデーション
  * スキーマが未指定の場合はそのまま返す（後方互換性）
+ * CODE-002: validateResponseを使用して重複を排除
  */
 const validateWithSchema = <T>(
   data: unknown,
@@ -26,45 +29,7 @@ const validateWithSchema = <T>(
   if (!schema) {
     return ok(data as T);
   }
-  const result = schema.safeParse(data);
-  if (result.success) {
-    return ok(result.data);
-  }
-  // Zod 4は issues、Zod 3は errors を使用
-  const issues = result.error.issues ?? result.error.errors ?? [];
-  const message = issues.map((e: { message: string }) => e.message).join(', ');
-  return err(createApiError(422, `Validation error: ${message}`));
-};
-
-/**
- * エラーレスポンスからメッセージを抽出
- *
- * 対応形式:
- * - { errors: string[] } - 配列要素をカンマ区切りで結合
- * - { message: string } - messageプロパティを返却
- * - { error: string } - errorプロパティを返却
- * - 上記以外のJSON/非JSON - 元のテキストをそのまま返却
- *
- * @param text - エラーレスポンスのボディテキスト
- * @returns 抽出されたエラーメッセージ、空の場合は'Unknown error'
- */
-const parseErrorMessage = (text: string): string => {
-  if (!text) return 'Unknown error';
-  try {
-    const json = JSON.parse(text) as Record<string, unknown>;
-    if (Array.isArray(json.errors) && json.errors.length > 0) {
-      return (json.errors as string[]).join(', ');
-    }
-    if (typeof json.message === 'string') {
-      return json.message;
-    }
-    if (typeof json.error === 'string') {
-      return json.error;
-    }
-  } catch {
-    // JSONパースに失敗した場合はそのままテキストを返す
-  }
-  return text;
+  return validateResponse(schema, data);
 };
 
 /**
@@ -172,7 +137,8 @@ export const httpClient = {
         const data: unknown = JSON.parse(text);
         return validateWithSchema(data, options?.schema);
       } catch {
-        return ok({} as T);
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        return err(createApiError(422, 'Invalid JSON response from server'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
@@ -211,7 +177,8 @@ export const httpClient = {
         const data: unknown = JSON.parse(text);
         return validateWithSchema(data, options?.schema);
       } catch {
-        return ok({} as T);
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        return err(createApiError(422, 'Invalid JSON response from server'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
@@ -253,7 +220,8 @@ export const httpClient = {
         const data: unknown = JSON.parse(text);
         return validateWithSchema(data, options?.schema);
       } catch {
-        return ok({} as T);
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        return err(createApiError(422, 'Invalid JSON response from server'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {

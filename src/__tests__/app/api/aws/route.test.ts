@@ -111,6 +111,53 @@ describe('AWS S3 Route Handler', () => {
       });
     });
 
+    describe('パストラバーサル対策', () => {
+      test('keyに..が含まれる場合は400を返す', async () => {
+        mockGetAuthHeaders.mockReturnValue({
+          Authorization: 'Bearer valid-token',
+        });
+
+        const request = new NextRequest(
+          'http://localhost:3333/api/aws?key=../../../etc/passwd',
+        );
+        const response = await GET(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(data.errors).toContain('Invalid key format');
+      });
+
+      test('keyが/で始まる場合は400を返す', async () => {
+        mockGetAuthHeaders.mockReturnValue({
+          Authorization: 'Bearer valid-token',
+        });
+
+        const request = new NextRequest(
+          'http://localhost:3333/api/aws?key=/absolute/path.pdf',
+        );
+        const response = await GET(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(data.errors).toContain('Invalid key format');
+      });
+
+      test('keyに//が含まれる場合は400を返す', async () => {
+        mockGetAuthHeaders.mockReturnValue({
+          Authorization: 'Bearer valid-token',
+        });
+
+        const request = new NextRequest(
+          'http://localhost:3333/api/aws?key=path//to//file.pdf',
+        );
+        const response = await GET(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(data.errors).toContain('Invalid key format');
+      });
+    });
+
     describe('エラーハンドリング', () => {
       test('署名URL生成に失敗した場合は500を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
@@ -249,6 +296,57 @@ describe('AWS S3 Route Handler', () => {
 
         expect(response.status).toBe(400);
         expect(data.errors[0]).toContain('not allowed');
+      });
+    });
+
+    describe('ファイル名サニタイズ', () => {
+      test('パストラバーサルパターンがサニタイズされる', async () => {
+        mockGetAuthHeaders.mockReturnValue({
+          Authorization: 'Bearer valid-token',
+        });
+        mockPostTaskCreate.mockResolvedValue({ success: true });
+
+        const formData = new FormData();
+        formData.append(
+          'file',
+          createMockFile('../../../etc/passwd.pdf', 'application/pdf', 100),
+        );
+
+        const request = new Request('http://localhost:3333/api/aws', {
+          method: 'POST',
+          body: formData,
+        });
+        const response = await POST(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        // ファイル名から..が除去されていることを確認
+        expect(data.fileName).not.toContain('..');
+      });
+
+      test('危険な文字がサニタイズされる', async () => {
+        mockGetAuthHeaders.mockReturnValue({
+          Authorization: 'Bearer valid-token',
+        });
+        mockPostTaskCreate.mockResolvedValue({ success: true });
+
+        const formData = new FormData();
+        formData.append(
+          'file',
+          createMockFile('test<script>alert.pdf', 'application/pdf', 100),
+        );
+
+        const request = new Request('http://localhost:3333/api/aws', {
+          method: 'POST',
+          body: formData,
+        });
+        const response = await POST(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        // 危険な文字が除去されていることを確認
+        expect(data.fileName).not.toContain('<');
+        expect(data.fileName).not.toContain('>');
       });
     });
 
