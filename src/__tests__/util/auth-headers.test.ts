@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-import { getAuthHeaders } from '@/src/util/auth-headers';
+import { getAuthHeaders, getAuthHeadersUnsafe } from '@/src/util/auth-headers';
 
 // next/headersのcookies関数をモック
 jest.mock('next/headers', () => ({
@@ -9,8 +9,8 @@ jest.mock('next/headers', () => ({
 
 const mockCookies = cookies as jest.MockedFunction<typeof cookies>;
 
-// console.warnのモック
-const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
+// console.errorのモック
+const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
 
 describe('getAuthHeaders', () => {
   beforeEach(() => {
@@ -18,14 +18,17 @@ describe('getAuthHeaders', () => {
   });
 
   describe('トークンが存在する場合', () => {
-    test('Authorizationヘッダーを含むオブジェクトを返す', () => {
+    test('ok: trueとAuthorizationヘッダーを含むオブジェクトを返す', () => {
       mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: 'test-token-123' }),
       } as unknown as ReturnType<typeof cookies>);
 
       const result = getAuthHeaders();
 
-      expect(result).toEqual({ Authorization: 'Bearer test-token-123' });
+      expect(result).toEqual({
+        ok: true,
+        headers: { Authorization: 'Bearer test-token-123' },
+      });
     });
 
     test('Bearer形式でトークンが設定される', () => {
@@ -35,34 +38,80 @@ describe('getAuthHeaders', () => {
 
       const result = getAuthHeaders();
 
-      expect(result.Authorization).toBe('Bearer jwt-token-xyz');
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.headers.Authorization).toBe('Bearer jwt-token-xyz');
+      }
+    });
+
+    test('トークンがある場合はエラーログを出力しない', () => {
+      mockCookies.mockReturnValue({
+        get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+      } as unknown as ReturnType<typeof cookies>);
+
+      getAuthHeaders();
+
+      expect(mockConsoleError).not.toHaveBeenCalled();
     });
   });
 
   describe('トークンが存在しない場合', () => {
-    test('cookieが取得できない場合は空オブジェクトを返し警告を出力', () => {
+    test('cookieが取得できない場合はok: falseとno_token reasonを返す', () => {
       mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue(undefined),
       } as unknown as ReturnType<typeof cookies>);
 
       const result = getAuthHeaders();
 
-      expect(result).toEqual({});
-      expect(mockConsoleWarn).toHaveBeenCalledWith(
-        '[getAuthHeaders] 認証トークンが見つかりません',
+      expect(result).toEqual({ ok: false, reason: 'no_token' });
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '[getAuthHeaders] 認証トークンが見つかりません - セッション期限切れの可能性',
       );
     });
 
-    test('cookieのvalueがundefinedの場合は空オブジェクトを返し警告を出力', () => {
+    test('cookieのvalueがundefinedの場合はok: falseとno_token reasonを返す', () => {
       mockCookies.mockReturnValue({
         get: jest.fn().mockReturnValue({ value: undefined }),
       } as unknown as ReturnType<typeof cookies>);
 
       const result = getAuthHeaders();
 
-      expect(result).toEqual({});
-      expect(mockConsoleWarn).toHaveBeenCalledWith(
-        '[getAuthHeaders] 認証トークンが見つかりません',
+      expect(result).toEqual({ ok: false, reason: 'no_token' });
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '[getAuthHeaders] 認証トークンが見つかりません - セッション期限切れの可能性',
+      );
+    });
+  });
+
+  describe('空文字トークンの場合', () => {
+    test('空文字のトークンはok: falseとno_token reasonを返す', () => {
+      mockCookies.mockReturnValue({
+        get: jest.fn().mockReturnValue({ value: '' }),
+      } as unknown as ReturnType<typeof cookies>);
+
+      const result = getAuthHeaders();
+
+      // 空文字は falsy なのでno_tokenエラーを返す
+      expect(result).toEqual({ ok: false, reason: 'no_token' });
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '[getAuthHeaders] 認証トークンが見つかりません - セッション期限切れの可能性',
+      );
+    });
+  });
+
+  describe('Cookie取得例外の場合', () => {
+    test('cookies()が例外をスローした場合はok: falseとcookie_error reasonを返す', () => {
+      const testError = new Error('Server Component context error');
+      mockCookies.mockImplementation(() => {
+        throw testError;
+      });
+
+      const result = getAuthHeaders();
+
+      expect(result).toEqual({ ok: false, reason: 'cookie_error' });
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '[getAuthHeaders] Cookie取得エラー:',
+        testError,
       );
     });
   });
@@ -79,32 +128,40 @@ describe('getAuthHeaders', () => {
       expect(mockGet).toHaveBeenCalledWith('token');
     });
   });
+});
 
-  describe('空文字トークンの場合', () => {
-    test('空文字のトークンは空オブジェクトを返し警告を出力', () => {
-      mockCookies.mockReturnValue({
-        get: jest.fn().mockReturnValue({ value: '' }),
-      } as unknown as ReturnType<typeof cookies>);
-
-      const result = getAuthHeaders();
-
-      // 空文字は falsy なので空オブジェクトを返す
-      expect(result).toEqual({});
-      expect(mockConsoleWarn).toHaveBeenCalledWith(
-        '[getAuthHeaders] 認証トークンが見つかりません',
-      );
-    });
+describe('getAuthHeadersUnsafe（後方互換性）', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe('トークンが存在する場合の警告', () => {
-    test('トークンがある場合は警告を出力しない', () => {
-      mockCookies.mockReturnValue({
-        get: jest.fn().mockReturnValue({ value: 'valid-token' }),
-      } as unknown as ReturnType<typeof cookies>);
+  test('トークンが存在する場合はAuthorizationヘッダーを含むオブジェクトを返す', () => {
+    mockCookies.mockReturnValue({
+      get: jest.fn().mockReturnValue({ value: 'test-token-123' }),
+    } as unknown as ReturnType<typeof cookies>);
 
-      getAuthHeaders();
+    const result = getAuthHeadersUnsafe();
 
-      expect(mockConsoleWarn).not.toHaveBeenCalled();
+    expect(result).toEqual({ Authorization: 'Bearer test-token-123' });
+  });
+
+  test('トークンが存在しない場合は空オブジェクトを返す', () => {
+    mockCookies.mockReturnValue({
+      get: jest.fn().mockReturnValue(undefined),
+    } as unknown as ReturnType<typeof cookies>);
+
+    const result = getAuthHeadersUnsafe();
+
+    expect(result).toEqual({});
+  });
+
+  test('Cookie取得例外の場合は空オブジェクトを返す', () => {
+    mockCookies.mockImplementation(() => {
+      throw new Error('Server Component context error');
     });
+
+    const result = getAuthHeadersUnsafe();
+
+    expect(result).toEqual({});
   });
 });

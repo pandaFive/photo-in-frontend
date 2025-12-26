@@ -5,8 +5,9 @@
 
 /**
  * IDバリデーション結果型
+ * discriminated unionパターンでvalidプロパティによる型narrowingが可能
  */
-type IdValidationResult =
+export type IdValidationResult =
   | { valid: true; id: number }
   | { valid: false; error: string };
 

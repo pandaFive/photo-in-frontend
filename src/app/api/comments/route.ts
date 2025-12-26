@@ -4,10 +4,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment } from '@/src/types';
+import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
 import { validateId } from '@/src/util/validation';
 
 export const GET = async (request: NextRequest) => {
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const taskIdParam = searchParams.get('taskId');
   const accountIdParam = searchParams.get('accountId');
@@ -32,13 +38,19 @@ export const GET = async (request: NextRequest) => {
   const taskId = taskIdResult.id;
   const accountId = accountIdResult.id;
 
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   try {
     const res = await fetch(
       `${process.env.API_HOST}/comments?taskId=${taskId}&accountId=${accountId}`,
       {
         cache: 'no-store',
         headers: {
-          ...getAuthHeaders(),
+          ...authResult.headers,
         },
       },
     );

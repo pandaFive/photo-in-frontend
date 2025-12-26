@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment, CommentApiResponse } from '@/src/types';
+import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
 import { validateId } from '@/src/util/validation';
 
@@ -14,6 +15,11 @@ type Body = {
 };
 
 export const POST = async (request: NextRequest) => {
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   let body: Body;
   try {
     body = (await request.json()) as Body;
@@ -24,13 +30,34 @@ export const POST = async (request: NextRequest) => {
     );
   }
 
+  // ボディバリデーション
+  if (!body.content || typeof body.content !== 'string' || body.content.trim() === '') {
+    return NextResponse.json(
+      { errors: ['コメント内容が必要です'] },
+      { status: 400 },
+    );
+  }
+
+  if (!body.taskId || !Number.isInteger(body.taskId) || body.taskId <= 0) {
+    return NextResponse.json(
+      { errors: ['有効なタスクIDが必要です'] },
+      { status: 400 },
+    );
+  }
+
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/comments`, {
       method: 'POST',
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeaders(),
+        ...authResult.headers,
       },
       body: JSON.stringify({
         comment: {
@@ -54,6 +81,11 @@ export const POST = async (request: NextRequest) => {
 };
 
 export const PUT = async (request: NextRequest) => {
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   let body: Body;
   try {
     body = (await request.json()) as Body;
@@ -64,13 +96,34 @@ export const PUT = async (request: NextRequest) => {
     );
   }
 
+  // ボディバリデーション
+  if (!body.id || !Number.isInteger(body.id) || body.id <= 0) {
+    return NextResponse.json(
+      { errors: ['有効なコメントIDが必要です'] },
+      { status: 400 },
+    );
+  }
+
+  if (!body.content || typeof body.content !== 'string' || body.content.trim() === '') {
+    return NextResponse.json(
+      { errors: ['コメント内容が必要です'] },
+      { status: 400 },
+    );
+  }
+
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/comments/${body.id}`, {
       method: 'PUT',
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeaders(),
+        ...authResult.headers,
       },
       body: JSON.stringify({
         comment: {
@@ -94,6 +147,11 @@ export const PUT = async (request: NextRequest) => {
 };
 
 export const DELETE = async (request: NextRequest) => {
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const commentIdParam = searchParams.get('commentId');
 
@@ -107,12 +165,18 @@ export const DELETE = async (request: NextRequest) => {
   }
   const commentId = commentIdResult.id;
 
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/comments/${commentId}`, {
       method: 'DELETE',
       cache: 'no-store',
       headers: {
-        ...getAuthHeaders(),
+        ...authResult.headers,
       },
     });
 

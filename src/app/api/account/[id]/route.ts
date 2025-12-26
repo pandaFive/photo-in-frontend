@@ -32,11 +32,17 @@ export const DELETE = async (
   }
   const id = idResult.id;
 
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/accounts/${id}`, {
       method: 'DELETE',
       headers: {
-        ...getAuthHeaders(),
+        ...authResult.headers,
       },
     });
 

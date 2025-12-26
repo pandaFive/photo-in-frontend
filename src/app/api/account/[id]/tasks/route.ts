@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Task } from '@/src/types';
+import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
 import { validateId } from '@/src/util/validation';
 
@@ -11,6 +12,11 @@ export const GET = async (
   request: Request,
   { params }: { params: { id: string } },
 ) => {
+  // SEC-006: 認証チェック
+  if (!isAuthenticated()) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   // SEC-007: IDバリデーション（バウンドチェック含む）
   const idResult = validateId(params.id);
   if (!idResult.valid) {
@@ -18,11 +24,17 @@ export const GET = async (
   }
   const id = idResult.id;
 
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/account/tasks?id=${id}`, {
       cache: 'no-store',
       headers: {
-        ...getAuthHeaders(),
+        ...authResult.headers,
       },
     });
 
