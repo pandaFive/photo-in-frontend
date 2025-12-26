@@ -3,6 +3,8 @@
  * Next.js Server Components/Actionsから外部APIを呼び出す際に使用
  */
 
+import { z } from 'zod';
+
 import {
   Result,
   ok,
@@ -13,10 +15,33 @@ import {
 
 type CacheOption = 'force-cache' | 'no-store';
 
-type ServerRequestOptions = {
+type ServerRequestOptions<T = unknown> = {
   headers?: Record<string, string>;
   cache?: CacheOption;
   revalidate?: number; // seconds
+  /** オプショナルなzodスキーマ。指定時はレスポンスをバリデーション */
+  schema?: z.ZodSchema<T>;
+};
+
+/**
+ * zodスキーマでデータをバリデーション
+ * スキーマが未指定の場合はそのまま返す（後方互換性）
+ */
+const validateWithSchema = <T>(
+  data: unknown,
+  schema?: z.ZodSchema<T>,
+): Result<T> => {
+  if (!schema) {
+    return ok(data as T);
+  }
+  const result = schema.safeParse(data);
+  if (result.success) {
+    return ok(result.data);
+  }
+  // Zod 4は issues、Zod 3は errors を使用
+  const issues = result.error.issues ?? result.error.errors ?? [];
+  const message = issues.map((e: { message: string }) => e.message).join(', ');
+  return err(createApiError(422, `Validation error: ${message}`));
 };
 
 /**
@@ -94,7 +119,7 @@ export const serverHttpClient = {
    */
   get: async <T>(
     path: string,
-    options?: ServerRequestOptions,
+    options?: ServerRequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const url = `${getApiHost()}${path}`;
@@ -111,8 +136,8 @@ export const serverHttpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data = (await res.json()) as T;
-      return ok(data);
+      const data: unknown = await res.json();
+      return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
     }
@@ -124,7 +149,7 @@ export const serverHttpClient = {
   post: async <T>(
     path: string,
     body?: unknown,
-    options?: ServerRequestOptions,
+    options?: ServerRequestOptions<T>,
   ): Promise<Result<T>> => {
     try {
       const url = `${getApiHost()}${path}`;
@@ -145,8 +170,8 @@ export const serverHttpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data = (await res.json()) as T;
-      return ok(data);
+      const data: unknown = await res.json();
+      return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
     }
