@@ -39,7 +39,7 @@ export const GET = async (request: NextRequest) => {
   // キーのバリデーション
   if (!key || typeof key !== 'string' || key.trim() === '') {
     return NextResponse.json(
-      { error: 'Invalid or missing key parameter' },
+      { errors: ['Invalid or missing key parameter'] },
       { status: 400 }
     );
   }
@@ -57,7 +57,7 @@ export const GET = async (request: NextRequest) => {
   } catch (err) {
     console.error('Failed to generate signed URL:', err);
     return NextResponse.json(
-      { error: 'Failed to generate signed URL' },
+      { errors: ['Failed to generate signed URL'] },
       { status: 500 }
     );
   }
@@ -71,7 +71,7 @@ export const POST = async (request: Request) => {
     // ファイルの存在チェック
     if (!file) {
       return NextResponse.json(
-        { error: 'No file provided' },
+        { errors: ['No file provided'] },
         { status: 400 }
       );
     }
@@ -79,7 +79,7 @@ export const POST = async (request: Request) => {
     // ファイルサイズのバリデーション
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: `File size exceeds limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB` },
+        { errors: [`File size exceeds limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB`] },
         { status: 400 }
       );
     }
@@ -87,7 +87,7 @@ export const POST = async (request: Request) => {
     // ファイルタイプのバリデーション
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: `File type ${file.type} is not allowed. Allowed types: ${ALLOWED_FILE_TYPES.join(', ')}` },
+        { errors: [`File type ${file.type} is not allowed. Allowed types: ${ALLOWED_FILE_TYPES.join(', ')}`] },
         { status: 400 }
       );
     }
@@ -111,7 +111,10 @@ export const POST = async (request: Request) => {
     const taskResult = await postTaskCreate(name);
     if (isErrorResponse(taskResult)) {
       console.error('Task creation failed:', taskResult.errors);
-      // タスク作成失敗してもファイルアップロードは成功しているので続行
+      return NextResponse.json(
+        { errors: ['ファイルのアップロードは成功しましたが、タスクの作成に失敗しました'] },
+        { status: 500 }
+      );
     }
 
     // 署名付きURLを生成してアクセス可能にする
@@ -125,7 +128,7 @@ export const POST = async (request: Request) => {
   } catch (err) {
     console.error('Upload failed:', err);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { errors: ['Failed to upload file'] },
       { status: 500 }
     );
   }

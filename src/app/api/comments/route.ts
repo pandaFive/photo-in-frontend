@@ -10,6 +10,22 @@ export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const taskId = searchParams.get('taskId');
   const accountId = searchParams.get('accountId');
+
+  // 入力バリデーション
+  if (!taskId || !accountId) {
+    return NextResponse.json(
+      { errors: ['taskIdとaccountIdは必須です'] },
+      { status: 400 },
+    );
+  }
+
+  if (isNaN(Number(taskId)) || isNaN(Number(accountId))) {
+    return NextResponse.json(
+      { errors: ['taskIdとaccountIdは数値である必要があります'] },
+      { status: 400 },
+    );
+  }
+
   try {
     const res = await fetch(
       `${process.env.API_HOST}/comments?taskId=${taskId}&accountId=${accountId}`,
