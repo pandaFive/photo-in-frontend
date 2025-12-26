@@ -30,13 +30,12 @@ describe('useCommentMutation', () => {
 
       let response;
       await act(async () => {
-        response = await result.current.createComment('Test comment', 1, 100);
+        response = await result.current.createComment('Test comment', 100);
       });
 
       expect(response).toEqual({ success: true, data: mockComment });
       expect(mockHttpClient.post).toHaveBeenCalledWith('/api/comment', {
         content: 'Test comment',
-        accountId: 1,
         taskId: 100,
       });
     });
@@ -51,7 +50,7 @@ describe('useCommentMutation', () => {
 
       let response;
       await act(async () => {
-        response = await result.current.createComment('Test', 1, 100);
+        response = await result.current.createComment('Test', 100);
       });
 
       expect(response).toEqual({ success: false, error: 'Bad Request' });

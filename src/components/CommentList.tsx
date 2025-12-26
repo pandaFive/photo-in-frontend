@@ -201,7 +201,7 @@ const CommentList = (props: Props) => {
     (newRow: GridRowModel, updatedRow: GridRowModel) => {
       if (flagNewComment) {
         // 新規コメント作成
-        createComment(newRow.comment as string, props.account.id, props.cycleId)
+        createComment(newRow.comment as string, props.cycleId)
           .then((result) => {
             if (result.success && result.data) {
               const newId = result.data.id;
@@ -237,7 +237,7 @@ const CommentList = (props: Props) => {
           });
       }
     },
-    [flagNewComment, createComment, updateComment, props.account.id, props.cycleId, showSuccess, showError]
+    [flagNewComment, createComment, updateComment, props.cycleId, showSuccess, showError]
   );
 
   /**

@@ -55,8 +55,7 @@ export type GroupKey = 'time' | 'area';
 
 // API共通型
 export interface ErrorResponse {
-  message: string;
-  code?: string;
+  errors: string[];
 }
 
 export type ApiResult<T> = T | ErrorResponse;

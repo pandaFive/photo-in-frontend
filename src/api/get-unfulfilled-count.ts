@@ -2,10 +2,13 @@
 
 import { serverHttpClient } from '@/src/infra/http';
 import { ApiResult, ErrorResponse } from '@/src/types';
+import { getCookies } from '@/src/util/cookies';
 
 export async function getUnfulfilledCount(): Promise<ApiResult<number>> {
+  const token = getCookies('token');
   const result = await serverHttpClient.get<number>('/unfulfilled-count', {
     revalidate: 60, // 1分ごとに再検証
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
 
   if (result.ok) {
@@ -13,7 +16,7 @@ export async function getUnfulfilledCount(): Promise<ApiResult<number>> {
   }
 
   const errorResponse: ErrorResponse = {
-    message: result.error.message,
+    errors: [result.error.message],
   };
   return errorResponse;
 }

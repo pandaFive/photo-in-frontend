@@ -1,5 +1,6 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { Comment, CommentApiResponse } from '@/src/types';
@@ -7,8 +8,15 @@ import { Comment, CommentApiResponse } from '@/src/types';
 type Body = {
   id: number;
   content: string;
-  accountId: number;
   taskId: number;
+};
+
+/**
+ * 認証ヘッダーを取得
+ */
+const getAuthHeader = (): Record<string, string> => {
+  const token = cookies().get('token')?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export const POST = async (request: NextRequest) => {
@@ -19,11 +27,11 @@ export const POST = async (request: NextRequest) => {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeader(),
       },
       body: JSON.stringify({
         comment: {
           content: body.content,
-          account_id: body.accountId,
           task_id: body.taskId,
         },
       }),
@@ -32,11 +40,12 @@ export const POST = async (request: NextRequest) => {
       const result: Comment = (await res.json()) as Comment;
       return NextResponse.json(result);
     } else {
-      return NextResponse.json({});
+      const errorText = await res.text().catch(() => '');
+      return NextResponse.json({ errors: [errorText || 'エラーが発生しました'] }, { status: res.status });
     }
   } catch (err) {
     console.error(err);
-    return NextResponse.json({});
+    return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
 
@@ -48,6 +57,7 @@ export const PUT = async (request: NextRequest) => {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeader(),
       },
       body: JSON.stringify({
         comment: {
@@ -60,11 +70,12 @@ export const PUT = async (request: NextRequest) => {
       const result: Comment = (await res.json()) as Comment;
       return NextResponse.json(result);
     } else {
-      return NextResponse.json({});
+      const errorText = await res.text().catch(() => '');
+      return NextResponse.json({ errors: [errorText || 'エラーが発生しました'] }, { status: res.status });
     }
   } catch (err) {
     console.error(err);
-    return NextResponse.json({});
+    return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
 
@@ -76,16 +87,20 @@ export const DELETE = async (request: NextRequest) => {
     const res = await fetch(`${process.env.API_HOST}/comments/${commentId}`, {
       method: 'DELETE',
       cache: 'no-store',
+      headers: {
+        ...getAuthHeader(),
+      },
     });
 
     if (res.ok) {
       const result: CommentApiResponse = (await res.json()) as CommentApiResponse;
       return NextResponse.json(result);
     } else {
-      return NextResponse.json({});
+      const errorText = await res.text().catch(() => '');
+      return NextResponse.json({ errors: [errorText || 'エラーが発生しました'] }, { status: res.status });
     }
   } catch (err) {
     console.error(err);
-    return NextResponse.json({});
+    return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
