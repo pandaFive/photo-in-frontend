@@ -6,10 +6,10 @@ import { postSignup } from '@/src/api/post-signup';
 import { isErrorResponse } from '@/src/types';
 
 // ERR-004: エラー時にエラーメッセージを返すように変更
-export type SignUpResult = {
-  success: boolean;
-  error?: string;
-};
+// TYPE-001: 判別共用体で不正な状態を型レベルで防止
+export type SignUpResult =
+  | { success: true }
+  | { success: false; error: string };
 
 export const singUpAction = async (formData: FormData): Promise<SignUpResult> => {
   // エリア情報のパース（JSON.parseはSyntaxErrorをスローする可能性がある）

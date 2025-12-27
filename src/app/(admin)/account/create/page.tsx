@@ -63,7 +63,8 @@ const AccountCreate = () => {
       // ERR-004: サーバーアクションからのエラーを処理
       const result = await singUpAction(data);
       if (!result.success) {
-        setError(result.error || 'アカウント作成に失敗しました');
+        // TYPE-001: 判別共用体によりresult.errorは必ずstring
+        setError(result.error);
       }
       // 成功時はサーバーアクション内でリダイレクトされる
     } catch (err) {
