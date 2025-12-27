@@ -3,6 +3,7 @@
 import { serverHttpClient } from '@/src/infra/http';
 import { MemberStatus, ApiResult, ErrorResponse } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
+import { logError } from '@/src/util/safe-logger';
 
 export async function getAccountStatus(): Promise<ApiResult<MemberStatus[]>> {
   const token = getCookies('token');
@@ -19,6 +20,7 @@ export async function getAccountStatus(): Promise<ApiResult<MemberStatus[]>> {
     return result.value;
   }
 
+  logError('[getAccountStatus]', result.error.message);
   const errorResponse: ErrorResponse = {
     errors: [result.error.message],
   };

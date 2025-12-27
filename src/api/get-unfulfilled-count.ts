@@ -3,6 +3,7 @@
 import { serverHttpClient } from '@/src/infra/http';
 import { ApiResult, ErrorResponse } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
+import { logError } from '@/src/util/safe-logger';
 
 export async function getUnfulfilledCount(): Promise<ApiResult<number>> {
   const token = getCookies('token');
@@ -15,6 +16,7 @@ export async function getUnfulfilledCount(): Promise<ApiResult<number>> {
     return result.value;
   }
 
+  logError('[getUnfulfilledCount]', result.error.message);
   const errorResponse: ErrorResponse = {
     errors: [result.error.message],
   };
