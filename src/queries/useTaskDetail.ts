@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import { httpClient } from '@/src/infra/http';
 import { Comment } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 type TaskDetailData = {
   fileUrl: string;
@@ -114,7 +115,7 @@ export const useTaskDetail = (taskId: number, taskTitle: string, accountId: numb
         isLoading: false,
         error: message,
       }));
-      console.error('Failed to fetch task data:', err);
+      logError('[useTaskDetail]', err);
     }
   }, [cacheKey, taskId, taskTitle, accountId]);
 

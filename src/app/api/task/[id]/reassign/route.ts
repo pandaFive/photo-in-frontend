@@ -3,14 +3,11 @@
 import { NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
+import { Task } from '@/src/types';
 import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
 import { logError } from '@/src/util/safe-logger';
 import { validateId } from '@/src/util/validation';
-
-export type Task = {
-  [key: string]: string | number;
-};
 
 export const PUT = async (
   request: Request,

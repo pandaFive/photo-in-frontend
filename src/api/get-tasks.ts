@@ -3,6 +3,7 @@
 import { serverHttpClient } from '@/src/infra/http';
 import { ErrorResponse, Task } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
+import { logError } from '@/src/util/safe-logger';
 
 export async function getTasks(): Promise<Task[] | ErrorResponse> {
   const token = getCookies('token');
@@ -14,6 +15,6 @@ export async function getTasks(): Promise<Task[] | ErrorResponse> {
   if (result.ok) {
     return result.value;
   }
-  console.error('Failed to fetch tasks:', result.error.message);
+  logError('[getTasks]', result.error.message);
   return { errors: [result.error.message] };
 }

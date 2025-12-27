@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { httpClient } from '@/src/infra/http';
 import { Comment, CommentApiResponse, MutationResult } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 /**
  * コメント操作用のmutation hook
@@ -23,7 +24,7 @@ export const useCommentMutation = () => {
       });
 
       if (!result.ok) {
-        console.error('Failed to create comment:', result.error.message);
+        logError('[createComment]', result.error.message);
         return { success: false, error: result.error.message };
       }
 
@@ -43,7 +44,7 @@ export const useCommentMutation = () => {
       });
 
       if (!result.ok) {
-        console.error('Failed to update comment:', result.error.message);
+        logError('[updateComment]', result.error.message);
         return { success: false, error: result.error.message };
       }
 
@@ -62,7 +63,7 @@ export const useCommentMutation = () => {
       );
 
       if (!result.ok) {
-        console.error('Failed to delete comment:', result.error.message);
+        logError('[deleteComment]', result.error.message);
         return { success: false, error: result.error.message };
       }
 

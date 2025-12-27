@@ -3,6 +3,7 @@
 import { serverHttpClient } from '@/src/infra/http';
 import { ErrorResponse, Task } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
+import { logError } from '@/src/util/safe-logger';
 
 export const getAccountTasks = async (
   id: string,
@@ -16,6 +17,6 @@ export const getAccountTasks = async (
   if (result.ok) {
     return result.value;
   }
-  console.error('Failed to fetch account tasks:', result.error.message);
+  logError('[getAccountTasks]', result.error.message);
   return { errors: [result.error.message] };
 };

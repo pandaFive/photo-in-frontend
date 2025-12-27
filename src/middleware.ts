@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { logError } from '@/src/util/safe-logger';
+
 /**
  * レート制限設定
  * SEC-009: APIエンドポイントへのレート制限
@@ -33,7 +35,7 @@ const cleanupStore = () => {
     }
   } catch (error) {
     // クリーンアップ失敗時はログのみ（次回クリーンアップで再試行）
-    console.error('[Middleware] クリーンアップエラー:', error);
+    logError('[Middleware] クリーンアップ', error);
   }
 };
 
@@ -161,7 +163,7 @@ export function middleware(request: NextRequest) {
   } catch (error) {
     // レート制限エラー時はリクエストを通す（Fail Open: 可用性優先）
     // セキュリティ優先の場合は500を返すよう変更可能
-    console.error('[Middleware] レート制限エラー:', error);
+    logError('[Middleware] レート制限', error);
     return NextResponse.next();
   }
 }

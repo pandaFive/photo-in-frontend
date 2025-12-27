@@ -72,8 +72,9 @@ export const isErrorResponse = (value: unknown): value is ErrorResponse =>
 export type ApiResult<T> = T | ErrorResponse;
 
 // API固有のレスポンス型
+// CODE-008: 削除レスポンスの型を厳格化
 export type CommentApiResponse = {
-  [key: string]: string;
+  message: string;
 };
 
 export type WeekCompleteData = {

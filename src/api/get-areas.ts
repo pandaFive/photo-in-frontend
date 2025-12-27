@@ -3,6 +3,7 @@
 import { serverHttpClient } from '@/src/infra/http';
 import { Area, ErrorResponse } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
+import { logError } from '@/src/util/safe-logger';
 
 export const getAreas = async (): Promise<Area[] | ErrorResponse> => {
   const token = getCookies('token');
@@ -13,6 +14,6 @@ export const getAreas = async (): Promise<Area[] | ErrorResponse> => {
   if (result.ok) {
     return result.value;
   }
-  console.error('Failed to fetch areas:', result.error.message);
+  logError('[getAreas]', result.error.message);
   return { errors: [result.error.message] };
 };
