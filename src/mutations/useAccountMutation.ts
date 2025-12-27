@@ -1,11 +1,7 @@
 import { useCallback } from 'react';
 
 import { httpClient } from '@/src/infra/http';
-
-type MutationResult = {
-  success: boolean;
-  error?: string;
-};
+import { MutationResult } from '@/src/types';
 
 /**
  * アカウント操作用のmutation hook

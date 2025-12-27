@@ -2,12 +2,7 @@ import { useCallback, useRef } from 'react';
 import { KeyedMutator } from 'swr';
 
 import { httpClient } from '@/src/infra/http';
-import { Task } from '@/src/types';
-
-type MutationResult = {
-  success: boolean;
-  error?: string;
-};
+import { MutationResult, Task } from '@/src/types';
 
 /**
  * タスク更新用Mutation Hook
