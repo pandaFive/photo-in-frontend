@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 15 | 7 | 8 |
+| Medium | 15 | 9 | 6 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **17** | **17** |
+| **合計** | **34** | **19** | **15** |
 
 ---
 
@@ -135,10 +135,12 @@
 
 ### パフォーマンス
 
-- [ ] **PERF-001**: `useTaskDetail`をSWR化
+- [x] **PERF-001**: `useTaskDetail`をSWR化 ✅完了
   - ファイル: `src/queries/useTaskDetail.ts`
   - 問題: 手動Mapキャッシュがメモリリーク、有効期限なし
-  - 工数: 4h
+  - 対応: SWRの条件付きフェッチに移行、配列キー形式で特殊文字対応、エラー状態のUI表示追加
+  - テスト: `src/__tests__/queries/useTaskDetail.test.tsx`, `src/__tests__/components/TaskAccordion.test.tsx`
+  - 完了日: 2025-12-27
 
 - [ ] **PERF-002**: ダッシュボードN+1クエリ解消
   - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
@@ -250,10 +252,11 @@
   - 対象: `src/util/actions/signUp.ts`
   - 工数: 2h
 
-- [ ] **TEST-004**: Cookie操作テスト追加
+- [x] **TEST-004**: Cookie操作テスト追加 ✅完了
   - ファイル: `src/__tests__/util/cookies.test.ts`（新規）
   - 対象: `src/util/cookies.ts`
-  - 工数: 2h
+  - 対応: getCookies, setCookies, deleteCookieの全機能テスト追加（13テスト）、SEC-003のsameSite/secure属性検証含む
+  - 完了日: 2025-12-27
 
 - [ ] **TEST-005**: グルーピング関数テスト追加
   - ファイル: `src/__tests__/util/grouping.test.ts`（新規）
@@ -338,6 +341,8 @@
 | 2025-12-27 | CODE-006 | console.log/errorの統一 | Claude |
 | 2025-12-27 | CODE-007 | Task型定義の厳格化 | Claude |
 | 2025-12-27 | CODE-008 | CommentApiResponse型の厳格化 | Claude |
+| 2025-12-27 | PERF-001 | useTaskDetailをSWR化 | Claude |
+| 2025-12-27 | TEST-004 | Cookie操作テスト追加 | Claude |
 
 ---
 
