@@ -44,10 +44,7 @@
 
 ### High（API関数）
 
-- [ ] **TEST-009**: フェッチャーテスト追加
-  - ファイル: `src/__tests__/api/tasks/fetchers.test.ts`（新規）
-  - 対象: `src/api/tasks/fetchers.ts`
-  - 工数: 2h
+（全完了）
 
 ### Medium（コンポーネント）
 
@@ -388,6 +385,12 @@
   - 対応: トークン有無、API成功/失敗、レスポンス変換（15テスト）
   - 完了日: 2025-12-28
 
+- [x] **TEST-009**: フェッチャーテスト追加 ✅完了
+  - ファイル: `src/__tests__/api/tasks/fetchers.test.ts`（新規）
+  - 対象: `src/api/tasks/fetchers.ts`
+  - 対応: TaskFetchErrorクラス、taskListFetcher、isTaskFetchError型ガード（23テスト）
+  - 完了日: 2025-12-28
+
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
   - ファイル: `src/__tests__/util/cookies.test.ts`（新規）
   - 対象: `src/util/cookies.ts`
@@ -443,3 +446,4 @@
 | 2025-12-28 | TEST-006 | API関数テスト追加（post-login） | Claude |
 | 2025-12-28 | TEST-007 | API関数テスト追加（post-signup） | Claude |
 | 2025-12-28 | TEST-008 | API関数テスト追加（get-account） | Claude |
+| 2025-12-28 | TEST-009 | フェッチャーテスト追加 | Claude |
