@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TaskAccordion from '@/src/components/TaskAccordion';
 import { AccountData, Task } from '@/src/types';
@@ -16,22 +16,22 @@ jest.mock('@/src/context/ToastContext', () => ({
   }),
 }));
 
-// useTaskDetailをモック
-const mockFetchData = jest.fn();
-const mockCleanup = jest.fn();
-
+// useTaskDetailをモック（SWR版）
+const mockMutate = jest.fn();
 jest.mock('@/src/queries', () => ({
-  useTaskDetail: () => ({
+  useTaskDetail: jest.fn((_taskId, _taskTitle, _accountId, _shouldFetch) => ({
     fileUrl: 'http://example.com/file',
     comments: [{ id: 1, content: 'Test Comment' }],
     isLoaded: true,
     isLoading: false,
     error: null,
-    fetchData: mockFetchData,
-    cleanup: mockCleanup,
-  }),
-  isTaskDetailCached: () => false,
+    mutate: mockMutate,
+  })),
 }));
+
+// テスト用にモックをインポート
+import { useTaskDetail } from '@/src/queries';
+const mockUseTaskDetail = useTaskDetail as jest.Mock;
 
 const mockAccount: AccountData = {
   id: 1,
@@ -51,14 +51,19 @@ const mockTask: Task = {
 };
 
 const mockReload = jest.fn();
-const mockMutate = jest.fn();
+const mockListMutate = jest.fn();
 
 describe('TaskAccordion', () => {
   beforeEach(() => {
-    mockFetchData.mockClear();
-    mockCleanup.mockClear();
-    mockReload.mockClear();
-    mockMutate.mockClear();
+    jest.clearAllMocks();
+    mockUseTaskDetail.mockReturnValue({
+      fileUrl: 'http://example.com/file',
+      comments: [{ id: 1, content: 'Test Comment' }],
+      isLoaded: true,
+      isLoading: false,
+      error: null,
+      mutate: mockMutate,
+    });
   });
 
   test('renders TaskAccordion correctly', () => {
@@ -70,7 +75,7 @@ describe('TaskAccordion', () => {
         type="member"
         dataType="test"
         reload={mockReload}
-        mutate={mockMutate}
+        mutate={mockListMutate}
         taskId={mockTask.id}
       />,
     );
@@ -78,7 +83,7 @@ describe('TaskAccordion', () => {
     expect(screen.getByText('Test Task')).toBeInTheDocument();
   });
 
-  test('expands accordion and fetches data on click', async () => {
+  test('calls useTaskDetail with shouldFetch=false initially (accordion closed)', () => {
     render(
       <TaskAccordion
         account={mockAccount}
@@ -87,7 +92,30 @@ describe('TaskAccordion', () => {
         type="member"
         dataType="test"
         reload={mockReload}
-        mutate={mockMutate}
+        mutate={mockListMutate}
+        taskId={mockTask.id}
+      />,
+    );
+
+    // 初期状態ではshouldFetch=falseで呼ばれる
+    expect(mockUseTaskDetail).toHaveBeenCalledWith(
+      mockTask.id,
+      mockTask.task_title,
+      mockAccount.id,
+      false,
+    );
+  });
+
+  test('calls useTaskDetail with shouldFetch=true when accordion is expanded', () => {
+    render(
+      <TaskAccordion
+        account={mockAccount}
+        task={mockTask}
+        index={0}
+        type="member"
+        dataType="test"
+        reload={mockReload}
+        mutate={mockListMutate}
         taskId={mockTask.id}
       />,
     );
@@ -95,9 +123,13 @@ describe('TaskAccordion', () => {
     const accordionSummary = screen.getByRole('button');
     fireEvent.click(accordionSummary);
 
-    await waitFor(() => {
-      expect(mockFetchData).toHaveBeenCalled();
-    });
+    // 展開後はshouldFetch=trueで呼ばれる
+    expect(mockUseTaskDetail).toHaveBeenLastCalledWith(
+      mockTask.id,
+      mockTask.task_title,
+      mockAccount.id,
+      true,
+    );
   });
 
   test('renders MemberDetail for member type', () => {
@@ -109,7 +141,7 @@ describe('TaskAccordion', () => {
         type="member"
         dataType="test"
         reload={mockReload}
-        mutate={mockMutate}
+        mutate={mockListMutate}
         taskId={mockTask.id}
       />,
     );
@@ -127,13 +159,12 @@ describe('TaskAccordion', () => {
         type="admin"
         dataType="test"
         reload={mockReload}
-        mutate={mockMutate}
+        mutate={mockListMutate}
         taskId={mockTask.id}
       />,
     );
 
     // AdminDetailコンポーネントの特定の要素をチェック
-    // 注意: これはAdminDetailコンポーネントの実装に依存します
     expect(screen.getByText('ファイルを開く')).toBeInTheDocument();
   });
 });

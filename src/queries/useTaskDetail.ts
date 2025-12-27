@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import useSWR from 'swr';
 
 import { httpClient } from '@/src/infra/http';
 import { Comment } from '@/src/types';
@@ -9,132 +9,96 @@ type TaskDetailData = {
   comments: Comment[];
 };
 
-type TaskDetailState = {
-  data: TaskDetailData | null;
-  isLoading: boolean;
-  isLoaded: boolean;
-  error: string | null;
-};
-
-// モジュールレベルのキャッシュ（コンポーネントのアンマウントに影響されない）
-// キーは文字列に統一（型の不一致を防ぐ）
-const taskDetailCache = new Map<string, TaskDetailData>();
-const fetchingTasks = new Set<string>();
-
-/** キャッシュにデータが存在するかチェック */
-export const isTaskDetailCached = (taskId: number): boolean => {
-  return taskDetailCache.has(String(taskId));
-};
-
-/** キャッシュをクリア（テスト用） */
-export const clearTaskDetailCache = (): void => {
-  taskDetailCache.clear();
-  fetchingTasks.clear();
+// エラー型（SWRに渡すため）
+type TaskDetailError = {
+  message: string;
 };
 
 /**
- * タスク詳細データ（ファイルURL・コメント）の遅延読み込み用hook
- * アコーディオン展開時に手動でfetchをトリガー
+ * タスク詳細データ取得用fetcher
+ * ファイルURLとコメントを並列で取得
  */
-export const useTaskDetail = (taskId: number, taskTitle: string, accountId: number) => {
-  const cacheKey = String(taskId);
+const taskDetailFetcher = async (
+  key: string
+): Promise<TaskDetailData> => {
+  // キーからパラメータを抽出: "taskDetail:${taskId}:${taskTitle}:${accountId}"
+  const [, taskIdStr, taskTitle, accountIdStr] = key.split(':');
+  const taskId = Number(taskIdStr);
+  const accountId = Number(accountIdStr);
 
-  // キャッシュからの初期値を設定
-  const cachedData = taskDetailCache.get(cacheKey);
-  const [state, setState] = useState<TaskDetailState>({
-    data: cachedData ?? null,
-    isLoading: false,
-    isLoaded: !!cachedData,
-    error: null,
-  });
+  const [fileResult, commentsResult] = await Promise.all([
+    httpClient.get<string>(`/api/aws?key=${taskTitle}`),
+    httpClient.get<Comment[]>(
+      `/api/comments?taskId=${taskId}&accountId=${accountId}`
+    ),
+  ]);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  /**
-   * データを取得（手動トリガー）
-   */
-  const fetchData = useCallback(async () => {
-    // 既にキャッシュ済みまたはフェッチ中の場合はスキップ
-    if (taskDetailCache.has(cacheKey) || fetchingTasks.has(cacheKey)) {
-      return;
-    }
-    fetchingTasks.add(cacheKey);
-
-    // 既存のリクエストがある場合はキャンセル
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
-
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      // ファイルURLとコメントを並列で取得
-      const [fileResult, commentsResult] = await Promise.all([
-        httpClient.get<string>(`/api/aws?key=${taskTitle}`, { signal }),
-        httpClient.get<Comment[]>(
-          `/api/comments?taskId=${String(taskId)}&accountId=${String(accountId)}`,
-          { signal }
-        ),
-      ]);
-
-      if (!fileResult.ok) {
-        throw new Error(fileResult.error.message);
-      }
-      if (!commentsResult.ok) {
-        throw new Error(commentsResult.error.message);
-      }
-
-      const data = {
-        fileUrl: fileResult.value,
-        comments: commentsResult.value,
-      };
-
-      // キャッシュに保存
-      taskDetailCache.set(cacheKey, data);
-      fetchingTasks.delete(cacheKey);
-
-      setState({
-        data,
-        isLoading: false,
-        isLoaded: true,
-        error: null,
-      });
-    } catch (err: unknown) {
-      fetchingTasks.delete(cacheKey);
-
-      if (err instanceof Error && err.name === 'AbortError') {
-        return;
-      }
-
-      const message = err instanceof Error ? err.message : 'Failed to fetch task data';
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-      logError('[useTaskDetail]', err);
-    }
-  }, [cacheKey, taskId, taskTitle, accountId]);
-
-  /**
-   * クリーンアップ（コンポーネントアンマウント時に呼び出し）
-   */
-  const cleanup = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-  }, []);
+  if (!fileResult.ok) {
+    const error: TaskDetailError = { message: fileResult.error.message };
+    throw error;
+  }
+  if (!commentsResult.ok) {
+    const error: TaskDetailError = { message: commentsResult.error.message };
+    throw error;
+  }
 
   return {
-    fileUrl: state.data?.fileUrl ?? '',
-    comments: state.data?.comments ?? [],
-    isLoading: state.isLoading,
-    isLoaded: state.isLoaded,
-    error: state.error,
-    fetchData,
-    cleanup,
+    fileUrl: fileResult.value,
+    comments: commentsResult.value,
+  };
+};
+
+type UseTaskDetailReturn = {
+  fileUrl: string;
+  comments: Comment[];
+  isLoading: boolean;
+  isLoaded: boolean;
+  error: string | null;
+  mutate: ReturnType<typeof useSWR<TaskDetailData, TaskDetailError>>['mutate'];
+};
+
+/**
+ * タスク詳細データ（ファイルURL・コメント）のSWR Query Hook
+ *
+ * PERF-001: 手動Mapキャッシュ → SWRに置き換え
+ * - メモリリークリスク解消（SWRが自動的にキャッシュを管理）
+ * - 重複リクエスト防止（SWRのdedupingInterval）
+ * - 再検証機能（必要に応じてmutate()で再取得）
+ *
+ * @param taskId - タスクID
+ * @param taskTitle - タスクタイトル（S3キー用）
+ * @param accountId - アカウントID（コメント取得用）
+ * @param shouldFetch - trueの場合のみデータを取得（アコーディオン展開時など）
+ */
+export const useTaskDetail = (
+  taskId: number,
+  taskTitle: string,
+  accountId: number,
+  shouldFetch: boolean
+): UseTaskDetailReturn => {
+  // SWRの条件付きフェッチ: shouldFetchがfalseの場合はnullを渡して取得をスキップ
+  const swrKey = shouldFetch
+    ? `taskDetail:${taskId}:${taskTitle}:${accountId}`
+    : null;
+
+  const { data, error, isLoading, mutate } = useSWR<
+    TaskDetailData,
+    TaskDetailError
+  >(swrKey, taskDetailFetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60000, // 1分間の重複リクエスト防止
+    onError: (err) => {
+      logError('[useTaskDetail]', err);
+    },
+  });
+
+  return {
+    fileUrl: data?.fileUrl ?? '',
+    comments: data?.comments ?? [],
+    isLoading,
+    isLoaded: !!data,
+    error: error?.message ?? null,
+    mutate,
   };
 };
