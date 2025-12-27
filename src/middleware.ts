@@ -23,12 +23,17 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
  * 古いエントリをクリーンアップ（メモリリーク防止）
  */
 const cleanupStore = () => {
-  const now = Date.now();
-  const entries = Array.from(rateLimitStore.entries());
-  for (const [key, value] of entries) {
-    if (value.resetTime < now) {
-      rateLimitStore.delete(key);
+  try {
+    const now = Date.now();
+    const entries = Array.from(rateLimitStore.entries());
+    for (const [key, value] of entries) {
+      if (value.resetTime < now) {
+        rateLimitStore.delete(key);
+      }
     }
+  } catch (error) {
+    // クリーンアップ失敗時はログのみ（次回クリーンアップで再試行）
+    console.error('[Middleware] クリーンアップエラー:', error);
   }
 };
 
@@ -103,55 +108,62 @@ const isAuthEndpoint = (pathname: string): boolean => {
  * APIエンドポイントにレート制限を適用
  */
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  try {
+    const { pathname } = request.nextUrl;
 
-  // APIエンドポイントのみ対象
-  if (!pathname.startsWith('/api/')) {
+    // APIエンドポイントのみ対象
+    if (!pathname.startsWith('/api/')) {
+      return NextResponse.next();
+    }
+
+    const clientIp = getClientIp(request);
+    const isAuth = isAuthEndpoint(pathname);
+
+    // 認証エンドポイントは厳しい制限
+    const maxRequests = isAuth
+      ? RATE_LIMIT_CONFIG.authMaxRequests
+      : RATE_LIMIT_CONFIG.maxRequests;
+
+    // レート制限キー（認証エンドポイントは別カウント）
+    const rateLimitKey = isAuth ? `auth:${clientIp}` : `api:${clientIp}`;
+
+    const { limited, remaining, resetTime } = isRateLimited(
+      rateLimitKey,
+      maxRequests
+    );
+
+    if (limited) {
+      const retryAfter = Math.ceil((resetTime - Date.now()) / 1000);
+      return new NextResponse(
+        JSON.stringify({
+          errors: ['リクエスト数が上限を超えました。しばらく待ってから再試行してください。'],
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(retryAfter),
+            'X-RateLimit-Limit': String(maxRequests),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': String(Math.ceil(resetTime / 1000)),
+          },
+        }
+      );
+    }
+
+    // レスポンスにレート制限ヘッダーを追加
+    const response = NextResponse.next();
+    response.headers.set('X-RateLimit-Limit', String(maxRequests));
+    response.headers.set('X-RateLimit-Remaining', String(remaining));
+    response.headers.set('X-RateLimit-Reset', String(Math.ceil(resetTime / 1000)));
+
+    return response;
+  } catch (error) {
+    // レート制限エラー時はリクエストを通す（Fail Open: 可用性優先）
+    // セキュリティ優先の場合は500を返すよう変更可能
+    console.error('[Middleware] レート制限エラー:', error);
     return NextResponse.next();
   }
-
-  const clientIp = getClientIp(request);
-  const isAuth = isAuthEndpoint(pathname);
-
-  // 認証エンドポイントは厳しい制限
-  const maxRequests = isAuth
-    ? RATE_LIMIT_CONFIG.authMaxRequests
-    : RATE_LIMIT_CONFIG.maxRequests;
-
-  // レート制限キー（認証エンドポイントは別カウント）
-  const rateLimitKey = isAuth ? `auth:${clientIp}` : `api:${clientIp}`;
-
-  const { limited, remaining, resetTime } = isRateLimited(
-    rateLimitKey,
-    maxRequests
-  );
-
-  if (limited) {
-    const retryAfter = Math.ceil((resetTime - Date.now()) / 1000);
-    return new NextResponse(
-      JSON.stringify({
-        errors: ['リクエスト数が上限を超えました。しばらく待ってから再試行してください。'],
-      }),
-      {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': String(retryAfter),
-          'X-RateLimit-Limit': String(maxRequests),
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': String(Math.ceil(resetTime / 1000)),
-        },
-      }
-    );
-  }
-
-  // レスポンスにレート制限ヘッダーを追加
-  const response = NextResponse.next();
-  response.headers.set('X-RateLimit-Limit', String(maxRequests));
-  response.headers.set('X-RateLimit-Remaining', String(remaining));
-  response.headers.set('X-RateLimit-Reset', String(Math.ceil(resetTime / 1000)));
-
-  return response;
 }
 
 /**
