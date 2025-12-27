@@ -59,9 +59,9 @@ const Dashboard = async () => {
       >
         <Toolbar />
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-          <AreaChips areaNames={areaNames} />
+          <AreaChips areaNames={areaNames} error={areasError} />
           <Grid>
-            <UploadButton areaNames={areaNames} />
+            <UploadButton areaNames={areaNames} error={areasError} />
           </Grid>
           <Grid container spacing={3}>
             {/* Chart */}

@@ -12,8 +12,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
 | Medium | 16 | 15 | 1 |
-| Low | 10 | 1 | 9 |
-| **合計** | **39** | **26** | **13** |
+| Low | 10 | 9 | 1 |
+| **合計** | **39** | **34** | **5** |
 
 ---
 
@@ -32,53 +32,7 @@
 
 ## Low（バックログ）
 
-### コード品質
-
-- [ ] **CODE-009**: TODOコメント削除
-  - ファイル: `src/app/login/page.tsx`（行20）
-  - 問題: デモ用コードのTODOが残存
-  - 工数: 10m
-
-- [ ] **CODE-010**: AreaListCheckの空`.then()`修正
-  - ファイル: `src/components/AreaListCheck.tsx`
-  - 問題: 空のPromiseチェーン
-  - 工数: 15m
-
-- [ ] **CODE-011**: CommentListのネストコールバック簡素化
-  - ファイル: `src/components/CommentList.tsx`
-  - 問題: `useCallback((id) => () => {})`パターン
-  - 工数: 30m
-
-- [ ] **CODE-012**: TaskListのインラインsx抽出
-  - ファイル: `src/components/TaskList.tsx`
-  - 問題: インラインsxオブジェクトが毎レンダー再作成
-  - 工数: 30m
-
-### エラーハンドリング改善（CODE-013レビューより）
-
-- [ ] **CODE-014**: 認証トークン欠落時のログ追加
-  - ファイル: `src/api/get-account-status.ts`
-  - 問題: トークンがない場合にlogErrorなし（サイレント）
-  - 対応: `logError('[getAccountStatus]', 'Token not found in cookies')`追加
-  - 工数: 10m
-
-- [ ] **CODE-015**: Uncomletesエラーメッセージ改善
-  - ファイル: `src/components/Uncompletes.tsx`
-  - 問題: エラーメッセージが「取得失敗」のみで簡素すぎる
-  - 対応: Orders.tsxと統一し「非達成件数の取得に失敗しました。再読み込みしてください。」に変更
-  - 工数: 10m
-
-- [ ] **CODE-016**: AreaChips/UploadButtonにerror prop追加
-  - ファイル: `src/app/(admin)/dashboard/page.tsx`, `src/components/AreaChips.tsx`, `src/components/Buttons/UploadButton.tsx`
-  - 問題: areas取得失敗時にAreaChips/UploadButtonにエラー状態が伝播されない
-  - 対応: error propを追加し、エラー時はUI表示
-  - 工数: 1h
-
-- [ ] **CODE-017**: エラーAlertにリトライボタン追加
-  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
-  - 問題: 「再読み込みしてください」と表示するがボタンがない
-  - 対応: Alert actionにリロードボタン追加
-  - 工数: 30m
+（CODE-009〜CODE-017は対応済みセクションに移動）
 
 ---
 
@@ -373,6 +327,56 @@
   - 対応: 各キーにJSDocコメントを追加（用途、パラメータ説明）
   - 完了日: 2025-12-27
 
+### コード品質（Low）
+
+- [x] **CODE-009**: TODOコメント削除 ✅完了
+  - ファイル: `src/app/login/page.tsx`
+  - 問題: デモ用コードのTODOが残存
+  - 対応: 不要なTODOコメントを削除
+  - 完了日: 2025-12-28
+
+- [x] **CODE-010**: AreaListCheckの空`.then()`修正 ✅完了
+  - ファイル: `src/components/AreaListCheck.tsx`
+  - 問題: 空のPromiseチェーン
+  - 対応: `void getArea()`に簡素化
+  - 完了日: 2025-12-28
+
+- [x] **CODE-011**: CommentListのネストコールバック簡素化 ⏸️適用外
+  - ファイル: `src/components/CommentList.tsx`
+  - 問題: `useCallback((id) => () => {})`パターン
+  - 判断: MUI DataGridのアクションハンドラーとして正しいパターン。columns useMemoの依存配列に含まれ安定した参照が必要。現状維持。
+  - 見送り日: 2025-12-28
+
+- [x] **CODE-012**: TaskListのインラインsx抽出 ✅完了
+  - ファイル: `src/components/TaskList.tsx`
+  - 問題: インラインsxオブジェクトが毎レンダー再作成
+  - 対応: containerStyle, pageHeaderStyle, sectionHeaderStyle, sectionPaperStyle, taskCountChipStyleを定数として抽出
+  - 完了日: 2025-12-28
+
+- [x] **CODE-014**: 認証トークン欠落時のログ追加 ✅完了
+  - ファイル: `src/api/get-account-status.ts`
+  - 問題: トークンがない場合にlogErrorなし
+  - 対応: `logError('[getAccountStatus]', 'Token not found in cookies')`追加
+  - 完了日: 2025-12-28
+
+- [x] **CODE-015**: Uncomletesエラーメッセージ改善 ✅完了
+  - ファイル: `src/components/Uncompletes.tsx`
+  - 問題: エラーメッセージが「取得失敗」のみで簡素すぎる
+  - 対応: 「非達成件数の取得に失敗しました。再読み込みしてください。」に変更
+  - 完了日: 2025-12-28
+
+- [x] **CODE-016**: AreaChips/UploadButtonにerror prop追加 ✅完了
+  - ファイル: `src/app/(admin)/dashboard/page.tsx`, `src/components/AreaChips.tsx`, `src/components/Buttons/UploadButton.tsx`
+  - 問題: areas取得失敗時にエラー状態が伝播されない
+  - 対応: error propを追加、エラー時はAlertでメッセージ表示、UploadButtonは無効化
+  - 完了日: 2025-12-28
+
+- [x] **CODE-017**: エラーAlertにリトライボタン追加 ✅完了
+  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
+  - 問題: 「再読み込みしてください」と表示するがボタンがない
+  - 対応: Alert actionにRefreshIconと再読み込みボタンを追加
+  - 完了日: 2025-12-28
+
 ### テスト
 
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
@@ -415,3 +419,11 @@
 | 2025-12-27 | CODE-013 | ダッシュボードのエラーハンドリング改善 | Claude |
 | 2025-12-27 | ARCH-001 | Root Layoutプロバイダーラップ（適用外判断） | Claude |
 | 2025-12-27 | ARCH-002 | SWR_KEYSにコメント追加 | Claude |
+| 2025-12-28 | CODE-009 | TODOコメント削除 | Claude |
+| 2025-12-28 | CODE-010 | AreaListCheckの空.then()修正 | Claude |
+| 2025-12-28 | CODE-011 | CommentListのネストコールバック簡素化（適用外判断） | Claude |
+| 2025-12-28 | CODE-012 | TaskListのインラインsx抽出 | Claude |
+| 2025-12-28 | CODE-014 | 認証トークン欠落時のログ追加 | Claude |
+| 2025-12-28 | CODE-015 | Uncomletesエラーメッセージ改善 | Claude |
+| 2025-12-28 | CODE-016 | AreaChips/UploadButtonにerror prop追加 | Claude |
+| 2025-12-28 | CODE-017 | エラーAlertにリトライボタン追加 | Claude |

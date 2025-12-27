@@ -1,5 +1,7 @@
-import { Alert, Typography } from '@mui/material';
-import Link from '@mui/material/Link';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Alert, Button, Typography } from '@mui/material';
+import MuiLink from '@mui/material/Link';
+import NextLink from 'next/link';
 import * as React from 'react';
 
 type Props = {
@@ -15,8 +17,22 @@ const Uncompletes = ({ count, currentTime, error = false }: Props) => {
         非達成件数
       </Typography>
       {error ? (
-        <Alert severity="error" sx={{ mt: 1, flex: 1 }}>
-          取得失敗
+        <Alert
+          action={
+            <Button
+              color="inherit"
+              component={NextLink}
+              href="/dashboard"
+              size="small"
+              startIcon={<RefreshIcon />}
+            >
+              再読み込み
+            </Button>
+          }
+          severity="error"
+          sx={{ mt: 1, flex: 1 }}
+        >
+          非達成件数の取得に失敗しました。
         </Alert>
       ) : (
         <Typography component="p" sx={{ flex: 1 }} variant="h4">
@@ -27,9 +43,9 @@ const Uncompletes = ({ count, currentTime, error = false }: Props) => {
         on {currentTime}
       </Typography>
       <div>
-        <Link color="primary" href="/task">
+        <MuiLink color="primary" href="/task">
           View more
-        </Link>
+        </MuiLink>
       </div>
     </React.Fragment>
   );

@@ -27,6 +27,44 @@ type Props = {
   account: AccountData;
 };
 
+const containerStyle = {
+  flexGrow: 1,
+  minHeight: '100vh',
+  bgcolor: '#f5f7fa',
+} as const;
+
+const pageHeaderStyle = {
+  p: 3,
+  mb: 3,
+  borderRadius: 3,
+  bgcolor: '#667eea',
+  color: 'white',
+} as const;
+
+const sectionHeaderStyle = {
+  px: 3,
+  py: 2,
+  bgcolor: '#f8f9fc',
+  borderBottom: '1px solid',
+  borderColor: 'divider',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+} as const;
+
+const sectionPaperStyle = {
+  mb: 3,
+  borderRadius: 3,
+  overflow: 'hidden',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+} as const;
+
+const taskCountChipStyle = {
+  bgcolor: '#667eea',
+  color: 'white',
+  fontWeight: 600,
+} as const;
+
 const buttonGroupStyle = {
   '& .MuiButton-root': {
     borderRadius: 0,
@@ -85,26 +123,11 @@ const TaskList = (props: Props) => {
   const totalTasks = data.length;
 
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        minHeight: '100vh',
-        bgcolor: '#f5f7fa',
-      }}
-    >
+    <Box sx={containerStyle}>
       <Toolbar />
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* ページヘッダー */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: 3,
-            mb: 3,
-            borderRadius: 3,
-            bgcolor: '#667eea',
-            color: 'white',
-          }}
-        >
+        <Paper elevation={0} sx={pageHeaderStyle}>
           <Box
             sx={{
               display: 'flex',
@@ -207,29 +230,9 @@ const TaskList = (props: Props) => {
           </Paper>
         ) : (
           section.map((sectionName: string) => (
-            <Paper
-              elevation={0}
-              key={sectionName}
-              sx={{
-                mb: 3,
-                borderRadius: 3,
-                overflow: 'hidden',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              }}
-            >
+            <Paper elevation={0} key={sectionName} sx={sectionPaperStyle}>
               {/* セクションヘッダー */}
-              <Box
-                sx={{
-                  px: 3,
-                  py: 2,
-                  bgcolor: '#f8f9fc',
-                  borderBottom: '1px solid',
-                  borderColor: 'divider',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
+              <Box sx={sectionHeaderStyle}>
                 <Typography
                   sx={{
                     fontWeight: 600,
@@ -242,11 +245,7 @@ const TaskList = (props: Props) => {
                 <Chip
                   label={`${mutateData[sectionName]?.length}件`}
                   size="small"
-                  sx={{
-                    bgcolor: '#667eea',
-                    color: 'white',
-                    fontWeight: 600,
-                  }}
+                  sx={taskCountChipStyle}
                 />
               </Box>
               {/* タスクアコーディオン */}

@@ -10,9 +10,10 @@ import { useFileUpload } from '@/src/mutations';
 
 type Props = {
   areaNames: string[];
+  error?: boolean;
 };
 
-const UploadButton = (props: Props) => {
+const UploadButton = ({ areaNames, error = false }: Props) => {
   const [inputFiles, setInputFiles] = useState<File[]>([]);
   const inputFileRef = useRef<HTMLInputElement>(null);
   const { uploadFiles, isUploading } = useFileUpload();
@@ -55,7 +56,7 @@ const UploadButton = (props: Props) => {
     });
 
     // エリア名フィルタリング - Setで高速化
-    const areaNameSet = new Set(props.areaNames);
+    const areaNameSet = new Set(areaNames);
     const filteredFiles = uniqueFiles.filter((file) =>
       Array.from(areaNameSet).some((area) => file.name.includes(area))
     );
@@ -114,6 +115,7 @@ const UploadButton = (props: Props) => {
     <Box sx={{ mb: 2 }}>
       <Button
         component="label"
+        disabled={error}
         role={undefined}
         startIcon={<CloudUploadIcon />}
         sx={{
@@ -121,6 +123,9 @@ const UploadButton = (props: Props) => {
           bgcolor: '#667eea',
           '&:hover': {
             bgcolor: '#5a6fd6',
+          },
+          '&.Mui-disabled': {
+            bgcolor: 'rgba(102, 126, 234, 0.5)',
           },
         }}
         tabIndex={-1}
@@ -136,7 +141,7 @@ const UploadButton = (props: Props) => {
         />
       </Button>
       <IncorrectUploadDialog
-        areaNames={props.areaNames}
+        areaNames={areaNames}
         open={incorrectDialogOpen}
         toggleDialog={toggleIncorrectOpen}
       />

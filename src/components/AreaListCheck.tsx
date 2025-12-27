@@ -37,9 +37,7 @@ const AreaListCheck = () => {
   }, []);
 
   const onFetchArea = useCallback(() => {
-    getArea()
-      .then()
-      .catch((e) => console.error(e));
+    void getArea();
   }, [getArea]);
 
   useEffect(() => {

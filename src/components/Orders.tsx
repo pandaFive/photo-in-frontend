@@ -1,11 +1,14 @@
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Alert,
+  Button,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
 } from '@mui/material';
+import Link from 'next/link';
 import React from 'react';
 
 import Title from '@/src/components/Title';
@@ -21,8 +24,22 @@ const Orders = ({ members, error = false }: Props) => {
     <React.Fragment>
       <Title>Recent Orders</Title>
       {error ? (
-        <Alert severity="error" sx={{ mt: 1 }}>
-          メンバー情報の取得に失敗しました。再読み込みしてください。
+        <Alert
+          action={
+            <Button
+              color="inherit"
+              component={Link}
+              href="/dashboard"
+              size="small"
+              startIcon={<RefreshIcon />}
+            >
+              再読み込み
+            </Button>
+          }
+          severity="error"
+          sx={{ mt: 1 }}
+        >
+          メンバー情報の取得に失敗しました。
         </Alert>
       ) : (
         <Table size="small">
