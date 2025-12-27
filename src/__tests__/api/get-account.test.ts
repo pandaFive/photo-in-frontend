@@ -177,23 +177,12 @@ describe('getAccount', () => {
       expect(mockGet).not.toHaveBeenCalled();
     });
 
-    test('空文字のトークンでもAPIが呼ばれる', async () => {
+    test('空文字のトークンではAPIは呼ばれない（falsy値として扱われる）', async () => {
       mockGetCookies.mockReturnValue('');
-      const mockResult: Result<AccountApiResponse> = {
-        ok: false,
-        error: {
-          type: 'api',
-          status: 401,
-          message: 'Unauthorized',
-        },
-      };
-      mockGet.mockResolvedValue(mockResult);
 
       await getAccount();
 
-      // 空文字はfalsyだがJSでは空文字 !== undefined
-      // 実装では !token で判定しているので空文字はAPIを呼ばない
-      // ただし実装を確認すると if (!token) なので空文字はfalsy
+      // 空文字はJavaScriptでfalsy値のため、!token がtrueとなりAPIは呼ばれない
       expect(mockGet).not.toHaveBeenCalled();
     });
   });
