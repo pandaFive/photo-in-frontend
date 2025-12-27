@@ -16,6 +16,7 @@ import Uncompletes from '@/src/components/Uncompletes';
 import { formatDateToEnglish } from '@/src/domain/functions/date';
 import { getNow } from '@/src/infra/time';
 import { isErrorResponse, MemberStatus } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 const Dashboard = async () => {
   // PERF-002: バッチ化 - 3つのAPIを並列で呼び出し
@@ -25,16 +26,25 @@ const Dashboard = async () => {
     getUnfulfilledCount(),
   ]);
 
-  const areaNames: string[] = isErrorResponse(areasResult)
-    ? []
-    : areasResult.map((area) => area.name);
+  // CODE-013: エラー状態を追跡してUIに反映
+  const areasError = isErrorResponse(areasResult);
+  const accountsError = isErrorResponse(accountsResult);
+  const unfulfilledError = isErrorResponse(unfulfilledResult);
 
-  const members: MemberStatus[] = isErrorResponse(accountsResult)
-    ? []
-    : accountsResult;
+  // エラー時はログ出力（API側でも出力されるが、ダッシュボード側でも集約ログとして出力）
+  if (areasError) {
+    logError('[Dashboard] areas取得失敗', areasResult.errors);
+  }
+  if (accountsError) {
+    logError('[Dashboard] accounts取得失敗', accountsResult.errors);
+  }
+  if (unfulfilledError) {
+    logError('[Dashboard] unfulfilled count取得失敗', unfulfilledResult.errors);
+  }
 
-  const unfulfilledCount: number =
-    typeof unfulfilledResult === 'number' ? unfulfilledResult : 0;
+  const areaNames: string[] = areasError ? [] : areasResult.map((area) => area.name);
+  const members: MemberStatus[] = accountsError ? [] : accountsResult;
+  const unfulfilledCount: number = unfulfilledError ? 0 : unfulfilledResult;
 
   const currentTime = formatDateToEnglish(getNow());
   return (
@@ -81,7 +91,11 @@ const Dashboard = async () => {
                   height: 240,
                 }}
               >
-                <Uncompletes count={unfulfilledCount} currentTime={currentTime} />
+                <Uncompletes
+                  count={unfulfilledCount}
+                  currentTime={currentTime}
+                  error={unfulfilledError}
+                />
               </Paper>
             </Grid>
             {/* Recent Orders */}
@@ -91,7 +105,7 @@ const Dashboard = async () => {
                 square={false}
                 sx={{ p: 2, display: 'flex', flexDirection: 'column' }}
               >
-                <Orders members={members} />
+                <Orders error={accountsError} members={members} />
               </Paper>
             </Grid>
           </Grid>

@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 16 | 14 | 2 |
+| Medium | 16 | 15 | 1 |
 | Low | 6 | 0 | 6 |
-| **合計** | **35** | **24** | **11** |
+| **合計** | **35** | **25** | **10** |
 
 ---
 
@@ -27,21 +27,6 @@
   - 備考: ECS Task Role、Amplify設定等のインフラ変更が必要。フロントエンドのみでは対応不可。
   - 工数: 4h（インフラ側作業）
   - 移動元: Critical（2025-12-26）
-
----
-
-## Medium（次スプリント対応）
-
-### コード品質
-
-- [ ] **CODE-013**: ダッシュボードのエラーハンドリング改善
-  - ファイル: `src/app/(admin)/dashboard/page.tsx`, `src/api/get-account-status.ts`, `src/api/get-unfulfilled-count.ts`
-  - 問題: API失敗時にサイレントフォールバック（空配列/0）でユーザー通知なし
-  - 対応案:
-    1. ダッシュボードページにエラーログ追加（logError使用）
-    2. get-account-status.ts, get-unfulfilled-count.tsにエラーログ追加（get-areas.tsと統一）
-    3. コンポーネントにエラー状態props追加でUI表示
-  - 工数: 2h
 
 ---
 
@@ -351,6 +336,15 @@
   - 対応: `{ message: string }`に厳格化
   - 完了日: 2025-12-27
 
+- [x] **CODE-013**: ダッシュボードのエラーハンドリング改善 ✅完了
+  - ファイル: `src/app/(admin)/dashboard/page.tsx`, `src/api/get-account-status.ts`, `src/api/get-unfulfilled-count.ts`, `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
+  - 問題: API失敗時にサイレントフォールバック（空配列/0）でユーザー通知なし
+  - 対応:
+    1. get-account-status.ts, get-unfulfilled-count.tsにlogError追加（get-areas.tsと統一）
+    2. dashboard/page.tsxでエラー状態を追跡しログ出力
+    3. Orders/Uncomletesにerror prop追加、エラー時はAlertコンポーネントで表示
+  - 完了日: 2025-12-27
+
 ### テスト
 
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
@@ -390,3 +384,4 @@
 | 2025-12-27 | PERF-003 | Route Handlersにキャッシュヘッダー追加 | Claude |
 | 2025-12-27 | PERF-002 | ダッシュボードN+1クエリ解消 | Claude |
 | 2025-12-27 | PERF-006 | Orders/Uncomplete SWR移行（PERF-002で解決） | Claude |
+| 2025-12-27 | CODE-013 | ダッシュボードのエラーハンドリング改善 | Claude |
