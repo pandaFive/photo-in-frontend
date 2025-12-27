@@ -12,8 +12,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
 | Medium | 16 | 15 | 1 |
-| Low | 6 | 0 | 6 |
-| **合計** | **35** | **25** | **10** |
+| Low | 10 | 0 | 10 |
+| **合計** | **39** | **25** | **14** |
 
 ---
 
@@ -65,6 +65,32 @@
   - ファイル: `src/util/swr/keys.ts`
   - 問題: パラメータの意図が不明確
   - 工数: 15m
+
+### エラーハンドリング改善（CODE-013レビューより）
+
+- [ ] **CODE-014**: 認証トークン欠落時のログ追加
+  - ファイル: `src/api/get-account-status.ts`
+  - 問題: トークンがない場合にlogErrorなし（サイレント）
+  - 対応: `logError('[getAccountStatus]', 'Token not found in cookies')`追加
+  - 工数: 10m
+
+- [ ] **CODE-015**: Uncomletesエラーメッセージ改善
+  - ファイル: `src/components/Uncompletes.tsx`
+  - 問題: エラーメッセージが「取得失敗」のみで簡素すぎる
+  - 対応: Orders.tsxと統一し「非達成件数の取得に失敗しました。再読み込みしてください。」に変更
+  - 工数: 10m
+
+- [ ] **CODE-016**: AreaChips/UploadButtonにerror prop追加
+  - ファイル: `src/app/(admin)/dashboard/page.tsx`, `src/components/AreaChips.tsx`, `src/components/Buttons/UploadButton.tsx`
+  - 問題: areas取得失敗時にAreaChips/UploadButtonにエラー状態が伝播されない
+  - 対応: error propを追加し、エラー時はUI表示
+  - 工数: 1h
+
+- [ ] **CODE-017**: エラーAlertにリトライボタン追加
+  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
+  - 問題: 「再読み込みしてください」と表示するがボタンがない
+  - 対応: Alert actionにリロードボタン追加
+  - 工数: 30m
 
 ---
 
