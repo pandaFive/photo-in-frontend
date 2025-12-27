@@ -44,11 +44,6 @@
 
 ### High（API関数）
 
-- [ ] **TEST-006**: API関数テスト追加
-  - ファイル: `src/__tests__/api/post-login.test.ts`（新規）
-  - 対象: `src/api/post-login.ts`
-  - 工数: 2h
-
 - [ ] **TEST-007**: API関数テスト追加
   - ファイル: `src/__tests__/api/post-signup.test.ts`（新規）
   - 対象: `src/api/post-signup.ts`
@@ -385,6 +380,12 @@
   - 対応: 時間/エリアグループ化、エッジケース、データ整合性（16テスト）
   - 完了日: 2025-12-28
 
+- [x] **TEST-006**: API関数テスト追加（post-login） ✅完了
+  - ファイル: `src/__tests__/api/post-login.test.ts`（新規）
+  - 対象: `src/api/post-login.ts`
+  - 対応: ログイン成功/失敗、APIエラー、ネットワークエラー、型ガード（16テスト）
+  - 完了日: 2025-12-28
+
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
   - ファイル: `src/__tests__/util/cookies.test.ts`（新規）
   - 対象: `src/util/cookies.ts`
@@ -437,3 +438,4 @@
 | 2025-12-28 | TEST-002 | Server Actionsテスト追加（logout） | Claude |
 | 2025-12-28 | TEST-003 | Server Actionsテスト追加（signUp） | Claude |
 | 2025-12-28 | TEST-005 | グルーピング関数テスト追加 | Claude |
+| 2025-12-28 | TEST-006 | API関数テスト追加（post-login） | Claude |
