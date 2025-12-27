@@ -30,6 +30,12 @@ describe('logoutAction', () => {
     expect(mockDeleteCookie).toHaveBeenCalledWith('token');
   });
 
+  test('SEC-006: roleクッキーを削除する', () => {
+    logoutAction();
+
+    expect(mockDeleteCookie).toHaveBeenCalledWith('role');
+  });
+
   test('ルートパス（/）にリダイレクトする', () => {
     logoutAction();
 
@@ -49,14 +55,14 @@ describe('logoutAction', () => {
 
     logoutAction();
 
-    // deleteCookieが先に呼ばれ、その後redirectが呼ばれる
-    expect(callOrder).toEqual(['deleteCookie', 'redirect']);
+    // deleteCookieが2回呼ばれた後にredirectが呼ばれる
+    expect(callOrder).toEqual(['deleteCookie', 'deleteCookie', 'redirect']);
   });
 
-  test('deleteCookieが1回だけ呼ばれる', () => {
+  test('deleteCookieが2回呼ばれる（tokenとrole）', () => {
     logoutAction();
 
-    expect(mockDeleteCookie).toHaveBeenCalledTimes(1);
+    expect(mockDeleteCookie).toHaveBeenCalledTimes(2);
   });
 
   test('redirectが1回だけ呼ばれる', () => {

@@ -186,5 +186,67 @@ describe('loginAction', () => {
 
       expect(mockPostLogin).toHaveBeenCalledWith('', '');
     });
+
+    test('FormDataにフィールドがない場合、String(null)が渡される', async () => {
+      const mockError: ErrorResponse = {
+        errors: ['入力が不正です'],
+      };
+      mockPostLogin.mockResolvedValue(mockError);
+
+      const formData = new FormData(); // フィールドなし
+      await loginAction(formData);
+
+      // String(null) = "null"
+      expect(mockPostLogin).toHaveBeenCalledWith('null', 'null');
+    });
+  });
+
+  describe('例外発生時', () => {
+    test('postLoginが例外をスローした場合、例外が伝播する', async () => {
+      mockPostLogin.mockRejectedValue(new Error('Network error'));
+
+      const formData = createFormData('user', 'pass');
+
+      await expect(loginAction(formData)).rejects.toThrow('Network error');
+
+      // Cookieは設定されない
+      expect(mockSetCookies).not.toHaveBeenCalled();
+      // リダイレクトも実行されない
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('エッジケース', () => {
+    test('不明なロールの場合、/member/{id}にリダイレクトする', async () => {
+      const mockAccount: Account = {
+        id: '99',
+        role: 'unknown_role',
+        token: 'token',
+        name: 'User',
+      };
+      mockPostLogin.mockResolvedValue(mockAccount);
+
+      const formData = createFormData('user', 'pass');
+      await loginAction(formData);
+
+      // admin以外は全て/member/{id}にリダイレクト
+      expect(mockRedirect).toHaveBeenCalledWith('/member/99', RedirectType.push);
+    });
+
+    test('複数のエラーメッセージがある場合、最初のメッセージのみ使用される', async () => {
+      const mockError: ErrorResponse = {
+        errors: ['エラー1', 'エラー2', 'エラー3'],
+      };
+      mockPostLogin.mockResolvedValue(mockError);
+
+      const formData = createFormData('user', 'pass');
+      await loginAction(formData);
+
+      const expectedErrorMessage = encodeURIComponent('エラー1');
+      expect(mockRedirect).toHaveBeenCalledWith(
+        `/?error=${expectedErrorMessage}`,
+        RedirectType.push
+      );
+    });
   });
 });
