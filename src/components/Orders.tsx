@@ -1,4 +1,3 @@
-'use client';
 import {
   Table,
   TableBody,
@@ -8,24 +7,14 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import { getAccountStatus } from '@/src/api/get-account-status';
 import Title from '@/src/components/Title';
 import { MemberStatus } from '@/src/types';
 
-const Orders = () => {
-  const [rows, setRow] = React.useState<MemberStatus[]>([]);
+type Props = {
+  members: MemberStatus[];
+};
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const response = await getAccountStatus();
-
-      if (response !== undefined) {
-        setRow(response as MemberStatus[]);
-      }
-    };
-    void fetchData();
-  }, []);
-
+const Orders = ({ members }: Props) => {
   return (
     <React.Fragment>
       <Title>Recent Orders</Title>
@@ -42,7 +31,7 @@ const Orders = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows?.map((row) => (
+          {members.map((row) => (
             <TableRow key={row.id}>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.area.join(' ')}</TableCell>

@@ -11,11 +11,176 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 15 | 12 | 3 |
+| Medium | 16 | 13 | 3 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **22** | **12** |
+| **合計** | **35** | **23** | **12** |
 
 ---
+
+## High（今スプリント対応）
+
+### セキュリティ
+
+- [ ] **SEC-002**: AWS認証情報をIAMロールに移行 ⚠️インフラ対応必要
+  - ファイル: `src/app/api/aws/route.ts`
+  - 問題: 環境変数にAWSシークレットキーを直接保存
+  - 備考: ECS Task Role、Amplify設定等のインフラ変更が必要。フロントエンドのみでは対応不可。
+  - 工数: 4h（インフラ側作業）
+  - 移動元: Critical（2025-12-26）
+
+---
+
+## Medium（次スプリント対応）
+
+### パフォーマンス
+
+- [ ] **PERF-006**: Orders/UncompleteをSWR使用に変更
+  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
+  - 問題: useEffectで直接fetch、重複排除なし
+  - 工数: 2h
+  - 備考: PERF-002で Server Component化済み、SWR移行は不要になった可能性あり
+
+### コード品質
+
+- [ ] **CODE-013**: ダッシュボードのエラーハンドリング改善
+  - ファイル: `src/app/(admin)/dashboard/page.tsx`, `src/api/get-account-status.ts`, `src/api/get-unfulfilled-count.ts`
+  - 問題: API失敗時にサイレントフォールバック（空配列/0）でユーザー通知なし
+  - 対応案:
+    1. ダッシュボードページにエラーログ追加（logError使用）
+    2. get-account-status.ts, get-unfulfilled-count.tsにエラーログ追加（get-areas.tsと統一）
+    3. コンポーネントにエラー状態props追加でUI表示
+  - 工数: 2h
+
+---
+
+## Low（バックログ）
+
+### コード品質
+
+- [ ] **CODE-009**: TODOコメント削除
+  - ファイル: `src/app/login/page.tsx`（行20）
+  - 問題: デモ用コードのTODOが残存
+  - 工数: 10m
+
+- [ ] **CODE-010**: AreaListCheckの空`.then()`修正
+  - ファイル: `src/components/AreaListCheck.tsx`
+  - 問題: 空のPromiseチェーン
+  - 工数: 15m
+
+- [ ] **CODE-011**: CommentListのネストコールバック簡素化
+  - ファイル: `src/components/CommentList.tsx`
+  - 問題: `useCallback((id) => () => {})`パターン
+  - 工数: 30m
+
+- [ ] **CODE-012**: TaskListのインラインsx抽出
+  - ファイル: `src/components/TaskList.tsx`
+  - 問題: インラインsxオブジェクトが毎レンダー再作成
+  - 工数: 30m
+
+### アーキテクチャ
+
+- [ ] **ARCH-001**: Root Layoutプロバイダーラップ
+  - ファイル: `src/app/layout.tsx`
+  - 問題: Server ComponentでクライアントプロバイダーをレンダリングThemeProvider>
+  - 工数: 1h
+
+- [ ] **ARCH-002**: SWR_KEYSにコメント追加
+  - ファイル: `src/util/swr/keys.ts`
+  - 問題: パラメータの意図が不明確
+  - 工数: 15m
+
+---
+
+## テストカバレッジ追加
+
+### Critical（認証フロー）
+
+- [ ] **TEST-001**: Server Actionsテスト追加
+  - ファイル: `src/__tests__/util/actions/login.test.ts`（新規）
+  - 対象: `src/util/actions/login.ts`
+  - 工数: 3h
+
+- [ ] **TEST-002**: Server Actionsテスト追加
+  - ファイル: `src/__tests__/util/actions/logout.test.ts`（新規）
+  - 対象: `src/util/actions/logout.ts`
+  - 工数: 2h
+
+- [ ] **TEST-003**: Server Actionsテスト追加
+  - ファイル: `src/__tests__/util/actions/signUp.test.ts`（新規）
+  - 対象: `src/util/actions/signUp.ts`
+  - 工数: 2h
+
+- [ ] **TEST-005**: グルーピング関数テスト追加
+  - ファイル: `src/__tests__/util/grouping.test.ts`（新規）
+  - 対象: `src/util/grouping.ts`
+  - 工数: 2h
+
+### High（API関数）
+
+- [ ] **TEST-006**: API関数テスト追加
+  - ファイル: `src/__tests__/api/post-login.test.ts`（新規）
+  - 対象: `src/api/post-login.ts`
+  - 工数: 2h
+
+- [ ] **TEST-007**: API関数テスト追加
+  - ファイル: `src/__tests__/api/post-signup.test.ts`（新規）
+  - 対象: `src/api/post-signup.ts`
+  - 工数: 2h
+
+- [ ] **TEST-008**: API関数テスト追加
+  - ファイル: `src/__tests__/api/get-account.test.ts`（新規）
+  - 対象: `src/api/get-account.ts`
+  - 工数: 1h
+
+- [ ] **TEST-009**: フェッチャーテスト追加
+  - ファイル: `src/__tests__/api/tasks/fetchers.test.ts`（新規）
+  - 対象: `src/api/tasks/fetchers.ts`
+  - 工数: 2h
+
+### Medium（コンポーネント）
+
+- [ ] **TEST-010**: コンポーネントテスト追加
+  - ファイル: `src/__tests__/components/AppBar.test.tsx`（新規）
+  - 対象: `src/components/AppBar.tsx`
+  - 工数: 3h
+
+- [ ] **TEST-011**: コンポーネントテスト追加
+  - ファイル: `src/__tests__/components/Orders.test.tsx`（新規）
+  - 対象: `src/components/Orders.tsx`
+  - 工数: 2h
+
+- [ ] **TEST-012**: コンポーネントテスト追加
+  - ファイル: `src/__tests__/components/UploadButton.test.tsx`（新規）
+  - 対象: `src/components/Buttons/UploadButton.tsx`
+  - 工数: 2h
+
+- [ ] **TEST-013**: コンポーネントテスト追加
+  - ファイル: `src/__tests__/components/Drawer.test.tsx`（新規）
+  - 対象: `src/components/Drawer.tsx`
+  - 工数: 2h
+
+- [ ] **TEST-014**: コンポーネントテスト追加
+  - ファイル: `src/__tests__/components/AreaChips.test.tsx`（新規）
+  - 対象: `src/components/AreaChips.tsx`
+  - 工数: 1h
+
+- [ ] **TEST-015**: コンポーネントテスト追加
+  - ファイル: `src/__tests__/components/Uncompletes.test.tsx`（新規）
+  - 対象: `src/components/Uncompletes.tsx`
+  - 工数: 2h
+
+---
+
+## 備考
+
+- Critical問題は本番デプロイ前に**必須**で解決すること
+- セキュリティ関連は特に優先して対応
+- テスト追加は機能修正と並行して実施可能
+- 工数は目安、実装時に調整すること
+
+---
+
+# 対応済み
 
 ## Critical（即時対応必須）
 
@@ -108,13 +273,6 @@
 
 ### セキュリティ
 
-- [ ] **SEC-002**: AWS認証情報をIAMロールに移行 ⚠️インフラ対応必要
-  - ファイル: `src/app/api/aws/route.ts`
-  - 問題: 環境変数にAWSシークレットキーを直接保存
-  - 備考: ECS Task Role、Amplify設定等のインフラ変更が必要。フロントエンドのみでは対応不可。
-  - 工数: 4h（インフラ側作業）
-  - 移動元: Critical（2025-12-26）
-
 - [x] **SEC-009**: レート制限ミドルウェア実装 ✅完了
   - ファイル: `src/middleware.ts`（新規）
   - 問題: APIエンドポイントにレート制限なし
@@ -142,10 +300,12 @@
   - テスト: `src/__tests__/queries/useTaskDetail.test.tsx`, `src/__tests__/components/TaskAccordion.test.tsx`
   - 完了日: 2025-12-27
 
-- [ ] **PERF-002**: ダッシュボードN+1クエリ解消
-  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
+- [x] **PERF-002**: ダッシュボードN+1クエリ解消 ✅完了
+  - ファイル: `src/app/(admin)/dashboard/page.tsx`, `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
   - 問題: 3つのAPIが個別に呼び出され、バッチ化されていない
-  - 工数: 3h
+  - 対応: Server Componentで`Promise.all()`を使用し3つのAPIを並列呼び出し、子コンポーネントにprops経由で渡す
+  - 効果: クライアント側の2つのuseEffect API呼び出しを削除、サーバー側で並列化
+  - 完了日: 2025-12-27
 
 - [x] **PERF-003**: Route Handlersにキャッシュヘッダー追加 ✅完了
   - ファイル: 5つのRoute Handlers
@@ -165,11 +325,6 @@
   - 問題: リスト再レンダー時に全カードが再レンダー
   - 対応: `memo()`でコンポーネントをラップし不要な再レンダー防止
   - 完了日: 2025-12-27
-
-- [ ] **PERF-006**: Orders/UncompleteをSWR使用に変更
-  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
-  - 問題: useEffectで直接fetch、重複排除なし
-  - 工数: 2h
 
 ### コード品質
 
@@ -197,129 +352,13 @@
   - 対応: `{ message: string }`に厳格化
   - 完了日: 2025-12-27
 
----
-
-## Low（バックログ）
-
-### コード品質
-
-- [ ] **CODE-009**: TODOコメント削除
-  - ファイル: `src/app/login/page.tsx`（行20）
-  - 問題: デモ用コードのTODOが残存
-  - 工数: 10m
-
-- [ ] **CODE-010**: AreaListCheckの空`.then()`修正
-  - ファイル: `src/components/AreaListCheck.tsx`
-  - 問題: 空のPromiseチェーン
-  - 工数: 15m
-
-- [ ] **CODE-011**: CommentListのネストコールバック簡素化
-  - ファイル: `src/components/CommentList.tsx`
-  - 問題: `useCallback((id) => () => {})`パターン
-  - 工数: 30m
-
-- [ ] **CODE-012**: TaskListのインラインsx抽出
-  - ファイル: `src/components/TaskList.tsx`
-  - 問題: インラインsxオブジェクトが毎レンダー再作成
-  - 工数: 30m
-
-### アーキテクチャ
-
-- [ ] **ARCH-001**: Root Layoutプロバイダーラップ
-  - ファイル: `src/app/layout.tsx`
-  - 問題: Server ComponentでクライアントプロバイダーをレンダリングThemeProvider>
-  - 工数: 1h
-
-- [ ] **ARCH-002**: SWR_KEYSにコメント追加
-  - ファイル: `src/util/swr/keys.ts`
-  - 問題: パラメータの意図が不明確
-  - 工数: 15m
-
----
-
-## テストカバレッジ追加
-
-### Critical（認証フロー）
-
-- [ ] **TEST-001**: Server Actionsテスト追加
-  - ファイル: `src/__tests__/util/actions/login.test.ts`（新規）
-  - 対象: `src/util/actions/login.ts`
-  - 工数: 3h
-
-- [ ] **TEST-002**: Server Actionsテスト追加
-  - ファイル: `src/__tests__/util/actions/logout.test.ts`（新規）
-  - 対象: `src/util/actions/logout.ts`
-  - 工数: 2h
-
-- [ ] **TEST-003**: Server Actionsテスト追加
-  - ファイル: `src/__tests__/util/actions/signUp.test.ts`（新規）
-  - 対象: `src/util/actions/signUp.ts`
-  - 工数: 2h
+### テスト
 
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
   - ファイル: `src/__tests__/util/cookies.test.ts`（新規）
   - 対象: `src/util/cookies.ts`
   - 対応: getCookies, setCookies, deleteCookieの全機能テスト追加（13テスト）、SEC-003のsameSite/secure属性検証含む
   - 完了日: 2025-12-27
-
-- [ ] **TEST-005**: グルーピング関数テスト追加
-  - ファイル: `src/__tests__/util/grouping.test.ts`（新規）
-  - 対象: `src/util/grouping.ts`
-  - 工数: 2h
-
-### High（API関数）
-
-- [ ] **TEST-006**: API関数テスト追加
-  - ファイル: `src/__tests__/api/post-login.test.ts`（新規）
-  - 対象: `src/api/post-login.ts`
-  - 工数: 2h
-
-- [ ] **TEST-007**: API関数テスト追加
-  - ファイル: `src/__tests__/api/post-signup.test.ts`（新規）
-  - 対象: `src/api/post-signup.ts`
-  - 工数: 2h
-
-- [ ] **TEST-008**: API関数テスト追加
-  - ファイル: `src/__tests__/api/get-account.test.ts`（新規）
-  - 対象: `src/api/get-account.ts`
-  - 工数: 1h
-
-- [ ] **TEST-009**: フェッチャーテスト追加
-  - ファイル: `src/__tests__/api/tasks/fetchers.test.ts`（新規）
-  - 対象: `src/api/tasks/fetchers.ts`
-  - 工数: 2h
-
-### Medium（コンポーネント）
-
-- [ ] **TEST-010**: コンポーネントテスト追加
-  - ファイル: `src/__tests__/components/AppBar.test.tsx`（新規）
-  - 対象: `src/components/AppBar.tsx`
-  - 工数: 3h
-
-- [ ] **TEST-011**: コンポーネントテスト追加
-  - ファイル: `src/__tests__/components/Orders.test.tsx`（新規）
-  - 対象: `src/components/Orders.tsx`
-  - 工数: 2h
-
-- [ ] **TEST-012**: コンポーネントテスト追加
-  - ファイル: `src/__tests__/components/UploadButton.test.tsx`（新規）
-  - 対象: `src/components/Buttons/UploadButton.tsx`
-  - 工数: 2h
-
-- [ ] **TEST-013**: コンポーネントテスト追加
-  - ファイル: `src/__tests__/components/Drawer.test.tsx`（新規）
-  - 対象: `src/components/Drawer.tsx`
-  - 工数: 2h
-
-- [ ] **TEST-014**: コンポーネントテスト追加
-  - ファイル: `src/__tests__/components/AreaChips.test.tsx`（新規）
-  - 対象: `src/components/AreaChips.tsx`
-  - 工数: 1h
-
-- [ ] **TEST-015**: コンポーネントテスト追加
-  - ファイル: `src/__tests__/components/Uncompletes.test.tsx`（新規）
-  - 対象: `src/components/Uncompletes.tsx`
-  - 工数: 2h
 
 ---
 
@@ -350,12 +389,4 @@
 | 2025-12-27 | PERF-004 | styled-components依存関係削除 | Claude |
 | 2025-12-27 | PERF-005 | MemberCardにmemo()追加 | Claude |
 | 2025-12-27 | PERF-003 | Route Handlersにキャッシュヘッダー追加 | Claude |
-
----
-
-## 備考
-
-- Critical問題は本番デプロイ前に**必須**で解決すること
-- セキュリティ関連は特に優先して対応
-- テスト追加は機能修正と並行して実施可能
-- 工数は目安、実装時に調整すること
+| 2025-12-27 | PERF-002 | ダッシュボードN+1クエリ解消 | Claude |

@@ -5,20 +5,38 @@ import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import * as React from 'react';
 
+import { getAccountStatus } from '@/src/api/get-account-status';
 import { getAreas } from '@/src/api/get-areas';
+import { getUnfulfilledCount } from '@/src/api/get-unfulfilled-count';
 import AreaChips from '@/src/components/AreaChips';
 import UploadButton from '@/src/components/Buttons/UploadButton';
 import Chart from '@/src/components/Chart';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
-import { isErrorResponse } from '@/src/types';
+import { formatDateToEnglish } from '@/src/domain/functions/date';
+import { getNow } from '@/src/infra/time';
+import { isErrorResponse, MemberStatus } from '@/src/types';
 
 const Dashboard = async () => {
-  const areasResult = await getAreas();
+  // PERF-002: バッチ化 - 3つのAPIを並列で呼び出し
+  const [areasResult, accountsResult, unfulfilledResult] = await Promise.all([
+    getAreas(),
+    getAccountStatus(),
+    getUnfulfilledCount(),
+  ]);
+
   const areaNames: string[] = isErrorResponse(areasResult)
     ? []
     : areasResult.map((area) => area.name);
-  // const areaNames: string[] = areas?.map((area) => area.name);
+
+  const members: MemberStatus[] = isErrorResponse(accountsResult)
+    ? []
+    : accountsResult;
+
+  const unfulfilledCount: number =
+    typeof unfulfilledResult === 'number' ? unfulfilledResult : 0;
+
+  const currentTime = formatDateToEnglish(getNow());
   return (
     <Box sx={{ display: 'flex', flexGrow: 1 }}>
       <Box
@@ -63,7 +81,7 @@ const Dashboard = async () => {
                   height: 240,
                 }}
               >
-                <Uncompletes />
+                <Uncompletes count={unfulfilledCount} currentTime={currentTime} />
               </Paper>
             </Grid>
             {/* Recent Orders */}
@@ -73,7 +91,7 @@ const Dashboard = async () => {
                 square={false}
                 sx={{ p: 2, display: 'flex', flexDirection: 'column' }}
               >
-                <Orders />
+                <Orders members={members} />
               </Paper>
             </Grid>
           </Grid>
