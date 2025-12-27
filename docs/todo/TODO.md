@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 15 | 11 | 4 |
+| Medium | 15 | 12 | 3 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **21** | **13** |
+| **合計** | **34** | **22** | **12** |
 
 ---
 
@@ -147,10 +147,12 @@
   - 問題: 3つのAPIが個別に呼び出され、バッチ化されていない
   - 工数: 3h
 
-- [ ] **PERF-003**: Route Handlersにキャッシュヘッダー追加
-  - ファイル: `src/app/api/tasks/all/route.ts`
+- [x] **PERF-003**: Route Handlersにキャッシュヘッダー追加 ✅完了
+  - ファイル: 5つのRoute Handlers
   - 問題: `cache: 'no-store'`で毎回バックエンド呼び出し
-  - 工数: 1h
+  - 対応: `Cache-Control: private, max-age=10, stale-while-revalidate=30`を追加
+  - 適用ファイル: `tasks/all`, `tasks/ng`, `areas`, `comments`, `account/[id]/tasks`
+  - 完了日: 2025-12-27
 
 - [x] **PERF-004**: `styled-components`依存関係削除 ✅完了
   - ファイル: `package.json`
@@ -347,6 +349,7 @@
 | 2025-12-27 | TEST-004 | Cookie操作テスト追加 | Claude |
 | 2025-12-27 | PERF-004 | styled-components依存関係削除 | Claude |
 | 2025-12-27 | PERF-005 | MemberCardにmemo()追加 | Claude |
+| 2025-12-27 | PERF-003 | Route Handlersにキャッシュヘッダー追加 | Claude |
 
 ---
 

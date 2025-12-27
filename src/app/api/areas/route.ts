@@ -23,7 +23,11 @@ export const GET = async () => {
     });
     if (res.ok) {
       const result: Area[] = (await res.json()) as Area[];
-      return NextResponse.json(result);
+      return NextResponse.json(result, {
+        headers: {
+          'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
+        },
+      });
     } else {
       const errorText = await res.text().catch(() => '');
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });

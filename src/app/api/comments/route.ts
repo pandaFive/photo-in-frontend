@@ -58,7 +58,11 @@ export const GET = async (request: NextRequest) => {
 
     if (res.ok) {
       const result: Comment[] = (await res.json()) as Comment[];
-      return NextResponse.json(result);
+      return NextResponse.json(result, {
+        headers: {
+          'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
+        },
+      });
     } else {
       const errorText = await res.text().catch(() => '');
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });

@@ -24,7 +24,11 @@ export const GET = async () => {
 
     if (res.ok) {
       const result: Task[] = (await res.json()) as Task[];
-      return NextResponse.json(result);
+      return NextResponse.json(result, {
+        headers: {
+          'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
+        },
+      });
     } else {
       const errorText = await res.text().catch(() => '');
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
