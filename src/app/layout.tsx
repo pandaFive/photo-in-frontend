@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import { Suspense } from 'react';
 
 import Header from '@/src/components/Header';
 import { ToastContainer } from '@/src/components/Toast';
@@ -37,8 +38,10 @@ export default function RootLayout({
                   bgcolor: 'background.default',
                 }}
               >
-                <Header />
-                {children}
+                <Suspense fallback={null}>
+                  <Header />
+                </Suspense>
+                <Suspense fallback={null}>{children}</Suspense>
               </Box>
               <ToastContainer />
             </ToastProvider>
