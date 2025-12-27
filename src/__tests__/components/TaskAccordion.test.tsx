@@ -191,8 +191,8 @@ describe('TaskAccordion', () => {
       />,
     );
 
-    // エラーメッセージが表示される
-    expect(screen.getByText('データの取得に失敗しました')).toBeInTheDocument();
+    // エラーメッセージが表示される（汎用メッセージ）
+    expect(screen.getByText('データの取得に失敗しました。再試行してください。')).toBeInTheDocument();
     // 再試行ボタンが表示される
     expect(screen.getByText('再試行')).toBeInTheDocument();
   });

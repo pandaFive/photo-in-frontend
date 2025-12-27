@@ -1,10 +1,11 @@
-import { Box, Chip, Grid, Paper, Typography } from '@mui/material';
+import { Alert, Box, Chip, Grid, Paper, Typography } from '@mui/material';
 
 type Props = {
   areaNames: string[];
+  error?: boolean;
 };
 
-const AreaChips = (props: Props) => {
+const AreaChips = ({ areaNames, error = false }: Props) => {
   return (
     <Grid>
       <Paper
@@ -15,19 +16,25 @@ const AreaChips = (props: Props) => {
         <Typography variant="h6" whiteSpace={'nowrap'}>
           現在登録されているエリア：
         </Typography>
-        <Box display={'flex'} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
-          {props.areaNames?.map((name) => {
-            return (
-              <Chip
-                color="primary"
-                key={name}
-                label={name}
-                sx={{ ml: 1, p: 0, height: '1.6rem' }}
-                variant="outlined"
-              />
-            );
-          })}
-        </Box>
+        {error ? (
+          <Alert severity="error" sx={{ ml: 2, flex: 1 }}>
+            エリア情報の取得に失敗しました
+          </Alert>
+        ) : (
+          <Box display={'flex'} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+            {areaNames?.map((name) => {
+              return (
+                <Chip
+                  color="primary"
+                  key={name}
+                  label={name}
+                  sx={{ ml: 1, p: 0, height: '1.6rem' }}
+                  variant="outlined"
+                />
+              );
+            })}
+          </Box>
+        )}
       </Paper>
     </Grid>
   );

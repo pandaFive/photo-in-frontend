@@ -8,6 +8,7 @@ import { logError } from '@/src/util/safe-logger';
 export async function getAccountStatus(): Promise<ApiResult<MemberStatus[]>> {
   const token = getCookies('token');
   if (!token) {
+    logError('[getAccountStatus]', 'Token not found in cookies');
     return { errors: ['認証が必要です'] };
   }
 
