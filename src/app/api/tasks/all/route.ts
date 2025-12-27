@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Task } from '@/src/types';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { logError } from '@/src/util/safe-logger';
 
 export const GET = async () => {
   // 認証ヘッダー取得
@@ -29,8 +30,7 @@ export const GET = async () => {
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error('[GET] /api/tasks/all:', errorMessage);
+    logError('[GET] /api/tasks/all', err);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };

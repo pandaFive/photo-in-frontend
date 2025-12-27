@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers';
 
+import { logError, logWarn } from '@/src/util/safe-logger';
+
 /**
  * 認証ヘッダー取得結果
  */
@@ -17,12 +19,12 @@ export const getAuthHeaders = (): AuthHeadersResult => {
   try {
     const token = cookies().get('token')?.value;
     if (!token) {
-      console.error('[getAuthHeaders] 認証トークンが見つかりません - セッション期限切れの可能性');
+      logWarn('[getAuthHeaders]', '認証トークンが見つかりません - セッション期限切れの可能性');
       return { ok: false, reason: 'no_token' };
     }
     return { ok: true, headers: { Authorization: `Bearer ${token}` } };
   } catch (error) {
-    console.error('[getAuthHeaders] Cookie取得エラー:', error);
+    logError('[getAuthHeaders] Cookie取得エラー', error);
     return { ok: false, reason: 'cookie_error' };
   }
 };

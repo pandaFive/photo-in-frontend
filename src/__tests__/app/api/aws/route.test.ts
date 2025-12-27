@@ -53,7 +53,7 @@ describe('AWS S3 Route Handler', () => {
   describe('GET /api/aws', () => {
     describe('認証チェック', () => {
       test('認証トークンがない場合は401を返す', async () => {
-        mockGetAuthHeaders.mockReturnValue({});
+        mockGetAuthHeaders.mockReturnValue({ ok: false, reason: 'no_token' });
 
         const request = new NextRequest(
           'http://localhost:3333/api/aws?key=test.pdf',
@@ -67,7 +67,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('認証トークンがある場合は正常に処理される', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const request = new NextRequest(
@@ -84,7 +85,8 @@ describe('AWS S3 Route Handler', () => {
     describe('バリデーション', () => {
       test('keyパラメータがない場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const request = new NextRequest('http://localhost:3333/api/aws');
@@ -97,7 +99,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('keyパラメータが空文字の場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const request = new NextRequest(
@@ -114,7 +117,8 @@ describe('AWS S3 Route Handler', () => {
     describe('パストラバーサル対策', () => {
       test('keyに..が含まれる場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const request = new NextRequest(
@@ -129,7 +133,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('keyが/で始まる場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const request = new NextRequest(
@@ -144,7 +149,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('keyに//が含まれる場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const request = new NextRequest(
@@ -161,7 +167,8 @@ describe('AWS S3 Route Handler', () => {
     describe('エラーハンドリング', () => {
       test('署名URL生成に失敗した場合は500を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
         mockGetSignedUrl.mockRejectedValue(new Error('S3 error'));
 
@@ -190,7 +197,7 @@ describe('AWS S3 Route Handler', () => {
 
     describe('認証チェック', () => {
       test('認証トークンがない場合は401を返す', async () => {
-        mockGetAuthHeaders.mockReturnValue({});
+        mockGetAuthHeaders.mockReturnValue({ ok: false, reason: 'no_token' });
 
         const formData = new FormData();
         formData.append(
@@ -211,7 +218,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('認証トークンがある場合は正常に処理される', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
         mockPostTaskCreate.mockResolvedValue({ success: true });
 
@@ -237,7 +245,8 @@ describe('AWS S3 Route Handler', () => {
     describe('バリデーション', () => {
       test('ファイルがない場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const formData = new FormData();
@@ -255,7 +264,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('ファイルサイズが制限を超える場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const formData = new FormData();
@@ -278,7 +288,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('許可されていないファイルタイプの場合は400を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
 
         const formData = new FormData();
@@ -302,7 +313,8 @@ describe('AWS S3 Route Handler', () => {
     describe('ファイル名サニタイズ', () => {
       test('パストラバーサルパターンがサニタイズされる', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
         mockPostTaskCreate.mockResolvedValue({ success: true });
 
@@ -326,7 +338,8 @@ describe('AWS S3 Route Handler', () => {
 
       test('危険な文字がサニタイズされる', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
         mockPostTaskCreate.mockResolvedValue({ success: true });
 
@@ -353,7 +366,8 @@ describe('AWS S3 Route Handler', () => {
     describe('タスク作成エラー', () => {
       test('タスク作成に失敗した場合は500を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
         mockPostTaskCreate.mockResolvedValue({
           errors: ['Task creation failed'],
@@ -382,7 +396,8 @@ describe('AWS S3 Route Handler', () => {
     describe('S3アップロードエラー', () => {
       test('S3アップロードに失敗した場合は500を返す', async () => {
         mockGetAuthHeaders.mockReturnValue({
-          Authorization: 'Bearer valid-token',
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
         });
         // S3 sendをエラーに設定
         mockS3SendImpl = jest.fn().mockRejectedValue(new Error('S3 upload error'));

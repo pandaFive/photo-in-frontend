@@ -6,6 +6,7 @@ import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { ResponseStatus } from '@/src/types';
 import { isAdminFromCookie, isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { logError } from '@/src/util/safe-logger';
 import { validateId } from '@/src/util/validation';
 
 export const DELETE = async (
@@ -54,8 +55,7 @@ export const DELETE = async (
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error('[DELETE] /api/account/[id]:', errorMessage);
+    logError('[DELETE] /api/account/[id]', err);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };

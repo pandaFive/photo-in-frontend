@@ -7,6 +7,8 @@
 
 import { cookies } from 'next/headers';
 
+import { logError } from '@/src/util/safe-logger';
+
 /**
  * 認証チェック: トークンの有無を確認
  *
@@ -20,7 +22,7 @@ export const isAuthenticated = (): boolean => {
     const token = cookies().get('token')?.value;
     return !!token;
   } catch (error) {
-    console.error('[isAuthenticated] Cookie取得エラー:', error);
+    logError('[isAuthenticated] Cookie取得エラー', error);
     return false;
   }
 };
@@ -39,7 +41,7 @@ export const isAdminFromCookie = (): boolean => {
     const role = cookies().get('role')?.value;
     return role === 'admin';
   } catch (error) {
-    console.error('[isAdminFromCookie] Cookie取得エラー:', error);
+    logError('[isAdminFromCookie] Cookie取得エラー', error);
     return false;
   }
 };
