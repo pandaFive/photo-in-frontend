@@ -9,11 +9,11 @@
 
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
-| Critical | 2 | 2 | 0 |
+| Critical | 4 | 4 | 0 |
 | High | 11 | 8 | 3 |
 | Medium | 16 | 15 | 1 |
 | Low | 10 | 9 | 1 |
-| **合計** | **39** | **34** | **5** |
+| **合計** | **41** | **36** | **5** |
 
 ---
 
@@ -39,16 +39,6 @@
 ## テストカバレッジ追加
 
 ### Critical（認証フロー）
-
-- [ ] **TEST-001**: Server Actionsテスト追加
-  - ファイル: `src/__tests__/util/actions/login.test.ts`（新規）
-  - 対象: `src/util/actions/login.ts`
-  - 工数: 3h
-
-- [ ] **TEST-002**: Server Actionsテスト追加
-  - ファイル: `src/__tests__/util/actions/logout.test.ts`（新規）
-  - 対象: `src/util/actions/logout.ts`
-  - 工数: 2h
 
 - [ ] **TEST-003**: Server Actionsテスト追加
   - ファイル: `src/__tests__/util/actions/signUp.test.ts`（新規）
@@ -379,6 +369,18 @@
 
 ### テスト
 
+- [x] **TEST-001**: Server Actionsテスト追加（login） ✅完了
+  - ファイル: `src/__tests__/util/actions/login.test.ts`（新規）
+  - 対象: `src/util/actions/login.ts`
+  - 対応: ログイン成功（admin/member）、失敗時リダイレクト、Cookie設定、エラーメッセージエンコード等（8テスト）
+  - 完了日: 2025-12-28
+
+- [x] **TEST-002**: Server Actionsテスト追加（logout） ✅完了
+  - ファイル: `src/__tests__/util/actions/logout.test.ts`（新規）
+  - 対象: `src/util/actions/logout.ts`
+  - 対応: Cookie削除、リダイレクト、呼び出し順序等（5テスト）
+  - 完了日: 2025-12-28
+
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
   - ファイル: `src/__tests__/util/cookies.test.ts`（新規）
   - 対象: `src/util/cookies.ts`
@@ -427,3 +429,5 @@
 | 2025-12-28 | CODE-015 | Uncomletesエラーメッセージ改善 | Claude |
 | 2025-12-28 | CODE-016 | AreaChips/UploadButtonにerror prop追加 | Claude |
 | 2025-12-28 | CODE-017 | エラーAlertにリトライボタン追加 | Claude |
+| 2025-12-28 | TEST-001 | Server Actionsテスト追加（login） | Claude |
+| 2025-12-28 | TEST-002 | Server Actionsテスト追加（logout） | Claude |
