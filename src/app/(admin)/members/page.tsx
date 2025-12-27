@@ -15,7 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getAccountStatus } from '@/src/api/get-account-status';
 import MemberCard from '@/src/components/MemberCard';
@@ -40,9 +40,9 @@ const Members = () => {
     void fetchData();
   }, []);
 
-  const handleDelete = (id: number) => {
-    setMembersStatus(membersStatus.filter((member) => member.id !== id));
-  };
+  const handleDelete = useCallback((id: number) => {
+    setMembersStatus((prev) => prev.filter((member) => member.id !== id));
+  }, []);
 
   // 検索フィルタリング
   const filteredMembers = useMemo(() => {

@@ -18,6 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { memo } from 'react';
 
 import { useToast } from '@/src/context/ToastContext';
 import { parseIsoToYYYYMMDD } from '@/src/domain/functions/date';
@@ -266,4 +267,4 @@ const MemberCard = (props: Props) => {
   );
 };
 
-export default MemberCard;
+export default memo(MemberCard);
