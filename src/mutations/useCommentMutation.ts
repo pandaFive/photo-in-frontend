@@ -1,13 +1,7 @@
 import { useCallback } from 'react';
 
 import { httpClient } from '@/src/infra/http';
-import { Comment, CommentApiResponse } from '@/src/types';
-
-type MutationResult<T> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
+import { Comment, CommentApiResponse, MutationResult } from '@/src/types';
 
 /**
  * コメント操作用のmutation hook

@@ -79,3 +79,16 @@ export type CommentApiResponse = {
 export type WeekCompleteData = {
   [key: string]: number;
 };
+
+// Mutation共通型
+// CODE-003: 3箇所に重複定義されていた型を統合
+
+/**
+ * Mutation操作の結果型
+ * @template T - 成功時に返却されるデータの型（オプショナル）
+ */
+export type MutationResult<T = void> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+};

@@ -10,10 +10,10 @@
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
-| High | 11 | 5 | 6 |
+| High | 11 | 8 | 3 |
 | Medium | 15 | 0 | 15 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **7** | **27** |
+| **合計** | **34** | **10** | **24** |
 
 ---
 
@@ -84,20 +84,23 @@
 
 ### コード品質
 
-- [ ] **CODE-002**: `parseErrorMessage`を共通ユーティリティに抽出
+- [x] **CODE-002**: `parseErrorMessage`を共通ユーティリティに抽出 ✅完了
   - ファイル: `src/infra/http/client.ts`, `src/infra/http/serverClient.ts` → `src/util/parse-error.ts`
   - 問題: 同一関数が2箇所に重複実装
-  - 工数: 1h
+  - 対応: `src/util/parse-error.ts`に共通関数を作成、両クライアントからimport
+  - 完了日: 2025-12-27
 
-- [ ] **CODE-003**: `MutationResult`型を統合
+- [x] **CODE-003**: `MutationResult`型を統合 ✅完了
   - ファイル: `src/mutations/useTaskMutation.ts`, `useAccountMutation.ts`, `useCommentMutation.ts` → `src/types/index.ts`
   - 問題: 同一型が3箇所に定義（DRY違反）
-  - 工数: 1h
+  - 対応: `MutationResult<T = void>`をtypes/index.tsに定義、各mutationファイルからimport
+  - 完了日: 2025-12-27
 
-- [ ] **CODE-004**: ESLint overrideパターン修正
+- [x] **CODE-004**: ESLint overrideパターン修正 ✅完了
   - ファイル: `.eslintrc.json`
   - 問題: `@/components/CommentList.tsx`が実際のパスと不一致
-  - 工数: 30m
+  - 対応: `src/components/CommentList.tsx`に修正（ESLintはファイルパス、エイリアス不可）
+  - 完了日: 2025-12-27
 
 ---
 

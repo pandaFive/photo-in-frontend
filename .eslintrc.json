@@ -45,7 +45,7 @@
   },
   "overrides": [
     {
-      "files": ["@/components/CommentList.tsx"],
+      "files": ["src/components/CommentList.tsx"],
       "rules": {
         "@typescript-eslint/no-explicit-any": "off"
       }

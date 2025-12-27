@@ -7,11 +7,17 @@ import { Task } from '@/src/types';
 import { getAuthHeaders } from '@/src/util/auth-headers';
 
 export const GET = async () => {
+  // 認証ヘッダー取得
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
+    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
+  }
+
   try {
     const res = await fetch(`${process.env.API_HOST}/tasks?type=all`, {
       cache: 'no-store',
       headers: {
-        ...getAuthHeaders(),
+        ...authResult.headers,
       },
     });
 
