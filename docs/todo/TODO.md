@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 15 | 9 | 6 |
+| Medium | 15 | 10 | 5 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **19** | **15** |
+| **合計** | **34** | **20** | **14** |
 
 ---
 
@@ -152,10 +152,11 @@
   - 問題: `cache: 'no-store'`で毎回バックエンド呼び出し
   - 工数: 1h
 
-- [ ] **PERF-004**: `styled-components`依存関係削除
+- [x] **PERF-004**: `styled-components`依存関係削除 ✅完了
   - ファイル: `package.json`
   - 問題: 未使用だが+50KBバンドル
-  - 工数: 30m
+  - 対応: `styled-components`と`@mui/styled-engine-sc`を削除（12パッケージ削減）
+  - 完了日: 2025-12-27
 
 - [ ] **PERF-005**: `MemberCard`にmemo()追加
   - ファイル: `src/components/MemberCard.tsx`
@@ -343,6 +344,7 @@
 | 2025-12-27 | CODE-008 | CommentApiResponse型の厳格化 | Claude |
 | 2025-12-27 | PERF-001 | useTaskDetailをSWR化 | Claude |
 | 2025-12-27 | TEST-004 | Cookie操作テスト追加 | Claude |
+| 2025-12-27 | PERF-004 | styled-components依存関係削除 | Claude |
 
 ---
 
