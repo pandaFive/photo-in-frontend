@@ -2,9 +2,11 @@
 import { redirect, RedirectType } from 'next/navigation';
 
 import { postLogin } from '@/src/api/post-login';
+import { isErrorResponse } from '@/src/types';
 
 import { setCookies } from '../cookies';
 
+// ERR-003: エラー時にクエリパラメータでエラーメッセージを渡す
 export async function loginAction(formData: FormData) {
   const name = String(formData.get('name'));
   const password = String(formData.get('password'));
@@ -20,7 +22,11 @@ export async function loginAction(formData: FormData) {
     } else {
       redirect(`/member/${result.id}`, RedirectType.push);
     }
+  } else if (isErrorResponse(result)) {
+    // エラーメッセージをクエリパラメータで渡す
+    const errorMessage = encodeURIComponent(result.errors[0] || 'ログインに失敗しました');
+    redirect(`/?error=${errorMessage}`, RedirectType.push);
   } else {
-    redirect('/', RedirectType.push);
+    redirect('/?error=' + encodeURIComponent('ログインに失敗しました'), RedirectType.push);
   }
 }

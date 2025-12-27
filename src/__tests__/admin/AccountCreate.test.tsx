@@ -4,9 +4,9 @@ import '@testing-library/jest-dom';
 import AccountCreate from '@/src/app/(admin)/account/create/page';
 import { singUpAction } from '@/src/util/actions/signUp';
 
-// モックの作成
+// ERR-004: SignUpResult型に合わせたモック
 jest.mock('@/src/util/actions/signUp', () => ({
-  singUpAction: jest.fn().mockResolvedValue(undefined),
+  singUpAction: jest.fn().mockResolvedValue({ success: true }),
 }));
 
 // AreaListCheckモック - チェックボックスを含む
@@ -114,6 +114,33 @@ describe('AccountCreate', () => {
 
     await waitFor(() => {
       expect(singUpAction).toHaveBeenCalledWith(expect.any(FormData));
+    });
+  });
+
+  // ERR-004: サーバーからのエラーが表示されることを確認
+  test('shows server error when signup fails', async () => {
+    const mockSignUpAction = singUpAction as jest.Mock;
+    mockSignUpAction.mockResolvedValueOnce({
+      success: false,
+      error: 'アカウント名が既に使用されています',
+    });
+
+    render(<AccountCreate />);
+    const nameInput = screen.getByPlaceholderText('例: 山田太郎');
+    const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
+    const capacityInput = screen.getByRole('spinbutton');
+    const submitButton = screen.getByRole('button', { name: /アカウントを作成/i });
+
+    fireEvent.change(nameInput, { target: { value: 'TestUser' } });
+    fireEvent.change(passwordInput, { target: { value: 'Password123' } });
+    fireEvent.change(capacityInput, { target: { value: '5' } });
+
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('アカウント名が既に使用されています'),
+      ).toBeInTheDocument();
     });
   });
 });

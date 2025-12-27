@@ -3,16 +3,21 @@
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import LoginIcon from '@mui/icons-material/Login';
 import {
+  Alert,
   Box,
   Button,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
 
 import { loginAction } from '../util/actions/login';
 
+// ERR-003: エラー時にクエリパラメータからエラーメッセージを表示
 const SignInSide = () => {
+  const searchParams = useSearchParams();
+  const errorMessage = searchParams.get('error');
   return (
     <Box
       sx={{
@@ -192,6 +197,13 @@ const SignInSide = () => {
                 アカウント情報を入力してください
               </Typography>
             </Box>
+
+            {/* ERR-003: エラーメッセージ表示 */}
+            {errorMessage && (
+              <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+                {errorMessage}
+              </Alert>
+            )}
 
             {/* eslint-disable @typescript-eslint/no-misused-promises */}
             <form action={loginAction}>

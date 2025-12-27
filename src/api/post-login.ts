@@ -1,6 +1,7 @@
 'use server';
 
 import { serverHttpClient } from '@/src/infra/http';
+import { ErrorResponse } from '@/src/types';
 import { logError } from '@/src/util/safe-logger';
 
 export interface Account {
@@ -14,10 +15,11 @@ type LoginResponse = {
   account: Account;
 };
 
+// ERR-003: エラー時にErrorResponseを返すように変更
 export async function postLogin(
   name: string,
   password: string,
-): Promise<Account | Record<string, never>> {
+): Promise<Account | ErrorResponse> {
   const result = await serverHttpClient.post<LoginResponse>(
     '/account/login',
     { account: { name, password } },
@@ -28,5 +30,5 @@ export async function postLogin(
     return result.value.account;
   }
   logError('[postLogin]', result.error.message);
-  return {};
+  return { errors: [result.error.message] };
 }

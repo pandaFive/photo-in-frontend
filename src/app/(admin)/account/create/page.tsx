@@ -59,7 +59,12 @@ const AccountCreate = () => {
 
     setIsSubmitting(true);
     try {
-      await singUpAction(data);
+      // ERR-004: サーバーアクションからのエラーを処理
+      const result = await singUpAction(data);
+      if (!result.success) {
+        setError(result.error || 'アカウント作成に失敗しました');
+      }
+      // 成功時はサーバーアクション内でリダイレクトされる
     } catch (err) {
       setError('アカウント作成に失敗しました');
       console.error('Account creation failed:', err);
