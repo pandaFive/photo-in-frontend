@@ -194,9 +194,10 @@ describe('fetchers', () => {
       };
       mockGet.mockResolvedValue(mockResult);
 
+      await expect(taskListFetcher('/api/tasks')).rejects.toThrow(TaskFetchError);
+
       try {
         await taskListFetcher('/api/tasks');
-        fail('Expected error to be thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(TaskFetchError);
         expect((error as TaskFetchError).domainError).toEqual(domainError);
@@ -274,12 +275,13 @@ describe('fetchers', () => {
       };
       const error: unknown = new TaskFetchError(domainError);
 
+      // 型ガードがtrueを返すことを先に検証
+      expect(isTaskFetchError(error)).toBe(true);
+
       if (isTaskFetchError(error)) {
         // 型ガードにより、ここではerrorはTaskFetchError型
         expect(error.domainError.status).toBe(403);
         expect(error.message).toBe('エラー (403): Forbidden');
-      } else {
-        fail('Expected isTaskFetchError to return true');
       }
     });
   });
@@ -296,9 +298,10 @@ describe('fetchers', () => {
       };
       mockGet.mockResolvedValue(mockResult);
 
+      await expect(taskListFetcher('/api/tasks')).rejects.toThrow(TaskFetchError);
+
       try {
         await taskListFetcher('/api/tasks');
-        fail('Expected error to be thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(TaskFetchError);
         expect((error as TaskFetchError).message).toBe('エラー (400): リクエストが不正です');
