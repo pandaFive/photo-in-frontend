@@ -40,10 +40,6 @@
 
 ### Critical（認証フロー）
 
-- [ ] **TEST-003**: Server Actionsテスト追加
-  - ファイル: `src/__tests__/util/actions/signUp.test.ts`（新規）
-  - 対象: `src/util/actions/signUp.ts`
-  - 工数: 2h
 
 - [ ] **TEST-005**: グルーピング関数テスト追加
   - ファイル: `src/__tests__/util/grouping.test.ts`（新規）
@@ -381,6 +377,12 @@
   - 対応: Cookie削除、リダイレクト、呼び出し順序等（5テスト）
   - 完了日: 2025-12-28
 
+- [x] **TEST-003**: Server Actionsテスト追加（signUp） ✅完了
+  - ファイル: `src/__tests__/util/actions/signUp.test.ts`（新規）
+  - 対象: `src/util/actions/signUp.ts`
+  - 対応: サインアップ成功/失敗、エリアJSONパース、バリデーション、例外伝播、エッジケース等（16テスト）
+  - 完了日: 2025-12-28
+
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
   - ファイル: `src/__tests__/util/cookies.test.ts`（新規）
   - 対象: `src/util/cookies.ts`
@@ -431,3 +433,4 @@
 | 2025-12-28 | CODE-017 | エラーAlertにリトライボタン追加 | Claude |
 | 2025-12-28 | TEST-001 | Server Actionsテスト追加（login） | Claude |
 | 2025-12-28 | TEST-002 | Server Actionsテスト追加（logout） | Claude |
+| 2025-12-28 | TEST-003 | Server Actionsテスト追加（signUp） | Claude |
