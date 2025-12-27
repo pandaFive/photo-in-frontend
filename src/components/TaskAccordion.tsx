@@ -7,13 +7,13 @@ import {
   Chip,
   Typography,
 } from '@mui/material';
-import { useEffect, memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { KeyedMutator } from 'swr';
 
 import AdminDetail from '@/src/components/Details/AdminDetail';
 import MemberDetail from '@/src/components/Details/MemberDetail';
 import { toLocaleDateString } from '@/src/domain/functions/date';
-import { useTaskDetail, isTaskDetailCached } from '@/src/queries';
+import { useTaskDetail } from '@/src/queries';
 import { AccountData, Task } from '@/src/types';
 
 type Props = {
@@ -29,25 +29,25 @@ type Props = {
 
 const TaskAccordion = (props: Props) => {
   const [expanded, setExpanded] = useState(false);
-  const { fileUrl, comments, isLoaded, fetchData, cleanup } = useTaskDetail(
+  // PERF-001: SWRの条件付きフェッチ - expandedがtrueの時のみデータ取得
+  const { fileUrl, comments, isLoaded, error, mutate: mutateDetail } = useTaskDetail(
     props.task.id,
     props.task.task_title,
     props.account.id,
+    expanded, // SWRがキャッシュ管理・重複リクエスト防止を自動で行う
   );
 
   const handleChange = useCallback(
     (_event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded);
-      if (isExpanded && !isTaskDetailCached(props.task.id)) {
-        void fetchData();
-      }
     },
-    [props.task.id, fetchData],
+    [],
   );
 
-  useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
+  // エラー時の再試行ハンドラー
+  const handleRetry = useCallback(() => {
+    void mutateDetail();
+  }, [mutateDetail]);
 
   const formattedDate = toLocaleDateString(new Date(props.task.created_at));
 
@@ -132,9 +132,11 @@ const TaskAccordion = (props: Props) => {
             comments={comments}
             cycleId={props.task.assign_cycle_id}
             date={formattedDate}
+            error={error}
             id={String(props.task.history_id)}
             isLoaded={isLoaded}
             mutate={props.mutate}
+            onRetry={handleRetry}
             reload={props.reload}
             taskId={props.taskId}
             url={fileUrl}
@@ -146,9 +148,11 @@ const TaskAccordion = (props: Props) => {
             cycleId={props.task.assign_cycle_id}
             dataType={props.dataType}
             date={formattedDate}
+            error={error}
             id={String(props.task.id)}
             isLoaded={isLoaded}
             mutate={props.mutate}
+            onRetry={handleRetry}
             reload={props.reload}
             taskId={props.taskId}
             url={fileUrl}

@@ -3,8 +3,10 @@
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { AccordionDetails, Box, Button, Chip, Divider } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { AccordionDetails, Alert, Box, Button, Chip, Divider } from '@mui/material';
 import Link from 'next/link';
 import { KeyedMutator } from 'swr';
 
@@ -18,6 +20,8 @@ type Props = {
   account: AccountData;
   comments: Comment[];
   isLoaded: boolean;
+  error: string | null;
+  onRetry: () => void;
   id: string;
   cycleId: number;
   url: string;
@@ -150,7 +154,25 @@ const MemberDetail = (props: Props) => {
       <Divider sx={{ mb: 2 }} />
 
       {/* コメントセクション */}
-      {!props.isLoaded ? (
+      {props.error ? (
+        <Alert
+          action={
+            <Button
+              color="inherit"
+              onClick={props.onRetry}
+              size="small"
+              startIcon={<RefreshIcon />}
+            >
+              再試行
+            </Button>
+          }
+          icon={<ErrorOutlineIcon />}
+          severity="error"
+          sx={{ borderRadius: 2 }}
+        >
+          {props.error}
+        </Alert>
+      ) : !props.isLoaded ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
           <LoadCircle />
         </Box>
