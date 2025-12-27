@@ -1,9 +1,10 @@
 'use client';
 
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { AccordionDetails, Box, Button, Chip, Divider } from '@mui/material';
+import { AccordionDetails, Alert, Box, Button, Chip, Divider } from '@mui/material';
 import Link from 'next/link';
 import { KeyedMutator } from 'swr';
 
@@ -18,6 +19,8 @@ type Props = {
   comments: Comment[];
   cycleId: number;
   isLoaded: boolean;
+  error: string | null;
+  onRetry: () => void;
   url: string;
   date: string;
   id: string;
@@ -112,7 +115,25 @@ const AdminDetail = (props: Props) => {
       <Divider sx={{ mb: 2 }} />
 
       {/* コメントセクション */}
-      {!props.isLoaded ? (
+      {props.error ? (
+        <Alert
+          action={
+            <Button
+              color="inherit"
+              onClick={props.onRetry}
+              size="small"
+              startIcon={<RefreshIcon />}
+            >
+              再試行
+            </Button>
+          }
+          icon={<ErrorOutlineIcon />}
+          severity="error"
+          sx={{ borderRadius: 2 }}
+        >
+          {props.error}
+        </Alert>
+      ) : !props.isLoaded ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
           <LoadCircle />
         </Box>

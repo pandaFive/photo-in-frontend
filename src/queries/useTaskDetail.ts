@@ -14,22 +14,23 @@ type TaskDetailError = {
   message: string;
 };
 
+// SWRキーの型定義（配列形式で特殊文字問題を回避）
+type TaskDetailKey = readonly ['taskDetail', number, string, number];
+
 /**
  * タスク詳細データ取得用fetcher
  * ファイルURLとコメントを並列で取得
  */
 const taskDetailFetcher = async (
-  key: string
+  key: TaskDetailKey
 ): Promise<TaskDetailData> => {
-  // キーからパラメータを抽出: "taskDetail:${taskId}:${taskTitle}:${accountId}"
-  const [, taskIdStr, taskTitle, accountIdStr] = key.split(':');
-  const taskId = Number(taskIdStr);
-  const accountId = Number(accountIdStr);
+  // 配列キーから直接パラメータを取得（コロン区切りの問題を回避）
+  const [, taskId, taskTitle, accountId] = key;
 
   const [fileResult, commentsResult] = await Promise.all([
-    httpClient.get<string>(`/api/aws?key=${taskTitle}`),
+    httpClient.get<string>(`/api/aws?key=${encodeURIComponent(taskTitle)}`),
     httpClient.get<Comment[]>(
-      `/api/comments?taskId=${taskId}&accountId=${accountId}`
+      `/api/comments?taskId=${String(taskId)}&accountId=${String(accountId)}`
     ),
   ]);
 
@@ -77,8 +78,9 @@ export const useTaskDetail = (
   shouldFetch: boolean
 ): UseTaskDetailReturn => {
   // SWRの条件付きフェッチ: shouldFetchがfalseの場合はnullを渡して取得をスキップ
-  const swrKey = shouldFetch
-    ? `taskDetail:${taskId}:${taskTitle}:${accountId}`
+  // 配列キーを使用してtaskTitleに特殊文字（コロン等）が含まれる場合も正しく動作
+  const swrKey: TaskDetailKey | null = shouldFetch
+    ? ['taskDetail', taskId, taskTitle, accountId] as const
     : null;
 
   const { data, error, isLoading, mutate } = useSWR<
@@ -88,8 +90,15 @@ export const useTaskDetail = (
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     dedupingInterval: 60000, // 1分間の重複リクエスト防止
-    onError: (err) => {
-      logError('[useTaskDetail]', err);
+    onError: (err, key) => {
+      // エラーログにコンテキストを追加
+      const [, taskId, taskTitle, accountId] = key as TaskDetailKey;
+      logError('[useTaskDetail]', {
+        error: err,
+        taskId,
+        taskTitle,
+        accountId,
+      });
     },
   });
 

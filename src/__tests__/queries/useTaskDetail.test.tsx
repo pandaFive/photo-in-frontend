@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { SWRConfig } from 'swr';
 import React from 'react';
 import { useTaskDetail } from '@/src/queries/useTaskDetail';
@@ -81,6 +81,7 @@ describe('useTaskDetail (SWR版)', () => {
         expect(result.current.isLoaded).toBe(true);
       });
 
+      // encodeURIComponentでエンコードされたタイトル
       expect(mockHttpClient.get).toHaveBeenCalledWith('/api/aws?key=task-title');
       expect(mockHttpClient.get).toHaveBeenCalledWith(
         '/api/comments?taskId=100&accountId=1'
@@ -220,6 +221,132 @@ describe('useTaskDetail (SWR版)', () => {
       expect(result.current.error).toBeDefined();
       // mutate関数も提供（再検証用）
       expect(result.current.mutate).toBeDefined();
+    });
+  });
+
+  describe('mutate機能', () => {
+    test('mutate呼び出しでデータを再取得する', async () => {
+      const updatedComments = [
+        ...mockComments,
+        { id: 3, content: 'New Comment', accountId: 1, taskId: 100, createdAt: '2024-01-03' },
+      ];
+
+      mockHttpClient.get
+        // 初回取得
+        .mockResolvedValueOnce({ ok: true, value: 'https://example.com/file.pdf' })
+        .mockResolvedValueOnce({ ok: true, value: mockComments })
+        // mutate後の再取得
+        .mockResolvedValueOnce({ ok: true, value: 'https://example.com/file2.pdf' })
+        .mockResolvedValueOnce({ ok: true, value: updatedComments });
+
+      const { result } = renderHook(
+        () => useTaskDetail(100, 'task-title', 1, true),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isLoaded).toBe(true);
+      });
+
+      expect(result.current.fileUrl).toBe('https://example.com/file.pdf');
+      expect(result.current.comments).toHaveLength(2);
+
+      // mutateを呼び出して再取得をトリガー
+      await act(async () => {
+        await result.current.mutate();
+      });
+
+      await waitFor(() => {
+        expect(result.current.fileUrl).toBe('https://example.com/file2.pdf');
+      });
+
+      expect(result.current.comments).toHaveLength(3);
+      expect(mockHttpClient.get).toHaveBeenCalledTimes(4);
+    });
+  });
+
+  describe('両方のAPIエラー', () => {
+    test('両方のAPIが失敗した場合、ファイル取得エラーが優先される', async () => {
+      mockHttpClient.get
+        .mockResolvedValueOnce({ ok: false, error: { type: 'api', status: 404, message: 'File not found' } })
+        .mockResolvedValueOnce({ ok: false, error: { type: 'api', status: 500, message: 'Comments error' } });
+
+      const { result } = renderHook(
+        () => useTaskDetail(100, 'task-title', 1, true),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.error).not.toBeNull();
+      });
+
+      // Promise.allの実装順序により、ファイルエラーが先に処理される
+      expect(result.current.error).toBe('File not found');
+      expect(result.current.isLoaded).toBe(false);
+    });
+  });
+
+  describe('パラメータ変更時の挙動', () => {
+    test('taskIdが変わると新しいデータを取得', async () => {
+      mockHttpClient.get
+        // taskId=100の取得
+        .mockResolvedValueOnce({ ok: true, value: 'https://example.com/file1.pdf' })
+        .mockResolvedValueOnce({ ok: true, value: [{ id: 1, content: 'Task 100 comment', accountId: 1, taskId: 100, createdAt: '2024-01-01' }] })
+        // taskId=200の取得
+        .mockResolvedValueOnce({ ok: true, value: 'https://example.com/file2.pdf' })
+        .mockResolvedValueOnce({ ok: true, value: [{ id: 2, content: 'Task 200 comment', accountId: 1, taskId: 200, createdAt: '2024-01-02' }] });
+
+      const { result, rerender } = renderHook(
+        ({ taskId }) => useTaskDetail(taskId, 'task-title', 1, true),
+        { wrapper, initialProps: { taskId: 100 } }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isLoaded).toBe(true);
+      });
+
+      expect(result.current.fileUrl).toBe('https://example.com/file1.pdf');
+      expect(result.current.comments[0].content).toBe('Task 100 comment');
+
+      // taskIdを変更
+      rerender({ taskId: 200 });
+
+      await waitFor(() => {
+        expect(result.current.fileUrl).toBe('https://example.com/file2.pdf');
+      });
+
+      expect(result.current.comments[0].content).toBe('Task 200 comment');
+      expect(mockHttpClient.get).toHaveBeenCalledTimes(4);
+    });
+
+    test('accountIdが変わると新しいデータを取得', async () => {
+      mockHttpClient.get
+        // accountId=1の取得
+        .mockResolvedValueOnce({ ok: true, value: 'https://example.com/file.pdf' })
+        .mockResolvedValueOnce({ ok: true, value: [{ id: 1, content: 'Account 1 comment', accountId: 1, taskId: 100, createdAt: '2024-01-01' }] })
+        // accountId=2の取得
+        .mockResolvedValueOnce({ ok: true, value: 'https://example.com/file.pdf' })
+        .mockResolvedValueOnce({ ok: true, value: [{ id: 2, content: 'Account 2 comment', accountId: 2, taskId: 100, createdAt: '2024-01-02' }] });
+
+      const { result, rerender } = renderHook(
+        ({ accountId }) => useTaskDetail(100, 'task-title', accountId, true),
+        { wrapper, initialProps: { accountId: 1 } }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isLoaded).toBe(true);
+      });
+
+      expect(result.current.comments[0].content).toBe('Account 1 comment');
+
+      // accountIdを変更
+      rerender({ accountId: 2 });
+
+      await waitFor(() => {
+        expect(result.current.comments[0].content).toBe('Account 2 comment');
+      });
+
+      expect(mockHttpClient.get).toHaveBeenCalledTimes(4);
     });
   });
 });

@@ -30,7 +30,7 @@ type Props = {
 const TaskAccordion = (props: Props) => {
   const [expanded, setExpanded] = useState(false);
   // PERF-001: SWRの条件付きフェッチ - expandedがtrueの時のみデータ取得
-  const { fileUrl, comments, isLoaded } = useTaskDetail(
+  const { fileUrl, comments, isLoaded, error, mutate: mutateDetail } = useTaskDetail(
     props.task.id,
     props.task.task_title,
     props.account.id,
@@ -43,6 +43,11 @@ const TaskAccordion = (props: Props) => {
     },
     [],
   );
+
+  // エラー時の再試行ハンドラー
+  const handleRetry = useCallback(() => {
+    void mutateDetail();
+  }, [mutateDetail]);
 
   const formattedDate = toLocaleDateString(new Date(props.task.created_at));
 
@@ -127,9 +132,11 @@ const TaskAccordion = (props: Props) => {
             comments={comments}
             cycleId={props.task.assign_cycle_id}
             date={formattedDate}
+            error={error}
             id={String(props.task.history_id)}
             isLoaded={isLoaded}
             mutate={props.mutate}
+            onRetry={handleRetry}
             reload={props.reload}
             taskId={props.taskId}
             url={fileUrl}
@@ -141,9 +148,11 @@ const TaskAccordion = (props: Props) => {
             cycleId={props.task.assign_cycle_id}
             dataType={props.dataType}
             date={formattedDate}
+            error={error}
             id={String(props.task.id)}
             isLoaded={isLoaded}
             mutate={props.mutate}
+            onRetry={handleRetry}
             reload={props.reload}
             taskId={props.taskId}
             url={fileUrl}

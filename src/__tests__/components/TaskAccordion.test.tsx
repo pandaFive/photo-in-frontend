@@ -17,7 +17,7 @@ jest.mock('@/src/context/ToastContext', () => ({
 }));
 
 // useTaskDetailをモック（SWR版）
-const mockMutate = jest.fn();
+const mockDetailMutate = jest.fn();
 jest.mock('@/src/queries', () => ({
   useTaskDetail: jest.fn((_taskId, _taskTitle, _accountId, _shouldFetch) => ({
     fileUrl: 'http://example.com/file',
@@ -25,7 +25,7 @@ jest.mock('@/src/queries', () => ({
     isLoaded: true,
     isLoading: false,
     error: null,
-    mutate: mockMutate,
+    mutate: mockDetailMutate,
   })),
 }));
 
@@ -62,7 +62,7 @@ describe('TaskAccordion', () => {
       isLoaded: true,
       isLoading: false,
       error: null,
-      mutate: mockMutate,
+      mutate: mockDetailMutate,
     });
   });
 
@@ -166,5 +166,97 @@ describe('TaskAccordion', () => {
 
     // AdminDetailコンポーネントの特定の要素をチェック
     expect(screen.getByText('ファイルを開く')).toBeInTheDocument();
+  });
+
+  test('displays error message and retry button when error occurs', () => {
+    mockUseTaskDetail.mockReturnValue({
+      fileUrl: '',
+      comments: [],
+      isLoaded: false,
+      isLoading: false,
+      error: 'データの取得に失敗しました',
+      mutate: mockDetailMutate,
+    });
+
+    render(
+      <TaskAccordion
+        account={mockAccount}
+        task={mockTask}
+        index={0}
+        type="member"
+        dataType="test"
+        reload={mockReload}
+        mutate={mockListMutate}
+        taskId={mockTask.id}
+      />,
+    );
+
+    // エラーメッセージが表示される
+    expect(screen.getByText('データの取得に失敗しました')).toBeInTheDocument();
+    // 再試行ボタンが表示される
+    expect(screen.getByText('再試行')).toBeInTheDocument();
+  });
+
+  test('calls mutate when retry button is clicked', () => {
+    mockUseTaskDetail.mockReturnValue({
+      fileUrl: '',
+      comments: [],
+      isLoaded: false,
+      isLoading: false,
+      error: 'エラーが発生しました',
+      mutate: mockDetailMutate,
+    });
+
+    render(
+      <TaskAccordion
+        account={mockAccount}
+        task={mockTask}
+        index={0}
+        type="member"
+        dataType="test"
+        reload={mockReload}
+        mutate={mockListMutate}
+        taskId={mockTask.id}
+      />,
+    );
+
+    // 再試行ボタンをクリック
+    const retryButton = screen.getByText('再試行');
+    fireEvent.click(retryButton);
+
+    // mutateが呼ばれる
+    expect(mockDetailMutate).toHaveBeenCalled();
+  });
+
+  test('displays loading indicator when isLoaded is false and no error', () => {
+    mockUseTaskDetail.mockReturnValue({
+      fileUrl: '',
+      comments: [],
+      isLoaded: false,
+      isLoading: true,
+      error: null,
+      mutate: mockDetailMutate,
+    });
+
+    render(
+      <TaskAccordion
+        account={mockAccount}
+        task={mockTask}
+        index={0}
+        type="member"
+        dataType="test"
+        reload={mockReload}
+        mutate={mockListMutate}
+        taskId={mockTask.id}
+      />,
+    );
+
+    // アコーディオンを展開してコンテンツを表示
+    const accordionSummary = screen.getByRole('button');
+    fireEvent.click(accordionSummary);
+
+    // ローディング中はファイルを開くボタンは表示されるが、コメントリストはローディング中
+    // LoadCircleコンポーネントがレンダリングされる（role="progressbar"を持つ）
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 });
