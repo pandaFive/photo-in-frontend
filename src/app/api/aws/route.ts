@@ -59,8 +59,8 @@ const s3Client = new S3Client({
 
 export const GET = async (request: NextRequest) => {
   // 認証チェック
-  const authHeaders = getAuthHeaders();
-  if (!authHeaders.Authorization) {
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
     return NextResponse.json(
       { errors: ['認証が必要です'] },
       { status: 401 }
@@ -107,8 +107,8 @@ export const GET = async (request: NextRequest) => {
 
 export const POST = async (request: Request) => {
   // 認証チェック
-  const authHeaders = getAuthHeaders();
-  if (!authHeaders.Authorization) {
+  const authResult = getAuthHeaders();
+  if (!authResult.ok) {
     return NextResponse.json(
       { errors: ['認証が必要です'] },
       { status: 401 }
