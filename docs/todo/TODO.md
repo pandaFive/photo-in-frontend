@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 16 | 13 | 3 |
+| Medium | 16 | 14 | 2 |
 | Low | 6 | 0 | 6 |
-| **合計** | **35** | **23** | **12** |
+| **合計** | **35** | **24** | **11** |
 
 ---
 
@@ -31,14 +31,6 @@
 ---
 
 ## Medium（次スプリント対応）
-
-### パフォーマンス
-
-- [ ] **PERF-006**: Orders/UncompleteをSWR使用に変更
-  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
-  - 問題: useEffectで直接fetch、重複排除なし
-  - 工数: 2h
-  - 備考: PERF-002で Server Component化済み、SWR移行は不要になった可能性あり
 
 ### コード品質
 
@@ -307,6 +299,13 @@
   - 効果: クライアント側の2つのuseEffect API呼び出しを削除、サーバー側で並列化
   - 完了日: 2025-12-27
 
+- [x] **PERF-006**: Orders/UncompleteをSWR使用に変更 ✅PERF-002で解決済み
+  - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
+  - 問題: useEffectで直接fetch、重複排除なし
+  - 解決: PERF-002でServer Component化。データはdashboard/page.tsxからprops経由で渡される形式に変更。
+  - 判断: SWRはクライアントサイドキャッシュ用のためServer Componentには不適用。元の問題は解消済み。
+  - 完了日: 2025-12-27
+
 - [x] **PERF-003**: Route Handlersにキャッシュヘッダー追加 ✅完了
   - ファイル: 5つのRoute Handlers
   - 問題: `cache: 'no-store'`で毎回バックエンド呼び出し
@@ -390,3 +389,4 @@
 | 2025-12-27 | PERF-005 | MemberCardにmemo()追加 | Claude |
 | 2025-12-27 | PERF-003 | Route Handlersにキャッシュヘッダー追加 | Claude |
 | 2025-12-27 | PERF-002 | ダッシュボードN+1クエリ解消 | Claude |
+| 2025-12-27 | PERF-006 | Orders/Uncomplete SWR移行（PERF-002で解決） | Claude |
