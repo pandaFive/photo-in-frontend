@@ -12,8 +12,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
 | Medium | 16 | 15 | 1 |
-| Low | 10 | 0 | 10 |
-| **合計** | **39** | **25** | **14** |
+| Low | 10 | 1 | 9 |
+| **合計** | **39** | **26** | **13** |
 
 ---
 
@@ -53,18 +53,6 @@
   - ファイル: `src/components/TaskList.tsx`
   - 問題: インラインsxオブジェクトが毎レンダー再作成
   - 工数: 30m
-
-### アーキテクチャ
-
-- [ ] **ARCH-001**: Root Layoutプロバイダーラップ
-  - ファイル: `src/app/layout.tsx`
-  - 問題: Server ComponentでクライアントプロバイダーをレンダリングThemeProvider>
-  - 工数: 1h
-
-- [ ] **ARCH-002**: SWR_KEYSにコメント追加
-  - ファイル: `src/util/swr/keys.ts`
-  - 問題: パラメータの意図が不明確
-  - 工数: 15m
 
 ### エラーハンドリング改善（CODE-013レビューより）
 
@@ -371,6 +359,20 @@
     3. Orders/Uncomletesにerror prop追加、エラー時はAlertコンポーネントで表示
   - 完了日: 2025-12-27
 
+### アーキテクチャ
+
+- [x] **ARCH-001**: Root Layoutプロバイダーラップ ⏸️適用外
+  - ファイル: `src/app/layout.tsx`
+  - 問題: Server Componentでクライアントプロバイダーを直接レンダリング
+  - 判断: MUI AppRouterCacheProviderが既にServer/Client境界を適切に処理しており、追加のProviders分離は不要。Headerがasync Server Componentのため、Clientコンポーネント内に配置すると実行時エラー発生。現状の構造が最適。
+  - 見送り日: 2025-12-27
+
+- [x] **ARCH-002**: SWR_KEYSにコメント追加 ✅完了
+  - ファイル: `src/util/swr/keys.ts`
+  - 問題: パラメータの意図が不明確
+  - 対応: 各キーにJSDocコメントを追加（用途、パラメータ説明）
+  - 完了日: 2025-12-27
+
 ### テスト
 
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
@@ -411,3 +413,5 @@
 | 2025-12-27 | PERF-002 | ダッシュボードN+1クエリ解消 | Claude |
 | 2025-12-27 | PERF-006 | Orders/Uncomplete SWR移行（PERF-002で解決） | Claude |
 | 2025-12-27 | CODE-013 | ダッシュボードのエラーハンドリング改善 | Claude |
+| 2025-12-27 | ARCH-001 | Root Layoutプロバイダーラップ（適用外判断） | Claude |
+| 2025-12-27 | ARCH-002 | SWR_KEYSにコメント追加 | Claude |
