@@ -12,10 +12,21 @@ export type SignUpResult = {
 };
 
 export const singUpAction = async (formData: FormData): Promise<SignUpResult> => {
-  const area = JSON.parse(formData.get('area') as string) as string[];
+  // エリア情報のパース（JSON.parseはSyntaxErrorをスローする可能性がある）
+  let area: string[];
+  try {
+    const areaString = formData.get('area');
+    if (!areaString || typeof areaString !== 'string') {
+      return { success: false, error: 'エリア情報が不正です' };
+    }
+    area = JSON.parse(areaString) as string[];
+  } catch {
+    return { success: false, error: 'エリア情報の形式が不正です' };
+  }
+
   const capacity = formData.get('capacity');
 
-  if (area === null || !(area instanceof Array) || capacity === null) {
+  if (!(area instanceof Array) || capacity === null) {
     return { success: false, error: '入力データが不正です' };
   }
 
