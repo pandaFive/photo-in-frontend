@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 15 | 10 | 5 |
+| Medium | 15 | 11 | 4 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **20** | **14** |
+| **合計** | **34** | **21** | **13** |
 
 ---
 
@@ -158,10 +158,11 @@
   - 対応: `styled-components`と`@mui/styled-engine-sc`を削除（12パッケージ削減）
   - 完了日: 2025-12-27
 
-- [ ] **PERF-005**: `MemberCard`にmemo()追加
+- [x] **PERF-005**: `MemberCard`にmemo()追加 ✅完了
   - ファイル: `src/components/MemberCard.tsx`
   - 問題: リスト再レンダー時に全カードが再レンダー
-  - 工数: 30m
+  - 対応: `memo()`でコンポーネントをラップし不要な再レンダー防止
+  - 完了日: 2025-12-27
 
 - [ ] **PERF-006**: Orders/UncompleteをSWR使用に変更
   - ファイル: `src/components/Orders.tsx`, `src/components/Uncompletes.tsx`
@@ -345,6 +346,7 @@
 | 2025-12-27 | PERF-001 | useTaskDetailをSWR化 | Claude |
 | 2025-12-27 | TEST-004 | Cookie操作テスト追加 | Claude |
 | 2025-12-27 | PERF-004 | styled-components依存関係削除 | Claude |
+| 2025-12-27 | PERF-005 | MemberCardにmemo()追加 | Claude |
 
 ---
 
