@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 15 | 0 | 15 |
+| Medium | 15 | 3 | 12 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **10** | **24** |
+| **合計** | **34** | **13** | **21** |
 
 ---
 
@@ -115,20 +115,23 @@
   - 工数: 4h（インフラ側作業）
   - 移動元: Critical（2025-12-26）
 
-- [ ] **SEC-009**: レート制限ミドルウェア実装
-  - ファイル: `middleware.ts`（新規）
+- [x] **SEC-009**: レート制限ミドルウェア実装 ✅完了
+  - ファイル: `src/middleware.ts`（新規）
   - 問題: APIエンドポイントにレート制限なし
-  - 工数: 4h
+  - 対応: インメモリレート制限実装（100req/min一般、10req/min認証）、Retry-Afterヘッダー、クリーンアップ機構追加
+  - 完了日: 2025-12-27
 
-- [ ] **SEC-010**: `.env.development`をgitignoreに追加確認
-  - ファイル: `.gitignore`, `.env.development`
+- [x] **SEC-010**: `.env.development`をgitignoreに追加確認 ✅完了
+  - ファイル: `.gitignore`
   - 問題: 環境変数ファイルが暗号化なし
-  - 工数: 30m
+  - 対応: `.env*.development`パターンで既にgitignoreに設定済みを確認
+  - 完了日: 2025-12-27
 
-- [ ] **SEC-011**: エラーログから機密情報除去
-  - ファイル: 複数Route Handlers, API関数
+- [x] **SEC-011**: エラーログから機密情報除去 ✅完了
+  - ファイル: `src/util/safe-logger.ts`（新規）、全Route Handlers、認証ユーティリティ
   - 問題: console.errorにエラー詳細を出力
-  - 工数: 2h
+  - 対応: 安全なログユーティリティ（logError/logWarn/logDebug）を作成、JWT・Bearer・AWSキー・パスワード等をサニタイズ、全Route Handlersで使用
+  - 完了日: 2025-12-27
 
 ### パフォーマンス
 
@@ -321,6 +324,12 @@
 | 2025-12-26 | SEC-005 | CSRFトークン保護（見送り判断） | Claude |
 | 2025-12-26 | SEC-006 | Route Handlersに認可チェック追加 | Claude |
 | 2025-12-26 | SEC-007 | クエリパラメータのバウンドチェック追加 | Claude |
+| 2025-12-27 | CODE-002 | parseErrorMessageを共通ユーティリティに抽出 | Claude |
+| 2025-12-27 | CODE-003 | MutationResult型を統合 | Claude |
+| 2025-12-27 | CODE-004 | ESLint overrideパターン修正 | Claude |
+| 2025-12-27 | SEC-009 | レート制限ミドルウェア実装 | Claude |
+| 2025-12-27 | SEC-010 | .env.developmentのgitignore確認 | Claude |
+| 2025-12-27 | SEC-011 | エラーログから機密情報除去 | Claude |
 
 ---
 

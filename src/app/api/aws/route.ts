@@ -14,6 +14,7 @@ import { type NextRequest } from 'next/server';
 import postTaskCreate from '@/src/api/post-task-create';
 import { isErrorResponse } from '@/src/types';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { logError, logWarn } from '@/src/util/safe-logger';
 
 // 定数定義
 const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -96,7 +97,7 @@ export const GET = async (request: NextRequest) => {
     const url = await getSignedUrl(s3Client, command, { expiresIn: SIGNED_URL_EXPIRATION });
     return NextResponse.json(url);
   } catch (err) {
-    console.error('Failed to generate signed URL:', err);
+    logError('[GET] /api/aws: Failed to generate signed URL', err);
     return NextResponse.json(
       { errors: ['Failed to generate signed URL'] },
       { status: 500 }
@@ -162,7 +163,7 @@ export const POST = async (request: Request) => {
     // タスク作成
     const taskResult = await postTaskCreate(name);
     if (isErrorResponse(taskResult)) {
-      console.error('Task creation failed:', taskResult.errors);
+      logWarn('[POST] /api/aws', `Task creation failed: ${taskResult.errors.join(', ')}`);
       return NextResponse.json(
         { errors: ['ファイルのアップロードは成功しましたが、タスクの作成に失敗しました'] },
         { status: 500 }
@@ -178,7 +179,7 @@ export const POST = async (request: Request) => {
 
     return NextResponse.json({ url, fileName: name });
   } catch (err) {
-    console.error('Upload failed:', err);
+    logError('[POST] /api/aws: Upload failed', err);
     return NextResponse.json(
       { errors: ['Failed to upload file'] },
       { status: 500 }

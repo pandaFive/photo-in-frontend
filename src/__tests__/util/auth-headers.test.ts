@@ -9,8 +9,9 @@ jest.mock('next/headers', () => ({
 
 const mockCookies = cookies as jest.MockedFunction<typeof cookies>;
 
-// console.errorのモック
+// console.error/warnのモック
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
+const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
 
 describe('getAuthHeaders', () => {
   beforeEach(() => {
@@ -64,8 +65,10 @@ describe('getAuthHeaders', () => {
       const result = getAuthHeaders();
 
       expect(result).toEqual({ ok: false, reason: 'no_token' });
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        '[getAuthHeaders] 認証トークンが見つかりません - セッション期限切れの可能性',
+      // logWarnはconsole.warnを使用
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        '[getAuthHeaders]:',
+        '認証トークンが見つかりません - セッション期限切れの可能性',
       );
     });
 
@@ -77,8 +80,10 @@ describe('getAuthHeaders', () => {
       const result = getAuthHeaders();
 
       expect(result).toEqual({ ok: false, reason: 'no_token' });
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        '[getAuthHeaders] 認証トークンが見つかりません - セッション期限切れの可能性',
+      // logWarnはconsole.warnを使用
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        '[getAuthHeaders]:',
+        '認証トークンが見つかりません - セッション期限切れの可能性',
       );
     });
   });
@@ -93,8 +98,10 @@ describe('getAuthHeaders', () => {
 
       // 空文字は falsy なのでno_tokenエラーを返す
       expect(result).toEqual({ ok: false, reason: 'no_token' });
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        '[getAuthHeaders] 認証トークンが見つかりません - セッション期限切れの可能性',
+      // logWarnはconsole.warnを使用
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        '[getAuthHeaders]:',
+        '認証トークンが見つかりません - セッション期限切れの可能性',
       );
     });
   });
@@ -109,9 +116,10 @@ describe('getAuthHeaders', () => {
       const result = getAuthHeaders();
 
       expect(result).toEqual({ ok: false, reason: 'cookie_error' });
+      // logErrorはエラーメッセージをサニタイズして出力
       expect(mockConsoleError).toHaveBeenCalledWith(
         '[getAuthHeaders] Cookie取得エラー:',
-        testError,
+        expect.stringContaining('Server Component context error'),
       );
     });
   });

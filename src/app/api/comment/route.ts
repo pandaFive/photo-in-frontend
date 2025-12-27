@@ -6,6 +6,7 @@ import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment, CommentApiResponse } from '@/src/types';
 import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { logError } from '@/src/util/safe-logger';
 import { validateId } from '@/src/util/validation';
 
 type Body = {
@@ -74,8 +75,7 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error('[POST] /api/comment:', errorMessage);
+    logError('[POST] /api/comment', err);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
@@ -140,8 +140,7 @@ export const PUT = async (request: NextRequest) => {
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error('[PUT] /api/comment:', errorMessage);
+    logError('[PUT] /api/comment', err);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };
@@ -188,8 +187,7 @@ export const DELETE = async (request: NextRequest) => {
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error('[DELETE] /api/comment:', errorMessage);
+    logError('[DELETE] /api/comment', err);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };

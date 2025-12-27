@@ -6,6 +6,7 @@ import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment } from '@/src/types';
 import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { logError } from '@/src/util/safe-logger';
 import { validateId } from '@/src/util/validation';
 
 export const GET = async (request: NextRequest) => {
@@ -63,8 +64,7 @@ export const GET = async (request: NextRequest) => {
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error('[GET] /api/comments:', errorMessage);
+    logError('[GET] /api/comments', err);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };

@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { isAuthenticated } from '@/src/util/auth-check';
 import { getAuthHeaders } from '@/src/util/auth-headers';
+import { logError } from '@/src/util/safe-logger';
 import { validateId } from '@/src/util/validation';
 
 type Result = {
@@ -51,8 +52,7 @@ export const PUT = async (
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error('[PUT] /api/task/[id]/complete:', errorMessage);
+    logError('[PUT] /api/task/[id]/complete', err);
     return NextResponse.json({ errors: ['サーバーエラーが発生しました'] }, { status: 500 });
   }
 };

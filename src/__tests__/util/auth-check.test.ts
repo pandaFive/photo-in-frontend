@@ -71,9 +71,10 @@ describe('isAuthenticated', () => {
       const result = isAuthenticated();
 
       expect(result).toBe(false);
+      // logErrorはエラーメッセージをサニタイズして出力
       expect(mockConsoleError).toHaveBeenCalledWith(
         '[isAuthenticated] Cookie取得エラー:',
-        testError,
+        expect.stringContaining('Server Component context error'),
       );
     });
   });
@@ -161,9 +162,10 @@ describe('isAdminFromCookie', () => {
       const result = isAdminFromCookie();
 
       expect(result).toBe(false);
+      // logErrorはエラーメッセージをサニタイズして出力
       expect(mockConsoleError).toHaveBeenCalledWith(
         '[isAdminFromCookie] Cookie取得エラー:',
-        testError,
+        expect.stringContaining('Server Component context error'),
       );
     });
   });
