@@ -170,7 +170,7 @@ const MemberDetail = (props: Props) => {
           severity="error"
           sx={{ borderRadius: 2 }}
         >
-          {props.error}
+          データの取得に失敗しました。再試行してください。
         </Alert>
       ) : !props.isLoaded ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
