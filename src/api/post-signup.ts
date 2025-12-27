@@ -2,6 +2,7 @@
 
 import { serverHttpClient } from '@/src/infra/http';
 import { AccountData } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 export const postSignup = async (
   name: string,
@@ -27,6 +28,6 @@ export const postSignup = async (
   if (result.ok) {
     return result.value;
   }
-  console.error('Signup failed:', result.error.message);
+  logError('[postSignup]', result.error.message);
   return {};
 };

@@ -1,18 +1,15 @@
 'use server';
 
 import { serverHttpClient } from '@/src/infra/http';
-import { ErrorResponse } from '@/src/types';
+import { ErrorResponse, Task } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
-
-type TaskResponse = {
-  [key: string]: string;
-};
+import { logError } from '@/src/util/safe-logger';
 
 const postTaskCreate = async (
   name: string,
-): Promise<TaskResponse | ErrorResponse> => {
+): Promise<Task | ErrorResponse> => {
   const token = getCookies('token');
-  const result = await serverHttpClient.post<TaskResponse>(
+  const result = await serverHttpClient.post<Task>(
     '/tasks',
     { task: { task_title: name } },
     {
@@ -24,7 +21,7 @@ const postTaskCreate = async (
   if (result.ok) {
     return result.value;
   }
-  console.error('Task creation failed:', result.error.message);
+  logError('[postTaskCreate]', result.error.message);
   return { errors: [result.error.message] };
 };
 

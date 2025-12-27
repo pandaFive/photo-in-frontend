@@ -1,6 +1,7 @@
 'use server';
 
 import { serverHttpClient } from '@/src/infra/http';
+import { logError } from '@/src/util/safe-logger';
 
 export interface Account {
   id: string;
@@ -26,6 +27,6 @@ export async function postLogin(
   if (result.ok) {
     return result.value.account;
   }
-  console.error('Login failed:', result.error.message);
+  logError('[postLogin]', result.error.message);
   return {};
 }

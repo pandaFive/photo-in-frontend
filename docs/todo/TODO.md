@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 15 | 3 | 12 |
+| Medium | 15 | 7 | 8 |
 | Low | 6 | 0 | 6 |
-| **合計** | **34** | **13** | **21** |
+| **合計** | **34** | **17** | **17** |
 
 ---
 
@@ -167,25 +167,29 @@
 
 ### コード品質
 
-- [ ] **CODE-005**: リクエストボディバリデーション追加
+- [x] **CODE-005**: リクエストボディバリデーション追加 ✅完了
   - ファイル: `src/app/api/comment/route.ts`
   - 問題: JSONボディを`as Body`で型アサーションのみ
-  - 工数: 1h
+  - 対応: POST/PUTでcontent, taskId, idの必須・型・範囲チェックを追加
+  - 完了日: 2025-12-27
 
-- [ ] **CODE-006**: console.log/errorの統一
-  - ファイル: 12箇所（複数ファイル）
+- [x] **CODE-006**: console.log/errorの統一 ✅完了
+  - ファイル: 12箇所（api/, queries/, mutations/, middleware.ts）
   - 問題: エラーログ戦略が非統一
-  - 工数: 2h
+  - 対応: 全箇所をlogError()に統一、機密情報サニタイズを適用
+  - 完了日: 2025-12-27
 
-- [ ] **CODE-007**: Task型定義の厳格化
+- [x] **CODE-007**: Task型定義の厳格化 ✅完了
   - ファイル: `src/app/api/task/[id]/reassign/route.ts`
   - 問題: `[key: string]: string | number`が緩すぎる
-  - 工数: 30m
+  - 対応: `src/types/index.ts`のTask型をimportして使用
+  - 完了日: 2025-12-27
 
-- [ ] **CODE-008**: `CommentApiResponse`型の厳格化
+- [x] **CODE-008**: `CommentApiResponse`型の厳格化 ✅完了
   - ファイル: `src/types/index.ts`
   - 問題: `[key: string]: string`が緩すぎる
-  - 工数: 30m
+  - 対応: `{ message: string }`に厳格化
+  - 完了日: 2025-12-27
 
 ---
 
@@ -330,6 +334,10 @@
 | 2025-12-27 | SEC-009 | レート制限ミドルウェア実装 | Claude |
 | 2025-12-27 | SEC-010 | .env.developmentのgitignore確認 | Claude |
 | 2025-12-27 | SEC-011 | エラーログから機密情報除去 | Claude |
+| 2025-12-27 | CODE-005 | リクエストボディバリデーション追加 | Claude |
+| 2025-12-27 | CODE-006 | console.log/errorの統一 | Claude |
+| 2025-12-27 | CODE-007 | Task型定義の厳格化 | Claude |
+| 2025-12-27 | CODE-008 | CommentApiResponse型の厳格化 | Claude |
 
 ---
 

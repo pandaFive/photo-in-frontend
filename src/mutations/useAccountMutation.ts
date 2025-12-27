@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { httpClient } from '@/src/infra/http';
 import { MutationResult } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 /**
  * アカウント操作用のmutation hook
@@ -15,7 +16,7 @@ export const useAccountMutation = () => {
       const result = await httpClient.delete(`/api/account/${accountId}`);
 
       if (!result.ok) {
-        console.error('Failed to delete account:', result.error.message);
+        logError('[deleteAccount]', result.error.message);
         return { success: false, error: result.error.message };
       }
 
