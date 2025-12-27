@@ -16,6 +16,7 @@ import { useState } from 'react';
 import AreaListCheck from '@/src/components/AreaListCheck';
 import RoleRadioButton from '@/src/components/RoleRadioButton';
 import { singUpAction } from '@/src/util/actions/signUp';
+import { logError } from '@/src/util/safe-logger';
 
 const AccountCreate = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,10 +60,16 @@ const AccountCreate = () => {
 
     setIsSubmitting(true);
     try {
-      await singUpAction(data);
+      // ERR-004: サーバーアクションからのエラーを処理
+      const result = await singUpAction(data);
+      if (!result.success) {
+        // TYPE-001: 判別共用体によりresult.errorは必ずstring
+        setError(result.error);
+      }
+      // 成功時はサーバーアクション内でリダイレクトされる
     } catch (err) {
       setError('アカウント作成に失敗しました');
-      console.error('Account creation failed:', err);
+      logError('[AccountCreate] handleSubmit', err);
     } finally {
       setIsSubmitting(false);
     }
