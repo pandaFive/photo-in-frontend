@@ -185,13 +185,27 @@ describe('AWS S3 Route Handler', () => {
   });
 
   describe('POST /api/aws', () => {
-    // テスト用ファイル作成ヘルパー
+    // マジックバイト定義（ファイルタイプ検証用）
+    const MAGIC_BYTES: Record<string, number[]> = {
+      'application/pdf': [0x25, 0x50, 0x44, 0x46, 0x2D], // %PDF-
+      'image/jpeg': [0xFF, 0xD8, 0xFF],
+      'image/png': [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
+    };
+
+    // テスト用ファイル作成ヘルパー（マジックバイト付き）
     const createMockFile = (
       name: string,
       type: string,
       size: number,
     ): File => {
-      const content = new Array(size).fill('a').join('');
+      const magicBytes = MAGIC_BYTES[type] || [];
+      const paddingSize = Math.max(0, size - magicBytes.length);
+      const content = new Uint8Array(magicBytes.length + paddingSize);
+      content.set(magicBytes, 0);
+      // 残りを 'a' (0x61) で埋める
+      for (let i = magicBytes.length; i < content.length; i++) {
+        content[i] = 0x61;
+      }
       return new File([content], name, { type });
     };
 
@@ -307,6 +321,56 @@ describe('AWS S3 Route Handler', () => {
 
         expect(response.status).toBe(400);
         expect(data.errors[0]).toContain('not allowed');
+      });
+    });
+
+    describe('マジックバイト検証', () => {
+      test('マジックバイトが一致しない場合は400を返す', async () => {
+        mockGetAuthHeaders.mockReturnValue({
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
+        });
+
+        // PDFと偽ったJPEGファイル（マジックバイトはJPEG）
+        const jpegMagicBytes = [0xFF, 0xD8, 0xFF];
+        const content = new Uint8Array(100);
+        content.set(jpegMagicBytes, 0);
+        const spoofedFile = new File([content], 'fake.pdf', { type: 'application/pdf' });
+
+        const formData = new FormData();
+        formData.append('file', spoofedFile);
+
+        const request = new Request('http://localhost:3333/api/aws', {
+          method: 'POST',
+          body: formData,
+        });
+        const response = await POST(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(data.errors[0]).toContain('ファイル内容が指定されたファイル形式と一致しません');
+      });
+
+      test('正しいマジックバイトのPDFは許可される', async () => {
+        mockGetAuthHeaders.mockReturnValue({
+          ok: true,
+          headers: { Authorization: 'Bearer valid-token' },
+        });
+        mockPostTaskCreate.mockResolvedValue({ success: true });
+
+        const formData = new FormData();
+        formData.append(
+          'file',
+          createMockFile('valid.pdf', 'application/pdf', 100),
+        );
+
+        const request = new Request('http://localhost:3333/api/aws', {
+          method: 'POST',
+          body: formData,
+        });
+        const response = await POST(request);
+
+        expect(response.status).toBe(200);
       });
     });
 

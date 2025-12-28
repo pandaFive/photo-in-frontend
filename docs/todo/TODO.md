@@ -10,11 +10,11 @@
 
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
-| Critical | 2 | 1 | 1 |
+| Critical | 2 | 2 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 7 | 0 | 7 |
-| Low | 17 | 0 | 17 |
-| **合計** | **29** | **1** | **28** |
+| Low | 19 | 0 | 19 |
+| **合計** | **31** | **2** | **29** |
 
 ---
 
@@ -27,11 +27,11 @@
   - 完了日: 2025-12-28
   - 対応: 全`console.error()`を`logError()`に置換（6ファイル、10箇所）
 
-- [ ] **FILE-C01**: ファイルアップロードにバリデーション追加 🔴即時対応
-  - ファイル: `src/mutations/useFileUpload.ts`
-  - 問題: ファイルサイズ・MIMEタイプの検証なし、不正ファイルアップロード可能
-  - 対応: サイズ上限（100MB）、許可MIMEタイプ（application/pdf）のチェック追加
-  - 工数: 1h
+- [x] **FILE-C01**: ファイルアップロードにバリデーション追加 ✅完了
+  - ファイル: `src/mutations/useFileUpload.ts`, `src/app/api/aws/route.ts`
+  - 完了日: 2025-12-28
+  - 対応: MIMEタイプ検証（PDF）、サイズ上限（100MB）、マジックバイト検証（バックエンド）
+  - PR: #113
 
 ---
 
@@ -143,6 +143,18 @@
   - 対応: `TaskListItem`と`TaskDetail`型を新設
   - 工数: 2h
 
+- [ ] **TYPE-003**: ValidationResult型の判別共用体化（PR #113 Suggestions）
+  - ファイル: `src/mutations/useFileUpload.ts`
+  - 問題: `valid`と`error`が独立したプロパティで不正状態を許容
+  - 対応: `{ valid: true } | { valid: false; error: string }`に変更
+  - 工数: 0.5h
+
+- [ ] **TYPE-004**: UploadResult型の判別共用体化（PR #113 Suggestions）
+  - ファイル: `src/mutations/useFileUpload.ts`
+  - 問題: `success`と`error`が独立したプロパティで不正状態を許容
+  - 対応: `{ success: true } | { success: false; error: string }`に変更
+  - 工数: 0.5h
+
 ### ログ改善
 
 - [ ] **LOG-001**: 認証失敗ログ追加
@@ -251,6 +263,7 @@
 | TYPE-002, LOG-002 | PR #96 Medium | Low |
 | LOG-003 | PR #96 Suggestions | Low |
 | ERR-L01 | PR #112 Important | Low |
+| TYPE-003, TYPE-004 | PR #113 Suggestions | Low |
 
 ---
 
@@ -261,6 +274,7 @@
 | 2025-12-28 | LOG-C01 | console.error()をlogError()に置換 | Claude |
 | 2025-12-28 | - | AreaListCheckサイレント失敗修正（PR #112 Critical） | Claude |
 | 2025-12-28 | - | CommentList楽観的UIロールバック追加（PR #112 Important） | Claude |
+| 2025-12-28 | FILE-C01 | ファイルアップロードバリデーション追加（PR #113） | Claude |
 
 ---
 
