@@ -2,6 +2,7 @@
 
 **作成日**: 2025年12月28日
 **前回完了**: `/docs/done/DONE-2025-12-28.md`
+**最終レビュー**: 2025年12月28日（総合レビュー実施）
 
 ---
 
@@ -9,14 +10,33 @@
 
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
-| High | 1 | 0 | 1 |
-| Medium | 4 | 0 | 4 |
+| Critical | 2 | 0 | 2 |
+| High | 3 | 0 | 3 |
+| Medium | 7 | 0 | 7 |
 | Low | 16 | 0 | 16 |
-| **合計** | **21** | **0** | **21** |
+| **合計** | **28** | **0** | **28** |
 
 ---
 
-## High（インフラ対応必要）
+## Critical（即時対応必須）
+
+### ログ・セキュリティ（総合レビュー 2025-12-28）
+
+- [ ] **LOG-C01**: console.error()をlogError()に置換 🔴即時対応
+  - ファイル: 10箇所以上（AreaListCheck, CommentList, MemberCard, UploadButton, Details/*）
+  - 問題: `console.error()`が`safe-logger.ts`のサニタイズをバイパス、トークン漏洩リスク
+  - 対応: 全`console.error()`を`logError()`に置換
+  - 工数: 1h
+
+- [ ] **FILE-C01**: ファイルアップロードにバリデーション追加 🔴即時対応
+  - ファイル: `src/mutations/useFileUpload.ts`
+  - 問題: ファイルサイズ・MIMEタイプの検証なし、不正ファイルアップロード可能
+  - 対応: サイズ上限（100MB）、許可MIMEタイプ（application/pdf）のチェック追加
+  - 工数: 1h
+
+---
+
+## High（今スプリント対応）
 
 ### セキュリティ
 
@@ -26,7 +46,21 @@
   - 手順書: `/docs/todo/SEC-002-aws-iam-role-migration.md`
   - 備考: ECS Task Role、Amplify設定等のインフラ変更が必要。フロントエンドのみでは対応不可。
   - 工数: 4h（インフラ側作業）
-  - 移動元: Critical（2025-12-26）
+
+- [ ] **AUTH-H01**: フロントエンドロールチェックの警告追加（総合レビュー）
+  - ファイル: `src/util/auth-check.ts`
+  - 問題: `isAdminFromCookie()`はCookie値に依存、クライアント側で改竄可能
+  - 対応: JSDocに明確な警告追加、バックエンド認可必須の旨を明記
+  - 備考: 現状はDefense in Depthとして機能、バックエンドでも認可チェック必須
+  - 工数: 0.5h
+
+### 型定義
+
+- [ ] **TYPE-H01**: CommentListのany型排除（総合レビュー）
+  - ファイル: `src/components/CommentList.tsx`, `.eslintrc.json`
+  - 問題: MUI DataGridで`any`型を許可するESLint override、型安全性低下
+  - 対応: GridRow/GridColumn型を定義、ESLint overrideを削除
+  - 工数: 1h
 
 ---
 
@@ -51,7 +85,7 @@
 - [ ] **ERR-001**: res.text()エラーのログ追加
   - ファイル: `src/app/api/{areas,tasks/all,tasks/ng}/route.ts`
   - 問題: `.catch(() => '')` でエラー詳細が消失
-  - 対応: `catch((err) => { console.error(...); return ''; })`
+  - 対応: `catch((err) => { logError(...); return ''; })`
   - 工数: 0.5h
 
 - [ ] **ERR-002**: JSONパースエラーの分離
@@ -59,6 +93,30 @@
   - 問題: `res.json()` 失敗時に汎用エラーになる
   - 対応: 個別try-catchで502エラーを返す
   - 工数: 1h
+
+### アーキテクチャ（総合レビュー）
+
+- [ ] **DRY-M01**: Route Handler認証パターンの共通化
+  - ファイル: `src/app/api/*/route.ts`（11ファイル）
+  - 問題: 認証・認可・バリデーションパターンが重複
+  - 対応: `withAuth()`ラッパー関数またはミドルウェアを作成
+  - 工数: 2h
+
+### セキュリティ（総合レビュー）
+
+- [ ] **SEC-M01**: HSTSヘッダー追加
+  - ファイル: `next.config.mjs`
+  - 問題: Strict-Transport-Securityヘッダー未設定
+  - 対応: `Strict-Transport-Security: max-age=31536000; includeSubDomains`追加
+  - 工数: 0.5h
+
+### パフォーマンス（総合レビュー）
+
+- [ ] **PERF-M01**: 大規模リストコンポーネントのmemo化
+  - ファイル: `src/components/TaskList.tsx`, `src/components/CommentList.tsx`
+  - 問題: 親の再レンダーで不要な子再レンダー発生
+  - 対応: `React.memo()`でラップ
+  - 工数: 0.5h
 
 ---
 
@@ -91,7 +149,7 @@
 - [ ] **LOG-001**: 認証失敗ログ追加
   - ファイル: Route Handlers
   - 問題: 認証失敗時のログがない
-  - 対応: `console.warn` でreason記録
+  - 対応: `logWarn()` でreason記録
   - 工数: 1h
 
 - [ ] **LOG-002**: エラーオブジェクト全体をログ出力
@@ -166,6 +224,7 @@
 
 ## 備考
 
+- **Critical（LOG-C01, FILE-C01）は即時対応必須** - セキュリティリスクあり
 - SEC-002は本番デプロイ前に**必須**で解決すること（インフラチームと連携）
 - Medium優先度（ERR-003, ERR-004）はユーザー体験に直結するため早期対応推奨
 - Low優先度タスクは次スプリント以降で対応
@@ -173,10 +232,13 @@
 
 ---
 
-## PRレビュー指摘事項の出典
+## 課題の出典
 
 | ID | 出典 | 優先度 |
 |----|------|--------|
+| LOG-C01, FILE-C01 | 総合レビュー 2025-12-28 | Critical |
+| AUTH-H01, TYPE-H01 | 総合レビュー 2025-12-28 | High |
+| DRY-M01, SEC-M01, PERF-M01 | 総合レビュー 2025-12-28 | Medium |
 | ERR-001, ERR-002 | PR #94 Important | Medium |
 | TYPE-001, LOG-001, AUTH-001, CODE-018 | PR #94 Suggestions | Low |
 | ERR-003, ERR-004 | PR #96 Critical | Medium |
