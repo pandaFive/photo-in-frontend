@@ -12,9 +12,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
-| Medium | 7 | 0 | 7 |
+| Medium | 7 | 2 | 5 |
 | Low | 19 | 0 | 19 |
-| **合計** | **31** | **4** | **27** |
+| **合計** | **31** | **6** | **25** |
 
 ---
 
@@ -66,17 +66,17 @@
 
 ### エラーハンドリング（PR #96 Critical）
 
-- [ ] **ERR-003**: サイレントログイン失敗の修正
-  - ファイル: `src/api/post-login.ts`, `src/util/actions/login.ts`
-  - 問題: エラー時に空オブジェクト`{}`を返し、UIにエラー表示されない
-  - 対応: `ErrorResponse`型を返し、UIでエラー表示
-  - 工数: 1h
+- [x] **ERR-003**: サイレントログイン失敗の修正 ✅完了
+  - ファイル: `src/api/post-login.ts`, `src/util/actions/login.ts`, `src/app/page.tsx`
+  - 完了日: 2025-12-28
+  - 対応: `ErrorResponse`型を返し、クエリパラメータでエラーをUIに表示
+  - PR: #97
 
-- [ ] **ERR-004**: サイレントサインアップ失敗の修正
-  - ファイル: `src/api/post-signup.ts`, `src/util/actions/signUp.ts`
-  - 問題: エラー時に何も起きない
+- [x] **ERR-004**: サイレントサインアップ失敗の修正 ✅完了
+  - ファイル: `src/api/post-signup.ts`, `src/util/actions/signUp.ts`, `src/app/(admin)/account/create/page.tsx`
+  - 完了日: 2025-12-28
   - 対応: `ErrorResponse`型を返し、UIでエラー表示
-  - 工数: 1h
+  - PR: #97
 
 ### エラーハンドリング（PR #94 Important）
 
@@ -274,6 +274,8 @@
 | 2025-12-28 | - | AreaListCheckサイレント失敗修正（PR #112 Critical） | Claude |
 | 2025-12-28 | - | CommentList楽観的UIロールバック追加（PR #112 Important） | Claude |
 | 2025-12-28 | FILE-C01 | ファイルアップロードバリデーション追加（PR #113） | Claude |
+| 2025-12-28 | ERR-003 | サイレントログイン失敗修正（PR #97） | Claude |
+| 2025-12-28 | ERR-004 | サイレントサインアップ失敗修正（PR #97） | Claude |
 | 2025-12-29 | AUTH-H01 | フロントエンドロールチェック警告追加（PR #114） | Claude |
 | 2025-12-29 | TYPE-H01 | CommentListのany型排除（PR #115） | Claude |
 
