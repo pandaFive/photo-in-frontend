@@ -24,6 +24,7 @@ import { useToast } from '@/src/context/ToastContext';
 import { parseIsoToYYYYMMDD } from '@/src/domain/functions/date';
 import { useAccountMutation } from '@/src/mutations';
 import { MemberStatus } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 type Props = {
   member: MemberStatus;
@@ -81,7 +82,7 @@ const MemberCard = (props: Props) => {
       props.handleDelete(props.member.id);
       showSuccess('メンバーを削除しました');
     } else {
-      console.error('Failed to delete member:', result.error);
+      logError('[MemberCard] deleteAccount', result.error);
       showErrorWithRetry(
         result.error ?? 'メンバーの削除に失敗しました',
         () => void onDelete(),

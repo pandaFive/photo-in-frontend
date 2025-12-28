@@ -27,6 +27,7 @@ import { useMemo, useCallback } from 'react';
 import { useToast } from '@/src/context/ToastContext';
 import { getNow } from '@/src/infra/time';
 import { useCommentMutation } from '@/src/mutations';
+import { logError } from '@/src/util/safe-logger';
 
 import { AccountData } from '../types';
 import { Comment } from '../types';
@@ -170,7 +171,7 @@ const CommentList = (props: Props) => {
         }
       })
       .catch((err) => {
-        console.error('Failed to delete comment:', err);
+        logError('[CommentList] deleteComment', err);
         showError('コメントの削除に失敗しました');
       });
   }, [deleteComment, showSuccess, showError]);
@@ -217,7 +218,7 @@ const CommentList = (props: Props) => {
             }
           })
           .catch((e) => {
-            console.error('Failed to post comment:', e);
+            logError('[CommentList] createComment', e);
             showError('コメントの投稿に失敗しました');
           });
         setFlagNewComment(false);
@@ -232,7 +233,7 @@ const CommentList = (props: Props) => {
             }
           })
           .catch((e) => {
-            console.error('Failed to update comment:', e);
+            logError('[CommentList] updateComment', e);
             showError('コメントの更新に失敗しました');
           });
       }

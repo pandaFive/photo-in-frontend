@@ -13,6 +13,7 @@ import LoadCircle from '@/src/components/LoadCircle';
 import { useToast } from '@/src/context/ToastContext';
 import { useTaskMutation } from '@/src/mutations';
 import { AccountData, Comment, Task } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 type Props = {
   account: AccountData;
@@ -47,7 +48,7 @@ const AdminDetail = (props: Props) => {
         }
       })
       .catch((e) => {
-        console.error(e);
+        logError('[AdminDetail] reassign', e);
         showErrorWithRetry('再アサインに失敗しました', () => onReassign());
       });
   };

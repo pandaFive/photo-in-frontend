@@ -10,11 +10,11 @@
 
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
-| Critical | 2 | 0 | 2 |
+| Critical | 2 | 1 | 1 |
 | High | 3 | 0 | 3 |
 | Medium | 7 | 0 | 7 |
 | Low | 16 | 0 | 16 |
-| **合計** | **28** | **0** | **28** |
+| **合計** | **28** | **1** | **27** |
 
 ---
 
@@ -22,11 +22,10 @@
 
 ### ログ・セキュリティ（総合レビュー 2025-12-28）
 
-- [ ] **LOG-C01**: console.error()をlogError()に置換 🔴即時対応
-  - ファイル: 10箇所以上（AreaListCheck, CommentList, MemberCard, UploadButton, Details/*）
-  - 問題: `console.error()`が`safe-logger.ts`のサニタイズをバイパス、トークン漏洩リスク
-  - 対応: 全`console.error()`を`logError()`に置換
-  - 工数: 1h
+- [x] **LOG-C01**: console.error()をlogError()に置換 ✅完了
+  - ファイル: 10箇所（AreaListCheck, CommentList, MemberCard, UploadButton, Details/*）
+  - 完了日: 2025-12-28
+  - 対応: 全`console.error()`を`logError()`に置換（6ファイル、10箇所）
 
 - [ ] **FILE-C01**: ファイルアップロードにバリデーション追加 🔴即時対応
   - ファイル: `src/mutations/useFileUpload.ts`
@@ -251,7 +250,7 @@
 
 | 日付 | ID | タスク | 担当 |
 |------|-----|--------|------|
-| - | - | - | - |
+| 2025-12-28 | LOG-C01 | console.error()をlogError()に置換 | Claude |
 
 ---
 

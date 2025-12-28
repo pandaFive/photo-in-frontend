@@ -7,6 +7,7 @@ import EmptySendDialog from '@/src/components/EmptySendDialog';
 import IncorrectUploadDialog from '@/src/components/IncorrectUploadDialog';
 import { useToast } from '@/src/context/ToastContext';
 import { useFileUpload } from '@/src/mutations';
+import { logError } from '@/src/util/safe-logger';
 
 type Props = {
   areaNames: string[];
@@ -103,7 +104,7 @@ const UploadButton = ({ areaNames, error = false }: Props) => {
       clearFiles();
       showSuccess('ファイルをアップロードしました');
     } else {
-      console.error('Upload failed:', result.error);
+      logError('[UploadButton] uploadFiles', result.error);
       showErrorWithRetry(
         result.error ?? 'アップロードに失敗しました',
         () => void onSend(),

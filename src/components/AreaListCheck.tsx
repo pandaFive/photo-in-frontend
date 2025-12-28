@@ -3,6 +3,8 @@
 import { Checkbox, FormControlLabel, FormGroup, List } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
+import { logError } from '@/src/util/safe-logger';
+
 import { getAreas } from '../api/get-areas';
 import { Area, isErrorResponse } from '../types';
 
@@ -27,12 +29,12 @@ const AreaListCheck = () => {
     try {
       const res = await getAreas();
       if (isErrorResponse(res)) {
-        console.error('Failed to fetch areas:', res.errors);
+        logError('[AreaListCheck]', res.errors);
         return;
       }
       setArea(res);
     } catch (err) {
-      console.error(err);
+      logError('[AreaListCheck]', err);
     }
   }, []);
 

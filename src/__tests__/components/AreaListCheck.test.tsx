@@ -3,9 +3,15 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AreaListCheck from '@/src/components/AreaListCheck';
 import { getAreas } from '@/src/api/get-areas';
+import { logError } from '@/src/util/safe-logger';
 
 // getAreas関数をモック化
 jest.mock('@/src/api/get-areas');
+
+// logErrorをモック化
+jest.mock('@/src/util/safe-logger', () => ({
+  logError: jest.fn(),
+}));
 
 describe('AreaListCheck', () => {
   const mockAreas = [
@@ -42,13 +48,12 @@ describe('AreaListCheck', () => {
   });
 
   it('handles API error', async () => {
-    console.error = jest.fn(); // コンソールエラーをモック化
     (getAreas as jest.Mock).mockRejectedValue(new Error('API error'));
 
     render(<AreaListCheck />);
 
     await waitFor(() => {
-      expect(console.error).toHaveBeenCalled();
+      expect(logError).toHaveBeenCalledWith('[AreaListCheck]', expect.any(Error));
     });
   });
 });
