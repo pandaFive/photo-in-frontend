@@ -51,7 +51,10 @@ export const DELETE = async (
       const result: ResponseStatus = (await res.json()) as ResponseStatus;
       return NextResponse.json(result);
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[DELETE] /api/account/[id]: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {

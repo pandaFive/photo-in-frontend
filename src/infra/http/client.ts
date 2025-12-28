@@ -9,6 +9,7 @@ import {
 } from '@/src/domain/types/error';
 import { validateResponse } from '@/src/infra/validation';
 import { parseErrorMessage } from '@/src/util/parse-error';
+import { logError } from '@/src/util/safe-logger';
 
 type RequestOptions<T = unknown> = {
   signal?: AbortSignal;
@@ -52,7 +53,10 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
+        const text = await res.text().catch((e) => {
+          logError('[httpClient.get] res.text() failed', e);
+          return '';
+        });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
@@ -87,7 +91,10 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
+        const text = await res.text().catch((e) => {
+          logError('[httpClient.post] res.text() failed', e);
+          return '';
+        });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
@@ -123,7 +130,10 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
+        const text = await res.text().catch((e) => {
+          logError('[httpClient.put] res.text() failed', e);
+          return '';
+        });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
@@ -163,7 +173,10 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
+        const text = await res.text().catch((e) => {
+          logError('[httpClient.delete] res.text() failed', e);
+          return '';
+        });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
@@ -206,7 +219,10 @@ export const httpClient = {
       });
 
       if (!res.ok) {
-        const errorText = await res.text().catch(() => '');
+        const errorText = await res.text().catch((e) => {
+          logError('[httpClient.postFormData] res.text() failed', e);
+          return '';
+        });
         return err(createApiError(res.status, parseErrorMessage(errorText)));
       }
 

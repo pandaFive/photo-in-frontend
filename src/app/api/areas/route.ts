@@ -29,7 +29,10 @@ export const GET = async () => {
         },
       });
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[GET] /api/areas: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {

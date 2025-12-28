@@ -48,7 +48,10 @@ export const PUT = async (
       const result: Result = (await res.json()) as Result;
       return NextResponse.json(result);
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[PUT] /api/task/[id]/ng: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {

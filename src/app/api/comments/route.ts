@@ -64,7 +64,10 @@ export const GET = async (request: NextRequest) => {
         },
       });
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[GET] /api/comments: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {

@@ -14,6 +14,7 @@ import {
 } from '@/src/domain/types/error';
 import { validateResponse } from '@/src/infra/validation';
 import { parseErrorMessage } from '@/src/util/parse-error';
+import { logError } from '@/src/util/safe-logger';
 
 // 後方互換性のため再エクスポート
 export { parseErrorMessage };
@@ -96,7 +97,10 @@ export const serverHttpClient = {
       });
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
+        const text = await res.text().catch((e) => {
+          logError('[serverHttpClient.get] res.text() failed', e);
+          return '';
+        });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
@@ -130,7 +134,10 @@ export const serverHttpClient = {
       });
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
+        const text = await res.text().catch((e) => {
+          logError('[serverHttpClient.post] res.text() failed', e);
+          return '';
+        });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 

@@ -71,7 +71,10 @@ export const POST = async (request: NextRequest) => {
       const result: Comment = (await res.json()) as Comment;
       return NextResponse.json(result);
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[POST] /api/comment: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
@@ -136,7 +139,10 @@ export const PUT = async (request: NextRequest) => {
       const result: Comment = (await res.json()) as Comment;
       return NextResponse.json(result);
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[PUT] /api/comment: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
@@ -183,7 +189,10 @@ export const DELETE = async (request: NextRequest) => {
       const result: CommentApiResponse = (await res.json()) as CommentApiResponse;
       return NextResponse.json(result);
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[DELETE] /api/comment: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
