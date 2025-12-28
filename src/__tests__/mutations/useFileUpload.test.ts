@@ -230,6 +230,20 @@ describe('useFileUpload', () => {
         expect(mockHttpClient.postFormData).not.toHaveBeenCalled();
       });
 
+      test('rejects files with empty MIME type', async () => {
+        const { result } = renderHook(() => useFileUpload());
+        const file = createMockFile('unknown.file', '');
+
+        let response;
+        await act(async () => {
+          response = await result.current.uploadFiles([file]);
+        });
+
+        expect(response?.success).toBe(false);
+        expect(response?.error).toContain('許可されていないファイル形式');
+        expect(mockHttpClient.postFormData).not.toHaveBeenCalled();
+      });
+
       test('rejects text files', async () => {
         const { result } = renderHook(() => useFileUpload());
         const file = createMockFile('document.txt', 'text/plain');

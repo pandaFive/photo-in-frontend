@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { httpClient } from '@/src/infra/http';
+import { logWarn } from '@/src/util/safe-logger';
 
 // ファイルアップロードのバリデーション設定
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -24,6 +25,7 @@ type ValidationResult = {
 const validateFile = (file: File): ValidationResult => {
   // MIMEタイプチェック
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    logWarn('[useFileUpload]', `Invalid MIME type: ${file.type} for file: ${file.name}`);
     return {
       valid: false,
       error: `「${file.name}」は許可されていないファイル形式です。PDFファイルのみアップロード可能です。`,
@@ -33,6 +35,7 @@ const validateFile = (file: File): ValidationResult => {
   // ファイルサイズチェック
   if (file.size > MAX_FILE_SIZE) {
     const sizeMB = Math.round(file.size / (1024 * 1024));
+    logWarn('[useFileUpload]', `File too large: ${sizeMB}MB for file: ${file.name}`);
     return {
       valid: false,
       error: `「${file.name}」のサイズ（${sizeMB}MB）が上限（100MB）を超えています。`,

@@ -21,6 +21,39 @@ const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const SIGNED_URL_EXPIRATION = 7200; // 2時間（秒）
 
+// マジックバイト定義（ファイルタイプ検証用）
+const MAGIC_BYTES: Record<string, { bytes: number[]; offset: number }> = {
+  'application/pdf': { bytes: [0x25, 0x50, 0x44, 0x46, 0x2D], offset: 0 }, // %PDF-
+  'image/jpeg': { bytes: [0xFF, 0xD8, 0xFF], offset: 0 },
+  'image/png': { bytes: [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A], offset: 0 },
+};
+
+/**
+ * ファイルのマジックバイトを検証
+ * Content-Typeヘッダーは偽装可能なため、実際のファイル内容で検証
+ * @param buffer ファイルのバッファ
+ * @param mimeType 期待されるMIMEタイプ
+ * @returns マジックバイトが一致すればtrue
+ */
+const validateMagicBytes = (buffer: Buffer, mimeType: string): boolean => {
+  const magic = MAGIC_BYTES[mimeType];
+  if (!magic) {
+    return false;
+  }
+
+  if (buffer.length < magic.offset + magic.bytes.length) {
+    return false;
+  }
+
+  for (let i = 0; i < magic.bytes.length; i++) {
+    if (buffer[magic.offset + i] !== magic.bytes[i]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 /**
  * ファイル名をサニタイズしてパストラバーサル攻撃を防止
  * SEC-008: ユーザー入力のファイル名がS3キーに直接使用される問題の対策
@@ -147,6 +180,15 @@ export const POST = async (request: Request) => {
     const rawName = file.name || `upload-${Date.now()}`;
     const name: string = sanitizeFileName(rawName);
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // マジックバイト検証（Content-Type偽装対策）
+    if (!validateMagicBytes(buffer, file.type)) {
+      logWarn('[POST] /api/aws', `Magic bytes mismatch for file: ${name}, claimed type: ${file.type}`);
+      return NextResponse.json(
+        { errors: ['ファイル内容が指定されたファイル形式と一致しません'] },
+        { status: 400 }
+      );
+    }
 
     const uploadParams: PutObjectCommandInput = {
       Bucket: process.env.S3_BUCKET_NAME,
