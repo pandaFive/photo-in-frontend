@@ -61,7 +61,10 @@ export const GET = async (request: NextRequest) => {
       try {
         result = (await res.json()) as Comment[];
       } catch (jsonErr) {
-        logError('[GET] /api/comments: res.json() failed', jsonErr);
+        logError(
+          `[GET] /api/comments: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
         return NextResponse.json(
           { errors: ['バックエンドから不正なレスポンスを受信しました'] },
           { status: 502 },
@@ -75,7 +78,7 @@ export const GET = async (request: NextRequest) => {
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[GET] /api/comments: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }

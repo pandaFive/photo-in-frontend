@@ -99,7 +99,7 @@ export const serverHttpClient = {
       if (!res.ok) {
         const text = await res.text().catch((e) => {
           logError('[serverHttpClient.get] res.text() failed', e);
-          return '';
+          return 'レスポンスボディの読み取りに失敗しました';
         });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
@@ -108,7 +108,10 @@ export const serverHttpClient = {
       try {
         data = await res.json();
       } catch (jsonErr) {
-        logError('[serverHttpClient.get] res.json() failed', jsonErr);
+        logError(
+          `[serverHttpClient.get] res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
         return err(
           createApiError(502, 'バックエンドから不正なレスポンスを受信しました'),
         );
@@ -144,7 +147,7 @@ export const serverHttpClient = {
       if (!res.ok) {
         const text = await res.text().catch((e) => {
           logError('[serverHttpClient.post] res.text() failed', e);
-          return '';
+          return 'レスポンスボディの読み取りに失敗しました';
         });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
@@ -153,7 +156,10 @@ export const serverHttpClient = {
       try {
         data = await res.json();
       } catch (jsonErr) {
-        logError('[serverHttpClient.post] res.json() failed', jsonErr);
+        logError(
+          `[serverHttpClient.post] res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
         return err(
           createApiError(502, 'バックエンドから不正なレスポンスを受信しました'),
         );

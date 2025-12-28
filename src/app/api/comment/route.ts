@@ -72,7 +72,10 @@ export const POST = async (request: NextRequest) => {
       try {
         result = (await res.json()) as Comment;
       } catch (jsonErr) {
-        logError('[POST] /api/comment: res.json() failed', jsonErr);
+        logError(
+          `[POST] /api/comment: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
         return NextResponse.json(
           { errors: ['バックエンドから不正なレスポンスを受信しました'] },
           { status: 502 },
@@ -82,7 +85,7 @@ export const POST = async (request: NextRequest) => {
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[POST] /api/comment: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
@@ -149,7 +152,10 @@ export const PUT = async (request: NextRequest) => {
       try {
         result = (await res.json()) as Comment;
       } catch (jsonErr) {
-        logError('[PUT] /api/comment: res.json() failed', jsonErr);
+        logError(
+          `[PUT] /api/comment: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
         return NextResponse.json(
           { errors: ['バックエンドから不正なレスポンスを受信しました'] },
           { status: 502 },
@@ -159,7 +165,7 @@ export const PUT = async (request: NextRequest) => {
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[PUT] /api/comment: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
@@ -208,7 +214,10 @@ export const DELETE = async (request: NextRequest) => {
       try {
         result = (await res.json()) as CommentApiResponse;
       } catch (jsonErr) {
-        logError('[DELETE] /api/comment: res.json() failed', jsonErr);
+        logError(
+          `[DELETE] /api/comment: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
         return NextResponse.json(
           { errors: ['バックエンドから不正なレスポンスを受信しました'] },
           { status: 502 },
@@ -218,7 +227,7 @@ export const DELETE = async (request: NextRequest) => {
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[DELETE] /api/comment: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
