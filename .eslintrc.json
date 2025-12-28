@@ -42,13 +42,5 @@
         }
       }
     ]
-  },
-  "overrides": [
-    {
-      "files": ["src/components/CommentList.tsx"],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": "off"
-      }
-    }
-  ]
+  }
 }

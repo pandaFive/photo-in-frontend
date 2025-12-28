@@ -8,7 +8,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import {
-  GridRowsProp,
   GridRowModesModel,
   GridRowModes,
   DataGrid,
@@ -17,7 +16,6 @@ import {
   GridActionsCellItem,
   GridEventListener,
   GridRowId,
-  GridRowModel,
   GridRowEditStopReasons,
   GridSlots,
 } from '@mui/x-data-grid';
@@ -32,8 +30,21 @@ import { logError } from '@/src/util/safe-logger';
 import { AccountData } from '../types';
 import { Comment } from '../types';
 
+/**
+ * DataGridの行データ型
+ * MUI DataGridのGridRowModelの代わりに使用し、型安全性を確保
+ */
+interface CommentRow {
+  id: number;
+  name: string;
+  comment: string;
+  joinDate: Date;
+  role: string;
+  isNew: boolean;
+}
+
 interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
+  setRows: (newRows: (oldRows: CommentRow[]) => CommentRow[]) => void;
   setRowModesModel: (
     newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
   ) => void;
@@ -93,7 +104,7 @@ const EditToolbar = (props: EditToolbarProps) => {
  * @param comments - APIから取得したコメントの配列
  * @returns DataGridで使用可能な行データの配列
  */
-const createRows = (comments: Comment[]): GridRowsProp => {
+const createRows = (comments: Comment[]): CommentRow[] => {
   if (!Array.isArray(comments) || comments.length === 0) {
     return [];
   }
@@ -124,7 +135,7 @@ type Props = {
  * - flagNewComment: 新規コメントかどうかを追跡するフラグ（POST/PUTの判定に使用）
  */
 const CommentList = (props: Props) => {
-  const [rows, setRows] = React.useState(createRows(props.comments));
+  const [rows, setRows] = React.useState<CommentRow[]>(createRows(props.comments));
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
@@ -210,14 +221,14 @@ const CommentList = (props: Props) => {
    * @param updatedRow - 更新後の行データ（新規作成時にIDを更新するために使用）
    */
   const saveComment = useCallback(
-    (newRow: GridRowModel, updatedRow: GridRowModel) => {
+    (newRow: CommentRow, updatedRow: CommentRow) => {
       if (flagNewComment) {
         // 新規コメント作成
-        createComment(newRow.comment as string, props.cycleId)
+        createComment(newRow.comment, props.cycleId)
           .then((result) => {
             if (result.success && result.data) {
               const newId = result.data.id;
-              const newUpdatedRow = { ...updatedRow, id: newId };
+              const newUpdatedRow: CommentRow = { ...updatedRow, id: newId };
               setRows((currentRows) =>
                 currentRows.map((row) =>
                   row.id === newRow.id ? newUpdatedRow : row
@@ -235,7 +246,7 @@ const CommentList = (props: Props) => {
         setFlagNewComment(false);
       } else {
         // 既存コメント更新
-        updateComment(newRow.comment as string, newRow.id as number)
+        updateComment(newRow.comment, newRow.id)
           .then((result) => {
             if (result.success) {
               showSuccess('コメントを更新しました');
@@ -260,8 +271,8 @@ const CommentList = (props: Props) => {
    * @returns 更新後の行データ
    */
   const processRowUpdate = useCallback(
-    (newRow: GridRowModel) => {
-      const updatedRow = { ...newRow, isNew: false };
+    (newRow: CommentRow): CommentRow => {
+      const updatedRow: CommentRow = { ...newRow, isNew: false };
       setRows((currentRows) =>
         currentRows.map((row) => (row.id === newRow.id ? updatedRow : row))
       );
