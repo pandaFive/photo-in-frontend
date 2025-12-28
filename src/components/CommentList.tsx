@@ -30,16 +30,21 @@ import { logError } from '@/src/util/safe-logger';
 import { AccountData } from '../types';
 import { Comment } from '../types';
 
+/** ユーザーロール型 */
+type UserRole = 'admin' | 'member';
+
 /**
- * DataGridの行データ型
- * MUI DataGridのGridRowModelの代わりに使用し、型安全性を確保
+ * コメント一覧DataGrid用の行データ型
+ * DataGridの行に表示するコメントデータの型を定義
  */
 interface CommentRow {
   id: number;
   name: string;
   comment: string;
+  /** コメントの最終更新日時（UIでは「Join date」として表示） */
   joinDate: Date;
-  role: string;
+  role: UserRole;
+  /** 新規追加行フラグ（true: 未保存の新規行, false: API取得済み or 保存済み） */
   isNew: boolean;
 }
 
@@ -48,7 +53,7 @@ interface EditToolbarProps {
   setRowModesModel: (
     newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
   ) => void;
-  role: string;
+  role: UserRole;
   name: string;
 }
 
@@ -114,7 +119,7 @@ const createRows = (comments: Comment[]): CommentRow[] => {
     name: cur.name,
     comment: cur.content,
     joinDate: new Date(cur.updatedAt),
-    role: cur.role,
+    role: cur.role as UserRole,
     isNew: false,
   }));
 };
@@ -147,7 +152,7 @@ const CommentList = (props: Props) => {
   const { createComment, updateComment, deleteComment } = useCommentMutation();
   const { showSuccess, showError } = useToast();
 
-  const role: string = props.account.role;
+  const role = props.account.role as UserRole;
   const name: string = props.account.name;
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = useCallback((
