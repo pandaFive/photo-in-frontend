@@ -113,7 +113,7 @@ const createRows = (comments: Comment[]): CommentRow[] => {
     id: cur.id,
     name: cur.name,
     comment: cur.content,
-    joinDate: cur.updatedAt,
+    joinDate: new Date(cur.updatedAt),
     role: cur.role,
     isNew: false,
   }));
