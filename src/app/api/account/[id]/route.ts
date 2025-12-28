@@ -48,12 +48,24 @@ export const DELETE = async (
     });
 
     if (res.ok) {
-      const result: ResponseStatus = (await res.json()) as ResponseStatus;
+      let result: ResponseStatus;
+      try {
+        result = (await res.json()) as ResponseStatus;
+      } catch (jsonErr) {
+        logError(
+          `[DELETE] /api/account/[id]: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[DELETE] /api/account/[id]: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }

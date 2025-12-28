@@ -24,7 +24,19 @@ export const GET = async () => {
     });
 
     if (res.ok) {
-      const result: Task[] = (await res.json()) as Task[];
+      let result: Task[];
+      try {
+        result = (await res.json()) as Task[];
+      } catch (jsonErr) {
+        logError(
+          `[GET] /api/tasks/ng: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result, {
         headers: {
           'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
@@ -33,7 +45,7 @@ export const GET = async () => {
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[GET] /api/tasks/ng: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }

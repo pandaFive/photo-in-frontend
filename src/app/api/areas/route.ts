@@ -22,7 +22,19 @@ export const GET = async () => {
       },
     });
     if (res.ok) {
-      const result: Area[] = (await res.json()) as Area[];
+      let result: Area[];
+      try {
+        result = (await res.json()) as Area[];
+      } catch (jsonErr) {
+        logError(
+          `[GET] /api/areas: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result, {
         headers: {
           'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
@@ -31,7 +43,7 @@ export const GET = async () => {
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[GET] /api/areas: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }

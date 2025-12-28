@@ -45,12 +45,24 @@ export const PUT = async (
     });
 
     if (res.ok) {
-      const result: Result = (await res.json()) as Result;
+      let result: Result;
+      try {
+        result = (await res.json()) as Result;
+      } catch (jsonErr) {
+        logError(
+          `[PUT] /api/task/[id]/complete: res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[PUT] /api/task/[id]/complete: res.text() failed', err);
-        return '';
+        return 'レスポンスボディの読み取りに失敗しました';
       });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }

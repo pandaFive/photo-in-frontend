@@ -99,12 +99,23 @@ export const serverHttpClient = {
       if (!res.ok) {
         const text = await res.text().catch((e) => {
           logError('[serverHttpClient.get] res.text() failed', e);
-          return '';
+          return 'レスポンスボディの読み取りに失敗しました';
         });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data: unknown = await res.json();
+      let data: unknown;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        logError(
+          `[serverHttpClient.get] res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
+        return err(
+          createApiError(502, 'バックエンドから不正なレスポンスを受信しました'),
+        );
+      }
       return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
@@ -136,12 +147,23 @@ export const serverHttpClient = {
       if (!res.ok) {
         const text = await res.text().catch((e) => {
           logError('[serverHttpClient.post] res.text() failed', e);
-          return '';
+          return 'レスポンスボディの読み取りに失敗しました';
         });
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data: unknown = await res.json();
+      let data: unknown;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        logError(
+          `[serverHttpClient.post] res.json() failed (content-type: ${res.headers.get('content-type')})`,
+          jsonErr,
+        );
+        return err(
+          createApiError(502, 'バックエンドから不正なレスポンスを受信しました'),
+        );
+      }
       return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
