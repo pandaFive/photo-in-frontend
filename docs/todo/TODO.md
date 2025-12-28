@@ -10,11 +10,11 @@
 
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
-| Critical | 2 | 0 | 2 |
+| Critical | 2 | 1 | 1 |
 | High | 3 | 0 | 3 |
 | Medium | 7 | 0 | 7 |
-| Low | 16 | 0 | 16 |
-| **合計** | **28** | **0** | **28** |
+| Low | 17 | 0 | 17 |
+| **合計** | **29** | **1** | **28** |
 
 ---
 
@@ -22,11 +22,10 @@
 
 ### ログ・セキュリティ（総合レビュー 2025-12-28）
 
-- [ ] **LOG-C01**: console.error()をlogError()に置換 🔴即時対応
-  - ファイル: 10箇所以上（AreaListCheck, CommentList, MemberCard, UploadButton, Details/*）
-  - 問題: `console.error()`が`safe-logger.ts`のサニタイズをバイパス、トークン漏洩リスク
-  - 対応: 全`console.error()`を`logError()`に置換
-  - 工数: 1h
+- [x] **LOG-C01**: console.error()をlogError()に置換 ✅完了
+  - ファイル: 10箇所（AreaListCheck, CommentList, MemberCard, UploadButton, Details/*）
+  - 完了日: 2025-12-28
+  - 対応: 全`console.error()`を`logError()`に置換（6ファイル、10箇所）
 
 - [ ] **FILE-C01**: ファイルアップロードにバリデーション追加 🔴即時対応
   - ファイル: `src/mutations/useFileUpload.ts`
@@ -172,6 +171,13 @@
   - 対応: ステータスコード分岐（500/401）
   - 工数: 1h
 
+- [ ] **ERR-L01**: AreaListCheckの広範なcatchブロック改善（PR #112）
+  - ファイル: `src/components/AreaListCheck.tsx`
+  - 問題: 全例外を同一エラーメッセージで処理、エラー種別の区別なし
+  - 対応: ネットワークエラー、認証エラー等を区別してユーザーに適切なメッセージ表示
+  - 備考: 現状でも機能的には問題なし、UX改善として検討
+  - 工数: 1h
+
 - [ ] **CODE-018**: 'use server'ディレクティブの削除
   - ファイル: `src/app/api/{areas,tasks/all,tasks/ng}/route.ts`
   - 問題: Route Handlerに不要なディレクティブ（Server Actions用）
@@ -244,6 +250,7 @@
 | ERR-003, ERR-004 | PR #96 Critical | Medium |
 | TYPE-002, LOG-002 | PR #96 Medium | Low |
 | LOG-003 | PR #96 Suggestions | Low |
+| ERR-L01 | PR #112 Important | Low |
 
 ---
 
@@ -251,7 +258,9 @@
 
 | 日付 | ID | タスク | 担当 |
 |------|-----|--------|------|
-| - | - | - | - |
+| 2025-12-28 | LOG-C01 | console.error()をlogError()に置換 | Claude |
+| 2025-12-28 | - | AreaListCheckサイレント失敗修正（PR #112 Critical） | Claude |
+| 2025-12-28 | - | CommentList楽観的UIロールバック追加（PR #112 Important） | Claude |
 
 ---
 

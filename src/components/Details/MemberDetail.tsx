@@ -15,6 +15,7 @@ import LoadCircle from '@/src/components/LoadCircle';
 import { useToast } from '@/src/context/ToastContext';
 import { useTaskMutation } from '@/src/mutations';
 import { AccountData, Comment, Task } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 type Props = {
   account: AccountData;
@@ -48,7 +49,7 @@ const MemberDetail = (props: Props) => {
         }
       })
       .catch((e) => {
-        console.error(e);
+        logError('[MemberDetail] markAsNG', e);
         showErrorWithRetry('NG処理に失敗しました', () => onNG());
       });
   };
@@ -66,7 +67,7 @@ const MemberDetail = (props: Props) => {
         }
       })
       .catch((e) => {
-        console.error(e);
+        logError('[MemberDetail] completeTask', e);
         showErrorWithRetry('完了処理に失敗しました', () => onComplete());
       });
   };

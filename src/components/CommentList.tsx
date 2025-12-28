@@ -27,6 +27,7 @@ import { useMemo, useCallback } from 'react';
 import { useToast } from '@/src/context/ToastContext';
 import { getNow } from '@/src/infra/time';
 import { useCommentMutation } from '@/src/mutations';
+import { logError } from '@/src/util/safe-logger';
 
 import { AccountData } from '../types';
 import { Comment } from '../types';
@@ -160,20 +161,31 @@ const CommentList = (props: Props) => {
   }, []);
 
   const handleDeleteClick = useCallback((id: GridRowId) => () => {
+    // 削除前に行を保存（ロールバック用）
+    const rowToDelete = rows.find((row) => row.id === id);
     setRows((prev) => prev.filter((row) => row.id !== id));
+
     deleteComment(id as number)
       .then((result) => {
         if (result.success) {
           showSuccess('コメントを削除しました');
         } else {
+          // 失敗時はロールバック
+          if (rowToDelete) {
+            setRows((prev) => [...prev, rowToDelete]);
+          }
           showError(result.error ?? 'コメントの削除に失敗しました');
         }
       })
       .catch((err) => {
-        console.error('Failed to delete comment:', err);
+        logError('[CommentList] deleteComment', err);
+        // 例外時もロールバック
+        if (rowToDelete) {
+          setRows((prev) => [...prev, rowToDelete]);
+        }
         showError('コメントの削除に失敗しました');
       });
-  }, [deleteComment, showSuccess, showError]);
+  }, [rows, deleteComment, showSuccess, showError]);
 
   const handleCancelClick = useCallback((id: GridRowId) => () => {
     setRowModesModel((prev) => ({
@@ -217,7 +229,7 @@ const CommentList = (props: Props) => {
             }
           })
           .catch((e) => {
-            console.error('Failed to post comment:', e);
+            logError('[CommentList] createComment', e);
             showError('コメントの投稿に失敗しました');
           });
         setFlagNewComment(false);
@@ -232,7 +244,7 @@ const CommentList = (props: Props) => {
             }
           })
           .catch((e) => {
-            console.error('Failed to update comment:', e);
+            logError('[CommentList] updateComment', e);
             showError('コメントの更新に失敗しました');
           });
       }
