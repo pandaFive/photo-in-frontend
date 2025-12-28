@@ -12,9 +12,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
-| Medium | 7 | 4 | 3 |
+| Medium | 7 | 5 | 2 |
 | Low | 19 | 0 | 19 |
-| **合計** | **31** | **8** | **23** |
+| **合計** | **31** | **9** | **22** |
 
 ---
 
@@ -102,11 +102,11 @@
 
 ### セキュリティ（総合レビュー）
 
-- [ ] **SEC-M01**: HSTSヘッダー追加
+- [x] **SEC-M01**: HSTSヘッダー追加 ✅完了
   - ファイル: `next.config.mjs`
-  - 問題: Strict-Transport-Securityヘッダー未設定
+  - 完了日: 2025-12-29
   - 対応: `Strict-Transport-Security: max-age=31536000; includeSubDomains`追加
-  - 工数: 0.5h
+  - PR: #118
 
 ### パフォーマンス（総合レビュー）
 
@@ -280,6 +280,7 @@
 | 2025-12-29 | TYPE-H01 | CommentListのany型排除（PR #115） | Claude |
 | 2025-12-29 | ERR-001 | res.text()エラーのログ追加（PR #116） | Claude |
 | 2025-12-29 | ERR-002 | JSONパースエラー分離（PR #117） | Claude |
+| 2025-12-29 | SEC-M01 | HSTSヘッダー追加（PR #118） | Claude |
 
 ---
 
