@@ -13,8 +13,8 @@
 | Critical | 2 | 1 | 1 |
 | High | 3 | 0 | 3 |
 | Medium | 7 | 0 | 7 |
-| Low | 16 | 0 | 16 |
-| **合計** | **28** | **1** | **27** |
+| Low | 17 | 0 | 17 |
+| **合計** | **29** | **1** | **28** |
 
 ---
 
@@ -171,6 +171,13 @@
   - 対応: ステータスコード分岐（500/401）
   - 工数: 1h
 
+- [ ] **ERR-L01**: AreaListCheckの広範なcatchブロック改善（PR #112）
+  - ファイル: `src/components/AreaListCheck.tsx`
+  - 問題: 全例外を同一エラーメッセージで処理、エラー種別の区別なし
+  - 対応: ネットワークエラー、認証エラー等を区別してユーザーに適切なメッセージ表示
+  - 備考: 現状でも機能的には問題なし、UX改善として検討
+  - 工数: 1h
+
 - [ ] **CODE-018**: 'use server'ディレクティブの削除
   - ファイル: `src/app/api/{areas,tasks/all,tasks/ng}/route.ts`
   - 問題: Route Handlerに不要なディレクティブ（Server Actions用）
@@ -243,6 +250,7 @@
 | ERR-003, ERR-004 | PR #96 Critical | Medium |
 | TYPE-002, LOG-002 | PR #96 Medium | Low |
 | LOG-003 | PR #96 Suggestions | Low |
+| ERR-L01 | PR #112 Important | Low |
 
 ---
 
@@ -251,6 +259,8 @@
 | 日付 | ID | タスク | 担当 |
 |------|-----|--------|------|
 | 2025-12-28 | LOG-C01 | console.error()をlogError()に置換 | Claude |
+| 2025-12-28 | - | AreaListCheckサイレント失敗修正（PR #112 Critical） | Claude |
+| 2025-12-28 | - | CommentList楽観的UIロールバック追加（PR #112 Important） | Claude |
 
 ---
 
