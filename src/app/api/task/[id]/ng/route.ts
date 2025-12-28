@@ -45,7 +45,16 @@ export const PUT = async (
     });
 
     if (res.ok) {
-      const result: Result = (await res.json()) as Result;
+      let result: Result;
+      try {
+        result = (await res.json()) as Result;
+      } catch (jsonErr) {
+        logError('[PUT] /api/task/[id]/ng: res.json() failed', jsonErr);
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch((err) => {

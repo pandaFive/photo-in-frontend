@@ -40,7 +40,16 @@ export const GET = async (
     });
 
     if (res.ok) {
-      const result: Task[] = (await res.json()) as Task[];
+      let result: Task[];
+      try {
+        result = (await res.json()) as Task[];
+      } catch (jsonErr) {
+        logError('[GET] /api/account/[id]/tasks: res.json() failed', jsonErr);
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result, {
         headers: {
           'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',

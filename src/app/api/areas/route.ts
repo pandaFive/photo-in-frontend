@@ -22,7 +22,16 @@ export const GET = async () => {
       },
     });
     if (res.ok) {
-      const result: Area[] = (await res.json()) as Area[];
+      let result: Area[];
+      try {
+        result = (await res.json()) as Area[];
+      } catch (jsonErr) {
+        logError('[GET] /api/areas: res.json() failed', jsonErr);
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result, {
         headers: {
           'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',

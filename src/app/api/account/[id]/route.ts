@@ -48,7 +48,16 @@ export const DELETE = async (
     });
 
     if (res.ok) {
-      const result: ResponseStatus = (await res.json()) as ResponseStatus;
+      let result: ResponseStatus;
+      try {
+        result = (await res.json()) as ResponseStatus;
+      } catch (jsonErr) {
+        logError('[DELETE] /api/account/[id]: res.json() failed', jsonErr);
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch((err) => {

@@ -57,7 +57,16 @@ export const GET = async (request: NextRequest) => {
     );
 
     if (res.ok) {
-      const result: Comment[] = (await res.json()) as Comment[];
+      let result: Comment[];
+      try {
+        result = (await res.json()) as Comment[];
+      } catch (jsonErr) {
+        logError('[GET] /api/comments: res.json() failed', jsonErr);
+        return NextResponse.json(
+          { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(result, {
         headers: {
           'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
