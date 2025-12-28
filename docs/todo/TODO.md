@@ -11,9 +11,9 @@
 |--------|------|------|------|
 | Critical | 4 | 4 | 0 |
 | High | 11 | 8 | 3 |
-| Medium | 16 | 15 | 1 |
+| Medium | 16 | 16 | 0 |
 | Low | 10 | 9 | 1 |
-| **合計** | **41** | **36** | **5** |
+| **合計** | **41** | **37** | **4** |
 
 ---
 
@@ -40,69 +40,50 @@
 
 ### Critical（認証フロー）
 
-- [ ] **TEST-003**: Server Actionsテスト追加
-  - ファイル: `src/__tests__/util/actions/signUp.test.ts`（新規）
-  - 対象: `src/util/actions/signUp.ts`
-  - 工数: 2h
-
-- [ ] **TEST-005**: グルーピング関数テスト追加
-  - ファイル: `src/__tests__/util/grouping.test.ts`（新規）
-  - 対象: `src/util/grouping.ts`
-  - 工数: 2h
+（全完了）
 
 ### High（API関数）
 
-- [ ] **TEST-006**: API関数テスト追加
-  - ファイル: `src/__tests__/api/post-login.test.ts`（新規）
-  - 対象: `src/api/post-login.ts`
-  - 工数: 2h
-
-- [ ] **TEST-007**: API関数テスト追加
-  - ファイル: `src/__tests__/api/post-signup.test.ts`（新規）
-  - 対象: `src/api/post-signup.ts`
-  - 工数: 2h
-
-- [ ] **TEST-008**: API関数テスト追加
-  - ファイル: `src/__tests__/api/get-account.test.ts`（新規）
-  - 対象: `src/api/get-account.ts`
-  - 工数: 1h
-
-- [ ] **TEST-009**: フェッチャーテスト追加
-  - ファイル: `src/__tests__/api/tasks/fetchers.test.ts`（新規）
-  - 対象: `src/api/tasks/fetchers.ts`
-  - 工数: 2h
+（全完了）
 
 ### Medium（コンポーネント）
 
-- [ ] **TEST-010**: コンポーネントテスト追加
+- [x] **TEST-010**: コンポーネントテスト追加 ✅完了
   - ファイル: `src/__tests__/components/AppBar.test.tsx`（新規）
   - 対象: `src/components/AppBar.tsx`
-  - 工数: 3h
+  - テスト数: 25件（レンダリング4件、ロール表示3件、メニューボタン4件、ログアウトダイアログ7件、アクセシビリティ4件、エッジケース3件）
+  - 完了日: 2025-12-28
 
-- [ ] **TEST-011**: コンポーネントテスト追加
+- [x] **TEST-011**: コンポーネントテスト追加 ✅完了
   - ファイル: `src/__tests__/components/Orders.test.tsx`（新規）
   - 対象: `src/components/Orders.tsx`
-  - 工数: 2h
+  - テスト数: 24件（正常表示6件、エラー表示6件、エッジケース7件、デフォルト値1件、テーブル構造4件）
+  - 完了日: 2025-12-28
 
-- [ ] **TEST-012**: コンポーネントテスト追加
+- [x] **TEST-012**: コンポーネントテスト追加 ✅完了
   - ファイル: `src/__tests__/components/UploadButton.test.tsx`（新規）
   - 対象: `src/components/Buttons/UploadButton.tsx`
-  - 工数: 2h
+  - テスト数: 28件（レンダリング5件、エラー状態3件、アップロード中3件、送信処理4件、ダイアログ初期状態2件、hooks2件、プロパティ3件、ボタンスタイル4件、ファイル入力属性2件）
+  - 備考: jsdomでDataTransfer APIが未定義のため、ファイル選択テストは除外
+  - 完了日: 2025-12-28
 
-- [ ] **TEST-013**: コンポーネントテスト追加
+- [x] **TEST-013**: コンポーネントテスト追加 ✅完了
   - ファイル: `src/__tests__/components/Drawer.test.tsx`（新規）
   - 対象: `src/components/Drawer.tsx`
-  - 工数: 2h
+  - テスト数: 35件（レンダリング3件、展開状態8件、折りたたみ状態7件、インタラクション1件、リンク先4件、アイコン5件、MUIスタイル2件、リスト構造2件、エッジケース3件）
+  - 完了日: 2025-12-28
 
-- [ ] **TEST-014**: コンポーネントテスト追加
+- [x] **TEST-014**: コンポーネントテスト追加 ✅完了
   - ファイル: `src/__tests__/components/AreaChips.test.tsx`（新規）
   - 対象: `src/components/AreaChips.tsx`
-  - 工数: 1h
+  - テスト数: 31件（レンダリング3件、正常表示8件、エラー表示5件、デフォルト値1件、エッジケース6件、Chip数3件、MUIスタイル2件、状態切替3件）
+  - 完了日: 2025-12-28
 
-- [ ] **TEST-015**: コンポーネントテスト追加
+- [x] **TEST-015**: コンポーネントテスト追加 ✅完了
   - ファイル: `src/__tests__/components/Uncompletes.test.tsx`（新規）
   - 対象: `src/components/Uncompletes.tsx`
-  - 工数: 2h
+  - テスト数: 33件（レンダリング4件、正常表示6件、エラー表示10件、デフォルト値1件、MUIスタイル4件、エッジケース4件、状態切替4件）
+  - 完了日: 2025-12-28
 
 ---
 
@@ -381,6 +362,42 @@
   - 対応: Cookie削除、リダイレクト、呼び出し順序等（5テスト）
   - 完了日: 2025-12-28
 
+- [x] **TEST-003**: Server Actionsテスト追加（signUp） ✅完了
+  - ファイル: `src/__tests__/util/actions/signUp.test.ts`（新規）
+  - 対象: `src/util/actions/signUp.ts`
+  - 対応: サインアップ成功/失敗、エリアJSONパース、バリデーション、例外伝播、エッジケース等（16テスト）
+  - 完了日: 2025-12-28
+
+- [x] **TEST-005**: グルーピング関数テスト追加 ✅完了
+  - ファイル: `src/__tests__/util/grouping.test.ts`（新規）
+  - 対象: `src/util/grouping.ts`
+  - 対応: 時間/エリアグループ化、エッジケース、データ整合性（16テスト）
+  - 完了日: 2025-12-28
+
+- [x] **TEST-006**: API関数テスト追加（post-login） ✅完了
+  - ファイル: `src/__tests__/api/post-login.test.ts`（新規）
+  - 対象: `src/api/post-login.ts`
+  - 対応: ログイン成功/失敗、APIエラー、ネットワークエラー、型ガード（16テスト）
+  - 完了日: 2025-12-28
+
+- [x] **TEST-007**: API関数テスト追加（post-signup） ✅完了
+  - ファイル: `src/__tests__/api/post-signup.test.ts`（新規）
+  - 対象: `src/api/post-signup.ts`
+  - 対応: サインアップ成功/失敗、APIエラー、ネットワークエラー、エッジケース（18テスト）
+  - 完了日: 2025-12-28
+
+- [x] **TEST-008**: API関数テスト追加（get-account） ✅完了
+  - ファイル: `src/__tests__/api/get-account.test.ts`（新規）
+  - 対象: `src/api/get-account.ts`
+  - 対応: トークン有無、API成功/失敗、レスポンス変換（15テスト）
+  - 完了日: 2025-12-28
+
+- [x] **TEST-009**: フェッチャーテスト追加 ✅完了
+  - ファイル: `src/__tests__/api/tasks/fetchers.test.ts`（新規）
+  - 対象: `src/api/tasks/fetchers.ts`
+  - 対応: TaskFetchErrorクラス、taskListFetcher、isTaskFetchError型ガード（23テスト）
+  - 完了日: 2025-12-28
+
 - [x] **TEST-004**: Cookie操作テスト追加 ✅完了
   - ファイル: `src/__tests__/util/cookies.test.ts`（新規）
   - 対象: `src/util/cookies.ts`
@@ -431,3 +448,9 @@
 | 2025-12-28 | CODE-017 | エラーAlertにリトライボタン追加 | Claude |
 | 2025-12-28 | TEST-001 | Server Actionsテスト追加（login） | Claude |
 | 2025-12-28 | TEST-002 | Server Actionsテスト追加（logout） | Claude |
+| 2025-12-28 | TEST-003 | Server Actionsテスト追加（signUp） | Claude |
+| 2025-12-28 | TEST-005 | グルーピング関数テスト追加 | Claude |
+| 2025-12-28 | TEST-006 | API関数テスト追加（post-login） | Claude |
+| 2025-12-28 | TEST-007 | API関数テスト追加（post-signup） | Claude |
+| 2025-12-28 | TEST-008 | API関数テスト追加（get-account） | Claude |
+| 2025-12-28 | TEST-009 | フェッチャーテスト追加 | Claude |
