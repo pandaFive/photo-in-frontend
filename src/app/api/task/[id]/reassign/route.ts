@@ -44,7 +44,10 @@ export const PUT = async (
       const result: Task = (await res.json()) as Task;
       return NextResponse.json(result);
     } else {
-      const errorText = await res.text().catch(() => '');
+      const errorText = await res.text().catch((err) => {
+        logError('[PUT] /api/task/[id]/reassign: res.text() failed', err);
+        return '';
+      });
       return NextResponse.json({ errors: [parseErrorMessage(errorText)] }, { status: res.status });
     }
   } catch (err) {
