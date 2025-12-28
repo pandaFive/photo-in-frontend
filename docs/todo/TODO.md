@@ -12,9 +12,9 @@
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
-| Medium | 7 | 2 | 5 |
+| Medium | 7 | 3 | 4 |
 | Low | 19 | 0 | 19 |
-| **合計** | **31** | **6** | **25** |
+| **合計** | **31** | **7** | **24** |
 
 ---
 
@@ -80,11 +80,11 @@
 
 ### エラーハンドリング（PR #94 Important）
 
-- [ ] **ERR-001**: res.text()エラーのログ追加
-  - ファイル: `src/app/api/{areas,tasks/all,tasks/ng}/route.ts`
-  - 問題: `.catch(() => '')` でエラー詳細が消失
-  - 対応: `catch((err) => { logError(...); return ''; })`
-  - 工数: 0.5h
+- [x] **ERR-001**: res.text()エラーのログ追加 ✅完了
+  - ファイル: 10ファイル（areas, tasks/all, tasks/ng, comments, comment, account/[id], account/[id]/tasks, task/[id]/complete, task/[id]/ng, task/[id]/reassign）
+  - 完了日: 2025-12-29
+  - 対応: `.catch(() => '')`を`catch((err) => { logError(...); return ''; })`に修正（12箇所）
+  - PR: #116
 
 - [ ] **ERR-002**: JSONパースエラーの分離
   - ファイル: 同上
@@ -278,6 +278,7 @@
 | 2025-12-28 | ERR-004 | サイレントサインアップ失敗修正（PR #97） | Claude |
 | 2025-12-29 | AUTH-H01 | フロントエンドロールチェック警告追加（PR #114） | Claude |
 | 2025-12-29 | TYPE-H01 | CommentListのany型排除（PR #115） | Claude |
+| 2025-12-29 | ERR-001 | res.text()エラーのログ追加（PR #116） | Claude |
 
 ---
 
