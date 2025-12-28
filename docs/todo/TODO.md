@@ -11,10 +11,10 @@
 | 優先度 | 総数 | 完了 | 残り |
 |--------|------|------|------|
 | Critical | 2 | 2 | 0 |
-| High | 3 | 0 | 3 |
+| High | 3 | 2 | 1 |
 | Medium | 7 | 0 | 7 |
 | Low | 19 | 0 | 19 |
-| **合計** | **31** | **2** | **29** |
+| **合計** | **31** | **4** | **27** |
 
 ---
 
@@ -46,20 +46,19 @@
   - 備考: ECS Task Role、Amplify設定等のインフラ変更が必要。フロントエンドのみでは対応不可。
   - 工数: 4h（インフラ側作業）
 
-- [ ] **AUTH-H01**: フロントエンドロールチェックの警告追加（総合レビュー）
+- [x] **AUTH-H01**: フロントエンドロールチェックの警告追加 ✅完了
   - ファイル: `src/util/auth-check.ts`
-  - 問題: `isAdminFromCookie()`はCookie値に依存、クライアント側で改竄可能
-  - 対応: JSDocに明確な警告追加、バックエンド認可必須の旨を明記
-  - 備考: 現状はDefense in Depthとして機能、バックエンドでも認可チェック必須
-  - 工数: 0.5h
+  - 完了日: 2025-12-29
+  - 対応: JSDocに⚠️セキュリティ警告を追加、バックエンド認可必須の旨を明記
+  - PR: #114
 
 ### 型定義
 
-- [ ] **TYPE-H01**: CommentListのany型排除（総合レビュー）
+- [x] **TYPE-H01**: CommentListのany型排除 ✅完了
   - ファイル: `src/components/CommentList.tsx`, `.eslintrc.json`
-  - 問題: MUI DataGridで`any`型を許可するESLint override、型安全性低下
-  - 対応: GridRow/GridColumn型を定義、ESLint overrideを削除
-  - 工数: 1h
+  - 完了日: 2025-12-29
+  - 対応: CommentRow型を定義、ESLint overrideを削除
+  - PR: #115
 
 ---
 
@@ -275,6 +274,8 @@
 | 2025-12-28 | - | AreaListCheckサイレント失敗修正（PR #112 Critical） | Claude |
 | 2025-12-28 | - | CommentList楽観的UIロールバック追加（PR #112 Important） | Claude |
 | 2025-12-28 | FILE-C01 | ファイルアップロードバリデーション追加（PR #113） | Claude |
+| 2025-12-29 | AUTH-H01 | フロントエンドロールチェック警告追加（PR #114） | Claude |
+| 2025-12-29 | TYPE-H01 | CommentListのany型排除（PR #115） | Claude |
 
 ---
 
