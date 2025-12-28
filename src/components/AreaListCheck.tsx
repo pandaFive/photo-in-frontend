@@ -1,8 +1,20 @@
 'use client';
 
-import { Checkbox, FormControlLabel, FormGroup, List } from '@mui/material';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  FormGroup,
+  List,
+} from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
+import { useToast } from '@/src/context/ToastContext';
 import { logError } from '@/src/util/safe-logger';
 
 import { getAreas } from '../api/get-areas';
@@ -11,6 +23,10 @@ import { Area, isErrorResponse } from '../types';
 const AreaListCheck = () => {
   const [checked, setChecked] = useState([0]);
   const [area, setArea] = useState<Area[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const { showError } = useToast();
 
   const handleToggle = (value: number) => () => {
     const currentIndex = checked.indexOf(value);
@@ -26,17 +42,25 @@ const AreaListCheck = () => {
   };
 
   const getArea = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await getAreas();
       if (isErrorResponse(res)) {
         logError('[AreaListCheck]', res.errors);
+        setError('エリア一覧の取得に失敗しました');
+        showError('エリア一覧の取得に失敗しました');
         return;
       }
       setArea(res);
     } catch (err) {
       logError('[AreaListCheck]', err);
+      setError('エリア一覧の取得に失敗しました');
+      showError('エリア一覧の取得に失敗しました');
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [showError]);
 
   const onFetchArea = useCallback(() => {
     void getArea();
@@ -45,6 +69,36 @@ const AreaListCheck = () => {
   useEffect(() => {
     onFetchArea();
   }, [onFetchArea]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <CircularProgress size={32} sx={{ color: '#667eea' }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert
+        action={
+          <Button
+            color="inherit"
+            onClick={onFetchArea}
+            size="small"
+            startIcon={<RefreshIcon />}
+          >
+            再試行
+          </Button>
+        }
+        icon={<ErrorOutlineIcon />}
+        severity="error"
+        sx={{ borderRadius: 2 }}
+      >
+        {error}
+      </Alert>
+    );
+  }
 
   return (
     <List sx={{ width: '100%', maxWidth: 700, bgcolor: 'background.paper' }}>
