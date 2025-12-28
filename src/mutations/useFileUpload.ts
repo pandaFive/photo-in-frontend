@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { httpClient } from '@/src/infra/http';
-import { logWarn } from '@/src/util/safe-logger';
+import { logError, logWarn } from '@/src/util/safe-logger';
 
 // ファイルアップロードのバリデーション設定
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -131,6 +131,7 @@ export const useFileUpload = () => {
 
         return { success: true };
       } catch (error) {
+        logError('[useFileUpload]', error);
         const message =
           error instanceof Error ? error.message : 'Unknown error occurred';
 
