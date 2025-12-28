@@ -104,7 +104,15 @@ export const serverHttpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data: unknown = await res.json();
+      let data: unknown;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        logError('[serverHttpClient.get] res.json() failed', jsonErr);
+        return err(
+          createApiError(502, 'バックエンドから不正なレスポンスを受信しました'),
+        );
+      }
       return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
@@ -141,7 +149,15 @@ export const serverHttpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data: unknown = await res.json();
+      let data: unknown;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        logError('[serverHttpClient.post] res.json() failed', jsonErr);
+        return err(
+          createApiError(502, 'バックエンドから不正なレスポンスを受信しました'),
+        );
+      }
       return validateWithSchema(data, options?.schema);
     } catch (e) {
       return err(createNetworkError(String(e)));
