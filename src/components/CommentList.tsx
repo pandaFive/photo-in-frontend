@@ -161,20 +161,31 @@ const CommentList = (props: Props) => {
   }, []);
 
   const handleDeleteClick = useCallback((id: GridRowId) => () => {
+    // 削除前に行を保存（ロールバック用）
+    const rowToDelete = rows.find((row) => row.id === id);
     setRows((prev) => prev.filter((row) => row.id !== id));
+
     deleteComment(id as number)
       .then((result) => {
         if (result.success) {
           showSuccess('コメントを削除しました');
         } else {
+          // 失敗時はロールバック
+          if (rowToDelete) {
+            setRows((prev) => [...prev, rowToDelete]);
+          }
           showError(result.error ?? 'コメントの削除に失敗しました');
         }
       })
       .catch((err) => {
         logError('[CommentList] deleteComment', err);
+        // 例外時もロールバック
+        if (rowToDelete) {
+          setRows((prev) => [...prev, rowToDelete]);
+        }
         showError('コメントの削除に失敗しました');
       });
-  }, [deleteComment, showSuccess, showError]);
+  }, [rows, deleteComment, showSuccess, showError]);
 
   const handleCancelClick = useCallback((id: GridRowId) => () => {
     setRowModesModel((prev) => ({
