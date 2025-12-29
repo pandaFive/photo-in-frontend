@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 14 | 11 |
-| **合計** | **37** | **25** | **12** |
+| Low | 25 | 15 | 10 |
+| **合計** | **37** | **26** | **11** |
 
 ---
 
@@ -196,11 +196,11 @@
   - 問題: `result.error.message`のみでフルオブジェクトが消失
   - 対応: `logError(ctx, result.error)`に変更（12箇所）
 
-- [ ] **LOG-003**: ログコンテキスト形式の統一
-  - ファイル: 複数ファイル
-  - 問題: `[postLogin]`と`[Middleware] レート制限`で形式が異なる
-  - 対応: `[Category:function]`形式に統一
-  - 工数: 1h
+- [x] **LOG-003**: ログコンテキスト形式の統一 ✅完了
+  - ファイル: `src/middleware.ts`, `src/app/(admin)/dashboard/page.tsx`
+  - 完了日: 2025-12-30
+  - 問題: `[Middleware] レート制限`等の日本語説明が不統一
+  - 対応: `[Category:function]`形式に統一（5箇所）
 
 - [x] **LOG-006**: get-week-complete.tsにエラーログ追加 ✅完了
   - ファイル: `src/api/get-week-complete.ts`
@@ -331,6 +331,7 @@
 | 2025-12-30 | LOG-002 | エラーオブジェクト全体をログ出力 | Claude |
 | 2025-12-30 | LOG-006 | get-week-complete.tsにエラーログ追加 | Claude |
 | 2025-12-30 | AUTH-001 | 認証エラーの区別（cookie_error→500, no_token→401） | Claude |
+| 2025-12-30 | LOG-003 | ログコンテキスト形式の統一 | Claude |
 
 ---
 

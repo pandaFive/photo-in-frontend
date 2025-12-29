@@ -35,7 +35,7 @@ const cleanupStore = () => {
     }
   } catch (error) {
     // クリーンアップ失敗時はログのみ（次回クリーンアップで再試行）
-    logError('[Middleware] クリーンアップ', error);
+    logError('[Middleware:cleanupStore]', error);
   }
 };
 
@@ -163,7 +163,7 @@ export function middleware(request: NextRequest) {
   } catch (error) {
     // レート制限エラー時はリクエストを通す（Fail Open: 可用性優先）
     // セキュリティ優先の場合は500を返すよう変更可能
-    logError('[Middleware] レート制限', error);
+    logError('[Middleware:checkRateLimit]', error);
     return NextResponse.next();
   }
 }
