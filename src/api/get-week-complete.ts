@@ -3,6 +3,7 @@
 import { serverHttpClient } from '@/src/infra/http';
 import { WeekCompleteData, ApiResult, ErrorResponse } from '@/src/types';
 import { getCookies } from '@/src/util/cookies';
+import { logError } from '@/src/util/safe-logger';
 
 export async function getWeekComplete(): Promise<ApiResult<WeekCompleteData>> {
   const token = getCookies('token');
@@ -15,6 +16,7 @@ export async function getWeekComplete(): Promise<ApiResult<WeekCompleteData>> {
     return result.value;
   }
 
+  logError('[getWeekComplete]', result.error);
   const errorResponse: ErrorResponse = {
     errors: [result.error.message],
   };
