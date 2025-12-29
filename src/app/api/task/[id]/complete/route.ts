@@ -3,10 +3,8 @@
 import { NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
-import { isAuthenticated } from '@/src/util/auth-check';
-import { getAuthHeaders } from '@/src/util/auth-headers';
+import { requireAuth, requireValidId } from '@/src/util/route-helpers';
 import { logError } from '@/src/util/safe-logger';
-import { validateId } from '@/src/util/validation';
 
 type Result = {
   message: string;
@@ -17,30 +15,20 @@ export const PUT = async (
   request: Request,
   { params }: { params: { id: string } },
 ) => {
-  // SEC-006: 認証チェック
-  if (!isAuthenticated()) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
+  // DRY-M01: 認証・バリデーション共通化
+  const auth = requireAuth();
+  if (!auth.ok) return auth.response;
 
-  // SEC-007: IDバリデーション（バウンドチェック含む）
-  const idResult = validateId(params.id);
-  if (!idResult.valid) {
-    return NextResponse.json({ errors: [idResult.error] }, { status: 400 });
-  }
+  const idResult = requireValidId(params.id);
+  if (!idResult.ok) return idResult.response;
   const id = idResult.id;
-
-  // 認証ヘッダー取得
-  const authResult = getAuthHeaders();
-  if (!authResult.ok) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
 
   try {
     const res = await fetch(`${process.env.API_HOST}/tasks/${id}/completed`, {
       method: 'PUT',
       cache: 'no-store',
       headers: {
-        ...authResult.headers,
+        ...auth.headers,
       },
     });
 

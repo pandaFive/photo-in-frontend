@@ -4,8 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment, CommentApiResponse } from '@/src/types';
-import { isAuthenticated } from '@/src/util/auth-check';
-import { getAuthHeaders } from '@/src/util/auth-headers';
+import { requireAuth } from '@/src/util/route-helpers';
 import { logError } from '@/src/util/safe-logger';
 import { validateId } from '@/src/util/validation';
 
@@ -16,10 +15,9 @@ type Body = {
 };
 
 export const POST = async (request: NextRequest) => {
-  // SEC-006: 認証チェック
-  if (!isAuthenticated()) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
+  // DRY-M01: 認証チェック共通化
+  const auth = requireAuth();
+  if (!auth.ok) return auth.response;
 
   let body: Body;
   try {
@@ -46,19 +44,13 @@ export const POST = async (request: NextRequest) => {
     );
   }
 
-  // 認証ヘッダー取得
-  const authResult = getAuthHeaders();
-  if (!authResult.ok) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
-
   try {
     const res = await fetch(`${process.env.API_HOST}/comments`, {
       method: 'POST',
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
-        ...authResult.headers,
+        ...auth.headers,
       },
       body: JSON.stringify({
         comment: {
@@ -96,10 +88,9 @@ export const POST = async (request: NextRequest) => {
 };
 
 export const PUT = async (request: NextRequest) => {
-  // SEC-006: 認証チェック
-  if (!isAuthenticated()) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
+  // DRY-M01: 認証チェック共通化
+  const auth = requireAuth();
+  if (!auth.ok) return auth.response;
 
   let body: Body;
   try {
@@ -126,19 +117,13 @@ export const PUT = async (request: NextRequest) => {
     );
   }
 
-  // 認証ヘッダー取得
-  const authResult = getAuthHeaders();
-  if (!authResult.ok) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
-
   try {
     const res = await fetch(`${process.env.API_HOST}/comments/${body.id}`, {
       method: 'PUT',
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
-        ...authResult.headers,
+        ...auth.headers,
       },
       body: JSON.stringify({
         comment: {
@@ -176,10 +161,9 @@ export const PUT = async (request: NextRequest) => {
 };
 
 export const DELETE = async (request: NextRequest) => {
-  // SEC-006: 認証チェック
-  if (!isAuthenticated()) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
+  // DRY-M01: 認証チェック共通化
+  const auth = requireAuth();
+  if (!auth.ok) return auth.response;
 
   const searchParams = request.nextUrl.searchParams;
   const commentIdParam = searchParams.get('commentId');
@@ -194,18 +178,12 @@ export const DELETE = async (request: NextRequest) => {
   }
   const commentId = commentIdResult.id;
 
-  // 認証ヘッダー取得
-  const authResult = getAuthHeaders();
-  if (!authResult.ok) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
-
   try {
     const res = await fetch(`${process.env.API_HOST}/comments/${commentId}`, {
       method: 'DELETE',
       cache: 'no-store',
       headers: {
-        ...authResult.headers,
+        ...auth.headers,
       },
     });
 
