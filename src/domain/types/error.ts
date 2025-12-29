@@ -122,3 +122,33 @@ export const isConflict = (error: DomainError): boolean =>
  */
 export const isServiceUnavailable = (error: DomainError): boolean =>
   error.type === 'api' && error.status === 503;
+
+/**
+ * 未知の例外をユーザー向けエラーメッセージに変換
+ *
+ * 予期されるエラー型:
+ * - TypeError: fetch失敗（ネットワークエラー）
+ * - DOMException (AbortError): リクエストタイムアウト
+ * - その他: 予期しないエラー
+ *
+ * @param err - catchブロックで捕捉した例外
+ * @param fallbackMessage - デフォルトのエラーメッセージ
+ * @returns ユーザー向けエラーメッセージ
+ */
+export const getExceptionMessage = (
+  err: unknown,
+  fallbackMessage = 'エラーが発生しました。',
+): string => {
+  // ネットワークエラー（fetch失敗、タイムアウト等）
+  if (err instanceof TypeError) {
+    return 'ネットワーク接続に問題があります。接続を確認してください。';
+  }
+
+  // AbortError（リクエストキャンセル）
+  if (err instanceof DOMException && err.name === 'AbortError') {
+    return 'リクエストがタイムアウトしました。再試行してください。';
+  }
+
+  // その他のエラー
+  return fallbackMessage;
+};

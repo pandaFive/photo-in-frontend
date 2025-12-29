@@ -15,6 +15,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 
 import { useToast } from '@/src/context/ToastContext';
+import { getExceptionMessage } from '@/src/domain/types/error';
 import { logError } from '@/src/util/safe-logger';
 
 import { getAreas } from '../api/get-areas';
@@ -47,16 +48,17 @@ const AreaListCheck = () => {
     try {
       const res = await getAreas();
       if (isErrorResponse(res)) {
-        logError('[AreaListCheck]', res.errors);
-        setError('エリア一覧の取得に失敗しました');
-        showError('エリア一覧の取得に失敗しました');
+        logError('[AreaListCheck:getArea]', res.errors);
+        setError('エリア一覧の取得に失敗しました。');
+        showError('エリア一覧の取得に失敗しました。');
         return;
       }
       setArea(res);
     } catch (err) {
-      logError('[AreaListCheck]', err);
-      setError('エリア一覧の取得に失敗しました');
-      showError('エリア一覧の取得に失敗しました');
+      logError('[AreaListCheck:getArea]', err);
+      const message = getExceptionMessage(err, 'エリア一覧の取得に失敗しました。');
+      setError(message);
+      showError(message);
     } finally {
       setIsLoading(false);
     }
