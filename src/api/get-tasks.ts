@@ -15,6 +15,6 @@ export async function getTasks(): Promise<Task[] | ErrorResponse> {
   if (result.ok) {
     return result.value;
   }
-  logError('[getTasks]', result.error.message);
+  logError('[getTasks]', result.error);
   return { errors: [result.error.message] };
 }

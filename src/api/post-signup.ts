@@ -29,6 +29,6 @@ export const postSignup = async (
   if (result.ok) {
     return result.value;
   }
-  logError('[postSignup]', result.error.message);
+  logError('[postSignup]', result.error);
   return { errors: [result.error.message] };
 };

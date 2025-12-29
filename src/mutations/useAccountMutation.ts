@@ -16,7 +16,7 @@ export const useAccountMutation = () => {
       const result = await httpClient.delete(`/api/account/${accountId}`);
 
       if (!result.ok) {
-        logError('[deleteAccount]', result.error.message);
+        logError('[deleteAccount]', result.error);
         return { success: false, error: result.error.message };
       }
 
