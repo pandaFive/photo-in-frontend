@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 
 import { isAuthenticated, isAdminFromCookie } from './auth-check';
 import { getAuthHeaders } from './auth-headers';
-import { logWarn } from './safe-logger';
+import { logDebug, logWarn } from './safe-logger';
 import { validateId } from './validation';
 
 /**
@@ -93,6 +93,8 @@ type ValidateIdResult =
 export const requireValidId = (idParam: string): ValidateIdResult => {
   const result = validateId(idParam);
   if (!result.valid) {
+    // LOG-005: IDバリデーション失敗ログ（デバッグ用）
+    logDebug('[requireValidId]', `IDバリデーション失敗: ${result.error}`);
     return {
       ok: false,
       response: NextResponse.json(
