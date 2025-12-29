@@ -15,29 +15,11 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 
 import { useToast } from '@/src/context/ToastContext';
+import { getExceptionMessage } from '@/src/domain/types/error';
 import { logError } from '@/src/util/safe-logger';
 
 import { getAreas } from '../api/get-areas';
 import { Area, isErrorResponse } from '../types';
-
-/**
- * エラー種別に応じたユーザー向けメッセージを取得
- * ERR-L01: 広範なcatchブロックの改善
- */
-const getErrorMessage = (err: unknown): string => {
-  // ネットワークエラー（fetch失敗、タイムアウト等）
-  if (err instanceof TypeError) {
-    return 'ネットワーク接続に問題があります。接続を確認してください。';
-  }
-
-  // AbortError（リクエストキャンセル）
-  if (err instanceof DOMException && err.name === 'AbortError') {
-    return 'リクエストがタイムアウトしました。再試行してください。';
-  }
-
-  // その他のエラー
-  return 'エリア一覧の取得に失敗しました。';
-};
 
 const AreaListCheck = () => {
   const [checked, setChecked] = useState([0]);
@@ -74,7 +56,7 @@ const AreaListCheck = () => {
       setArea(res);
     } catch (err) {
       logError('[AreaListCheck:getArea]', err);
-      const message = getErrorMessage(err);
+      const message = getExceptionMessage(err, 'エリア一覧の取得に失敗しました。');
       setError(message);
       showError(message);
     } finally {
