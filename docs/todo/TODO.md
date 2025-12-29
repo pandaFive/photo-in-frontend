@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 10 | 13 |
-| **合計** | **35** | **21** | **14** |
+| Low | 23 | 11 | 12 |
+| **合計** | **35** | **22** | **13** |
 
 ---
 
@@ -210,11 +210,11 @@
   - 備考: 現状でも機能的には問題なし、UX改善として検討
   - 工数: 1h
 
-- [ ] **CODE-018**: 'use server'ディレクティブの削除
-  - ファイル: `src/app/api/{areas,tasks/all,tasks/ng}/route.ts`
+- [x] **CODE-018**: 'use server'ディレクティブの削除 ✅完了
+  - ファイル: `src/app/api/`配下の全Route Handler（11ファイル）
+  - 完了日: 2025-12-29
   - 問題: Route Handlerに不要なディレクティブ（Server Actions用）
   - 対応: 各ファイルの1行目 `'use server';` を削除
-  - 工数: 0.5h
 
 - [x] **CODE-019**: validateId使用の統一 ✅完了
   - ファイル: `src/app/api/comment/route.ts`
