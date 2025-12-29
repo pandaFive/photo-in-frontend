@@ -139,8 +139,15 @@ export type WeekCompleteData = {
 // CODE-003: 3箇所に重複定義されていた型を統合
 
 /**
+ * エラータイプ（DomainErrorのtype属性を反映）
+ * TYPE-006: mutation層でエラー種別を保持するため追加
+ */
+export type MutationErrorType = 'api' | 'network' | 'validation';
+
+/**
  * Mutation操作の結果型（判別共用体）
  * TYPE-001: 不正な状態（success: true かつ error が存在）を型レベルで防止
+ * TYPE-006: エラー時にerrorType, statusCodeを保持し、DomainError情報を維持
  *
  * @template T - 成功時に返却されるデータの型（デフォルト: undefined）
  *
@@ -153,7 +160,20 @@ export type WeekCompleteData = {
  * // データを返す場合
  * const result: MutationResult<User> = { success: true, data: user };
  * const error: MutationResult<User> = { success: false, error: 'エラーメッセージ' };
+ *
+ * @example
+ * // エラー種別を活用
+ * if (!result.success && result.errorType === 'api' && result.statusCode === 401) {
+ *   redirectToLogin();
+ * }
  */
 export type MutationResult<T = undefined> =
   | { success: true; data: T }
-  | { success: false; error: string };
+  | {
+      success: false;
+      error: string;
+      /** エラー種別（api/network/validation） */
+      errorType?: MutationErrorType;
+      /** APIエラー時のHTTPステータスコード */
+      statusCode?: number;
+    };

@@ -68,7 +68,7 @@ describe('useTaskMutation', () => {
       );
     });
 
-    test('returns error on API failure', async () => {
+    test('returns error with errorType and statusCode on API failure', async () => {
       mockHttpClient.put.mockResolvedValueOnce({
         ok: false,
         error: { type: 'api', status: 500, message: 'Server error' },
@@ -86,8 +86,40 @@ describe('useTaskMutation', () => {
         response = await result.current.completeTask(1, 'h1');
       });
 
-      expect(response?.success).toBe(false);
-      expect(response?.error).toBe('Server error');
+      // TYPE-006: エラー時にerrorType, statusCodeを保持
+      expect(response).toEqual({
+        success: false,
+        error: 'Server error',
+        errorType: 'api',
+        statusCode: 500,
+      });
+    });
+
+    test('returns error with errorType on network failure', async () => {
+      mockHttpClient.put.mockResolvedValueOnce({
+        ok: false,
+        error: { type: 'network', message: 'Network error' },
+      });
+      mockMutate.mockImplementation(async (updater) => {
+        if (typeof updater === 'function') {
+          await updater(mockTasks);
+        }
+      });
+
+      const { result } = renderHook(() => useTaskMutation(mockMutate));
+
+      let response;
+      await act(async () => {
+        response = await result.current.completeTask(1, 'h1');
+      });
+
+      // TYPE-006: ネットワークエラー時はstatusCodeなし
+      expect(response).toEqual({
+        success: false,
+        error: 'Network error',
+        errorType: 'network',
+        statusCode: undefined,
+      });
     });
 
     test('prevents duplicate requests for same task', async () => {
@@ -121,7 +153,12 @@ describe('useTaskMutation', () => {
         secondResponse = await result.current.completeTask(1, 'h1');
       });
 
-      expect(secondResponse).toEqual({ success: false, error: '処理中です' });
+      // TYPE-006: 連打防止エラーはvalidationタイプ
+      expect(secondResponse).toEqual({
+        success: false,
+        error: '処理中です',
+        errorType: 'validation',
+      });
 
       // Complete first request
       await act(async () => {
@@ -151,7 +188,7 @@ describe('useTaskMutation', () => {
       expect(mockHttpClient.put).toHaveBeenCalledWith('/api/task/h1/ng');
     });
 
-    test('returns error on API failure', async () => {
+    test('returns error with errorType and statusCode on API failure', async () => {
       mockHttpClient.put.mockResolvedValueOnce({
         ok: false,
         error: { type: 'api', status: 403, message: 'Forbidden' },
@@ -169,8 +206,40 @@ describe('useTaskMutation', () => {
         response = await result.current.markAsNG(1, 'h1');
       });
 
-      expect(response?.success).toBe(false);
-      expect(response?.error).toBe('Forbidden');
+      // TYPE-006: エラー時にerrorType, statusCodeを保持
+      expect(response).toEqual({
+        success: false,
+        error: 'Forbidden',
+        errorType: 'api',
+        statusCode: 403,
+      });
+    });
+
+    test('returns error with errorType on network failure', async () => {
+      mockHttpClient.put.mockResolvedValueOnce({
+        ok: false,
+        error: { type: 'network', message: 'Network error' },
+      });
+      mockMutate.mockImplementation(async (updater) => {
+        if (typeof updater === 'function') {
+          await updater(mockTasks);
+        }
+      });
+
+      const { result } = renderHook(() => useTaskMutation(mockMutate));
+
+      let response;
+      await act(async () => {
+        response = await result.current.markAsNG(1, 'h1');
+      });
+
+      // TYPE-006: ネットワークエラー時はstatusCodeなし
+      expect(response).toEqual({
+        success: false,
+        error: 'Network error',
+        errorType: 'network',
+        statusCode: undefined,
+      });
     });
 
     test('prevents duplicate requests for same task', async () => {
@@ -201,7 +270,12 @@ describe('useTaskMutation', () => {
         secondResponse = await result.current.markAsNG(2, 'h2');
       });
 
-      expect(secondResponse).toEqual({ success: false, error: '処理中です' });
+      // TYPE-006: 連打防止エラーはvalidationタイプ
+      expect(secondResponse).toEqual({
+        success: false,
+        error: '処理中です',
+        errorType: 'validation',
+      });
 
       // Complete first request
       await act(async () => {
@@ -231,7 +305,7 @@ describe('useTaskMutation', () => {
       expect(mockHttpClient.put).toHaveBeenCalledWith('/api/task/t1/reassign');
     });
 
-    test('returns error on API failure', async () => {
+    test('returns error with errorType and statusCode on API failure', async () => {
       mockHttpClient.put.mockResolvedValueOnce({
         ok: false,
         error: { type: 'api', status: 404, message: 'Task not found' },
@@ -249,8 +323,40 @@ describe('useTaskMutation', () => {
         response = await result.current.reassign(1, 't1');
       });
 
-      expect(response?.success).toBe(false);
-      expect(response?.error).toBe('Task not found');
+      // TYPE-006: エラー時にerrorType, statusCodeを保持
+      expect(response).toEqual({
+        success: false,
+        error: 'Task not found',
+        errorType: 'api',
+        statusCode: 404,
+      });
+    });
+
+    test('returns error with errorType on network failure', async () => {
+      mockHttpClient.put.mockResolvedValueOnce({
+        ok: false,
+        error: { type: 'network', message: 'Network error' },
+      });
+      mockMutate.mockImplementation(async (updater) => {
+        if (typeof updater === 'function') {
+          await updater(mockTasks);
+        }
+      });
+
+      const { result } = renderHook(() => useTaskMutation(mockMutate));
+
+      let response;
+      await act(async () => {
+        response = await result.current.reassign(1, 't1');
+      });
+
+      // TYPE-006: ネットワークエラー時はstatusCodeなし
+      expect(response).toEqual({
+        success: false,
+        error: 'Network error',
+        errorType: 'network',
+        statusCode: undefined,
+      });
     });
 
     test('prevents duplicate requests for same task', async () => {
@@ -281,7 +387,12 @@ describe('useTaskMutation', () => {
         secondResponse = await result.current.reassign(1, 't1');
       });
 
-      expect(secondResponse).toEqual({ success: false, error: '処理中です' });
+      // TYPE-006: 連打防止エラーはvalidationタイプ
+      expect(secondResponse).toEqual({
+        success: false,
+        error: '処理中です',
+        errorType: 'validation',
+      });
 
       // Complete first request
       await act(async () => {
