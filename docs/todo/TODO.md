@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 5 | 18 |
-| **合計** | **35** | **16** | **19** |
+| Low | 23 | 6 | 17 |
+| **合計** | **35** | **17** | **18** |
 
 ---
 
@@ -131,11 +131,12 @@
 
 ### 型定義改善
 
-- [ ] **TYPE-001**: MutationResult型の判別共用体化
+- [x] **TYPE-001**: MutationResult型の判別共用体化 ✅完了
   - ファイル: `src/types/index.ts`
-  - 問題: 不正な状態を許容する型設計（`success: true`かつ`error`が存在可能）
+  - 完了日: 2025-12-29
   - 対応: `{ success: true; data: T } | { success: false; error: string }`に変更
-  - 工数: 2h（全使用箇所の修正含む）
+  - 修正箇所: 型定義、useTaskMutation、useAccountMutation、関連テスト
+  - PR: #125
 
 - [ ] **TYPE-002**: Task型とTaskDetail型の分離
   - ファイル: `src/types/index.ts`

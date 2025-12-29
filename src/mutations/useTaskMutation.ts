@@ -45,7 +45,7 @@ export const useTaskMutation = (mutate: KeyedMutator<Task[]>) => {
             revalidate: false,
           },
         );
-        return { success: true };
+        return { success: true, data: undefined };
       } catch (e) {
         const message = e instanceof Error ? e.message : '完了処理に失敗しました';
         return { success: false, error: message };
@@ -82,7 +82,7 @@ export const useTaskMutation = (mutate: KeyedMutator<Task[]>) => {
             revalidate: false,
           },
         );
-        return { success: true };
+        return { success: true, data: undefined };
       } catch (e) {
         const message = e instanceof Error ? e.message : 'NG処理に失敗しました';
         return { success: false, error: message };
@@ -121,7 +121,7 @@ export const useTaskMutation = (mutate: KeyedMutator<Task[]>) => {
             revalidate: false,
           },
         );
-        return { success: true };
+        return { success: true, data: undefined };
       } catch (e) {
         const message =
           e instanceof Error ? e.message : '再アサイン処理に失敗しました';

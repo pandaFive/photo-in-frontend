@@ -30,7 +30,8 @@ describe('useAccountMutation', () => {
         response = await result.current.deleteAccount(123);
       });
 
-      expect(response).toEqual({ success: true });
+      // TYPE-001: 判別共用体により、success: trueの場合はdataが必須
+      expect(response).toEqual({ success: true, data: undefined });
       expect(mockHttpClient.delete).toHaveBeenCalledWith('/api/account/123');
     });
 

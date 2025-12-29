@@ -20,7 +20,7 @@ export const useAccountMutation = () => {
         return { success: false, error: result.error.message };
       }
 
-      return { success: true };
+      return { success: true, data: undefined };
     },
     []
   );

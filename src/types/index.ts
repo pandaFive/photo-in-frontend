@@ -85,11 +85,21 @@ export type WeekCompleteData = {
 // CODE-003: 3箇所に重複定義されていた型を統合
 
 /**
- * Mutation操作の結果型
- * @template T - 成功時に返却されるデータの型（オプショナル）
+ * Mutation操作の結果型（判別共用体）
+ * TYPE-001: 不正な状態（success: true かつ error が存在）を型レベルで防止
+ *
+ * @template T - 成功時に返却されるデータの型（デフォルト: undefined）
+ *
+ * @example
+ * // データを返さない場合
+ * const result: MutationResult = { success: true, data: undefined };
+ * const error: MutationResult = { success: false, error: 'エラーメッセージ' };
+ *
+ * @example
+ * // データを返す場合
+ * const result: MutationResult<User> = { success: true, data: user };
+ * const error: MutationResult<User> = { success: false, error: 'エラーメッセージ' };
  */
-export type MutationResult<T = void> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
+export type MutationResult<T = undefined> =
+  | { success: true; data: T }
+  | { success: false; error: string };
