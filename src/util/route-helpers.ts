@@ -41,8 +41,20 @@ export const requireAuth = (): AuthResult => {
 
   const authResult = getAuthHeaders();
   if (!authResult.ok) {
-    // LOG-001: 認証ヘッダー取得失敗ログ
-    logWarn('[requireAuth]', `認証ヘッダー取得失敗: ${authResult.reason}`);
+    // AUTH-001: cookie_errorとno_tokenを区別
+    if (authResult.reason === 'cookie_error') {
+      // Cookie取得でエラー発生 → サーバー側の問題
+      logWarn('[requireAuth]', '認証ヘッダー取得失敗: Cookie取得エラー');
+      return {
+        ok: false,
+        response: NextResponse.json(
+          { errors: ['サーバーエラーが発生しました'] },
+          { status: 500 },
+        ),
+      };
+    }
+    // no_token → 通常の認証エラー
+    logWarn('[requireAuth]', '認証ヘッダー取得失敗: トークンなし');
     return {
       ok: false,
       response: NextResponse.json(
