@@ -4,9 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Comment, CommentApiResponse } from '@/src/types';
-import { requireAuth } from '@/src/util/route-helpers';
+import { requireAuth, requireValidId } from '@/src/util/route-helpers';
 import { logError } from '@/src/util/safe-logger';
-import { validateId } from '@/src/util/validation';
 
 type Body = {
   id: number;
@@ -168,14 +167,9 @@ export const DELETE = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const commentIdParam = searchParams.get('commentId');
 
-  // SEC-007: IDバリデーション（バウンドチェック含む）
-  const commentIdResult = validateId(commentIdParam);
-  if (!commentIdResult.valid) {
-    return NextResponse.json(
-      { errors: [commentIdResult.error] },
-      { status: 400 },
-    );
-  }
+  // CODE-019: requireValidId()ヘルパーを使用（SEC-007バリデーション + ログ出力）
+  const commentIdResult = requireValidId(commentIdParam ?? '');
+  if (!commentIdResult.ok) return commentIdResult.response;
   const commentId = commentIdResult.id;
 
   try {
