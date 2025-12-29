@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 7 | 16 |
-| **合計** | **35** | **18** | **17** |
+| Low | 23 | 9 | 14 |
+| **合計** | **35** | **20** | **15** |
 
 ---
 
@@ -145,17 +145,17 @@
   - 対応: `BaseTask`, `TaskListItem`, `ActiveTask`, `TaskDetail`型を新設
   - 備考: `Task`は後方互換性のため`TaskListItem`のエイリアスとして維持
 
-- [ ] **TYPE-003**: ValidationResult型の判別共用体化（PR #113 Suggestions）
+- [x] **TYPE-003**: ValidationResult型の判別共用体化 ✅完了
   - ファイル: `src/mutations/useFileUpload.ts`
+  - 完了日: 2025-12-29
   - 問題: `valid`と`error`が独立したプロパティで不正状態を許容
   - 対応: `{ valid: true } | { valid: false; error: string }`に変更
-  - 工数: 0.5h
 
-- [ ] **TYPE-004**: UploadResult型の判別共用体化（PR #113 Suggestions）
+- [x] **TYPE-004**: UploadResult型の判別共用体化 ✅完了
   - ファイル: `src/mutations/useFileUpload.ts`
+  - 完了日: 2025-12-29
   - 問題: `success`と`error`が独立したプロパティで不正状態を許容
   - 対応: `{ success: true } | { success: false; error: string }`に変更
-  - 工数: 0.5h
 
 - [ ] **TYPE-005**: requireAdmin戻り値型の統一（PR #120 Suggestions）
   - ファイル: `src/util/route-helpers.ts`

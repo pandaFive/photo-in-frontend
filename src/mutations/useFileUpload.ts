@@ -7,15 +7,21 @@ import { logError, logWarn } from '@/src/util/safe-logger';
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const ALLOWED_MIME_TYPES = ['application/pdf'];
 
-type UploadResult = {
-  success: boolean;
-  error?: string;
-};
+/**
+ * TYPE-004: アップロード結果型（判別共用体）
+ * 不正な状態（success: true かつ error が存在）を型レベルで防止
+ */
+type UploadResult =
+  | { success: true }
+  | { success: false; error: string };
 
-type ValidationResult = {
-  valid: boolean;
-  error?: string;
-};
+/**
+ * TYPE-003: バリデーション結果型（判別共用体）
+ * 不正な状態（valid: true かつ error が存在）を型レベルで防止
+ */
+type ValidationResult =
+  | { valid: true }
+  | { valid: false; error: string };
 
 /**
  * ファイルのバリデーションを実行
