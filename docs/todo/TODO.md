@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 16 | 9 |
-| **合計** | **37** | **27** | **10** |
+| Low | 25 | 17 | 8 |
+| **合計** | **37** | **28** | **9** |
 
 ---
 
@@ -217,12 +217,11 @@
   - 問題: `cookie_error`と`no_token`が同一扱い
   - 対応: `cookie_error`→500、`no_token`→401に分岐
 
-- [ ] **ERR-L01**: AreaListCheckの広範なcatchブロック改善（PR #112）
+- [x] **ERR-L01**: AreaListCheckの広範なcatchブロック改善 ✅完了
   - ファイル: `src/components/AreaListCheck.tsx`
+  - 完了日: 2025-12-30
   - 問題: 全例外を同一エラーメッセージで処理、エラー種別の区別なし
-  - 対応: ネットワークエラー、認証エラー等を区別してユーザーに適切なメッセージ表示
-  - 備考: 現状でも機能的には問題なし、UX改善として検討
-  - 工数: 1h
+  - 対応: `getErrorMessage()`ヘルパーを追加、TypeError（ネットワーク）とAbortError（タイムアウト）を区別
 
 - [x] **CODE-018**: 'use server'ディレクティブの削除 ✅完了
   - ファイル: `src/app/api/`配下の全Route Handler（11ファイル）
@@ -333,6 +332,7 @@
 | 2025-12-30 | AUTH-001 | 認証エラーの区別（cookie_error→500, no_token→401） | Claude |
 | 2025-12-30 | LOG-003 | ログコンテキスト形式の統一 | Claude |
 | 2025-12-30 | FEAT-001 | 404 Not Found ページ作成 | Claude |
+| 2025-12-30 | ERR-L01 | AreaListCheckの広範なcatchブロック改善 | Claude |
 
 ---
 
