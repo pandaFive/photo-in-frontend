@@ -113,11 +113,25 @@ describe('AreaListCheck', () => {
     render(<AreaListCheck />);
 
     await waitFor(() => {
-      expect(screen.getByText('エリア一覧の取得に失敗しました')).toBeInTheDocument();
+      expect(screen.getByText('エリア一覧の取得に失敗しました。')).toBeInTheDocument();
     });
 
-    expect(logError).toHaveBeenCalledWith('[AreaListCheck]', ['エリアが見つかりません']);
-    expect(mockShowError).toHaveBeenCalledWith('エリア一覧の取得に失敗しました');
+    expect(logError).toHaveBeenCalledWith('[AreaListCheck:getArea]', ['エリアが見つかりません']);
+    expect(mockShowError).toHaveBeenCalledWith('エリア一覧の取得に失敗しました。');
+  });
+
+  it('shows timeout error message on AbortError', async () => {
+    const abortError = new DOMException('The operation was aborted', 'AbortError');
+    (getAreas as jest.Mock).mockRejectedValue(abortError);
+
+    render(<AreaListCheck />);
+
+    await waitFor(() => {
+      expect(screen.getByText('リクエストがタイムアウトしました。再試行してください。')).toBeInTheDocument();
+    });
+
+    expect(logError).toHaveBeenCalledWith('[AreaListCheck:getArea]', expect.any(DOMException));
+    expect(mockShowError).toHaveBeenCalledWith('リクエストがタイムアウトしました。再試行してください。');
   });
 
   it('retries fetching when retry button is clicked', async () => {

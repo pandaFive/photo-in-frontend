@@ -66,9 +66,9 @@ const AreaListCheck = () => {
     try {
       const res = await getAreas();
       if (isErrorResponse(res)) {
-        logError('[AreaListCheck]', res.errors);
-        setError('エリア一覧の取得に失敗しました');
-        showError('エリア一覧の取得に失敗しました');
+        logError('[AreaListCheck:getArea]', res.errors);
+        setError('エリア一覧の取得に失敗しました。');
+        showError('エリア一覧の取得に失敗しました。');
         return;
       }
       setArea(res);
