@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 9 | 14 |
-| **合計** | **35** | **20** | **15** |
+| Low | 23 | 10 | 13 |
+| **合計** | **35** | **21** | **14** |
 
 ---
 
@@ -157,12 +157,11 @@
   - 問題: `success`と`error`が独立したプロパティで不正状態を許容
   - 対応: `{ success: true } | { success: false; error: string }`に変更
 
-- [ ] **TYPE-005**: requireAdmin戻り値型の統一（PR #120 Suggestions）
+- [x] **TYPE-005**: requireAdmin戻り値型の統一 ✅完了
   - ファイル: `src/util/route-helpers.ts`
+  - 完了日: 2025-12-29
   - 問題: `requireAdmin()`が`null | NextResponse`を返し、他のヘルパー（`requireAuth`, `requireValidId`）の`{ ok: boolean }`パターンと不整合
   - 対応: `AdminResult = { ok: true } | { ok: false; response: NextResponse }` に変更
-  - 備考: 現状でも動作に問題なし。API一貫性の向上のため
-  - 工数: 0.5h
 
 ### ログ改善
 

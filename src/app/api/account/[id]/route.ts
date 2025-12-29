@@ -15,8 +15,8 @@ export const DELETE = async (
   const auth = requireAuth();
   if (!auth.ok) return auth.response;
 
-  const adminCheck = requireAdmin();
-  if (adminCheck) return adminCheck;
+  const adminResult = requireAdmin();
+  if (!adminResult.ok) return adminResult.response;
 
   const idResult = requireValidId(params.id);
   if (!idResult.ok) return idResult.response;
