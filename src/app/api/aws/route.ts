@@ -1,5 +1,3 @@
-'use server';
-
 import {
   GetObjectCommand,
   GetObjectCommandInput,
