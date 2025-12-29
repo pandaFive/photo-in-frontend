@@ -33,13 +33,13 @@ const Dashboard = async () => {
 
   // エラー時はログ出力（API側でも出力されるが、ダッシュボード側でも集約ログとして出力）
   if (areasError) {
-    logError('[Dashboard] areas取得失敗', areasResult.errors);
+    logError('[Dashboard:getAreas]', areasResult.errors);
   }
   if (accountsError) {
-    logError('[Dashboard] accounts取得失敗', accountsResult.errors);
+    logError('[Dashboard:getAccounts]', accountsResult.errors);
   }
   if (unfulfilledError) {
-    logError('[Dashboard] unfulfilled count取得失敗', unfulfilledResult.errors);
+    logError('[Dashboard:getUnfulfilledCount]', unfulfilledResult.errors);
   }
 
   const areaNames: string[] = areasError ? [] : areasResult.map((area) => area.name);
