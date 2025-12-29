@@ -12,6 +12,7 @@ import Link from 'next/link';
 const NotFound = () => {
   return (
     <Box
+      component="main"
       sx={{
         minHeight: '100vh',
         display: 'flex',
@@ -23,6 +24,7 @@ const NotFound = () => {
       }}
     >
       <Typography
+        component="h1"
         sx={{
           fontSize: { xs: '6rem', md: '8rem' },
           fontWeight: 700,
