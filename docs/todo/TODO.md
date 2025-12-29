@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 3 | 20 |
-| **合計** | **35** | **14** | **21** |
+| Low | 23 | 4 | 19 |
+| **合計** | **35** | **15** | **20** |
 
 ---
 
@@ -214,12 +214,11 @@
   - 対応: 各ファイルの1行目 `'use server';` を削除
   - 工数: 0.5h
 
-- [ ] **CODE-019**: validateId使用の統一（PR #120 Suggestions）
+- [x] **CODE-019**: validateId使用の統一 ✅完了
   - ファイル: `src/app/api/comment/route.ts`
-  - 問題: DELETEハンドラで直接`validateId()`を使用し、`requireValidId()`ヘルパーを使っていない
-  - 対応: `requireValidId(commentIdParam ?? '')`に変更
-  - 備考: 現状でも動作に問題なし。コード一貫性の向上のため
-  - 工数: 0.5h
+  - 完了日: 2025-12-29
+  - 対応: DELETEハンドラで`requireValidId()`ヘルパーを使用するよう変更
+  - PR: #123
 
 ### ドキュメント
 
