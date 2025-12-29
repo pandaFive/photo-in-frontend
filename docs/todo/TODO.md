@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 13 | 12 |
-| **合計** | **37** | **24** | **13** |
+| Low | 25 | 14 | 11 |
+| **合計** | **37** | **25** | **12** |
 
 ---
 
@@ -211,11 +211,11 @@
 
 ### コード品質
 
-- [ ] **AUTH-001**: 認証エラーの区別
-  - ファイル: Route Handlers
+- [x] **AUTH-001**: 認証エラーの区別 ✅完了
+  - ファイル: `src/util/route-helpers.ts`
+  - 完了日: 2025-12-30
   - 問題: `cookie_error`と`no_token`が同一扱い
-  - 対応: ステータスコード分岐（500/401）
-  - 工数: 1h
+  - 対応: `cookie_error`→500、`no_token`→401に分岐
 
 - [ ] **ERR-L01**: AreaListCheckの広範なcatchブロック改善（PR #112）
   - ファイル: `src/components/AreaListCheck.tsx`
@@ -330,6 +330,7 @@
 | 2025-12-29 | LOG-001, LOG-004 | 認証・認可失敗ログ追加（PR #121） | Claude |
 | 2025-12-30 | LOG-002 | エラーオブジェクト全体をログ出力 | Claude |
 | 2025-12-30 | LOG-006 | get-week-complete.tsにエラーログ追加 | Claude |
+| 2025-12-30 | AUTH-001 | 認証エラーの区別（cookie_error→500, no_token→401） | Claude |
 
 ---
 
