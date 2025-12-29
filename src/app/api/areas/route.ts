@@ -4,21 +4,19 @@ import { NextResponse } from 'next/server';
 
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { Area } from '@/src/types';
-import { getAuthHeaders } from '@/src/util/auth-headers';
+import { requireAuth } from '@/src/util/route-helpers';
 import { logError } from '@/src/util/safe-logger';
 
 export const GET = async () => {
-  // 認証ヘッダー取得
-  const authResult = getAuthHeaders();
-  if (!authResult.ok) {
-    return NextResponse.json({ errors: ['認証が必要です'] }, { status: 401 });
-  }
+  // DRY-M01: 認証チェック共通化
+  const auth = requireAuth();
+  if (!auth.ok) return auth.response;
 
   try {
     const res = await fetch(`${process.env.API_HOST}/areas`, {
       method: 'GET',
       headers: {
-        ...authResult.headers,
+        ...auth.headers,
       },
     });
     if (res.ok) {
