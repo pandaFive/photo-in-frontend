@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 19 | 0 | 19 |
-| **合計** | **31** | **11** | **20** |
+| Low | 23 | 0 | 23 |
+| **合計** | **35** | **11** | **24** |
 
 ---
 
@@ -154,13 +154,32 @@
   - 対応: `{ success: true } | { success: false; error: string }`に変更
   - 工数: 0.5h
 
+- [ ] **TYPE-005**: requireAdmin戻り値型の統一（PR #120 Suggestions）
+  - ファイル: `src/util/route-helpers.ts`
+  - 問題: `requireAdmin()`が`null | NextResponse`を返し、他のヘルパー（`requireAuth`, `requireValidId`）の`{ ok: boolean }`パターンと不整合
+  - 対応: `AdminResult = { ok: true } | { ok: false; response: NextResponse }` に変更
+  - 備考: 現状でも動作に問題なし。API一貫性の向上のため
+  - 工数: 0.5h
+
 ### ログ改善
 
 - [ ] **LOG-001**: 認証失敗ログ追加
-  - ファイル: Route Handlers
-  - 問題: 認証失敗時のログがない
-  - 対応: `logWarn()` でreason記録
-  - 工数: 1h
+  - ファイル: `src/util/route-helpers.ts`
+  - 問題: `requireAuth()`で認証失敗時のログがない（PR #120 Important）
+  - 対応: `logWarn('[requireAuth]', '認証トークンが存在しません')` 等を追加
+  - 工数: 0.5h
+
+- [ ] **LOG-004**: 認可失敗ログ追加（PR #120 Important）
+  - ファイル: `src/util/route-helpers.ts`
+  - 問題: `requireAdmin()`で認可失敗時のログがない（セキュリティ監視に影響）
+  - 対応: `logWarn('[requireAdmin]', '管理者権限が必要な操作への非管理者アクセス試行')` を追加
+  - 工数: 0.5h
+
+- [ ] **LOG-005**: IDバリデーション失敗ログ追加（PR #120 Suggestions）
+  - ファイル: `src/util/route-helpers.ts`
+  - 問題: `requireValidId()`でバリデーション失敗時のログがない
+  - 対応: `logDebug('[requireValidId]', ...)` を追加（デバッグレベル）
+  - 工数: 0.5h
 
 - [ ] **LOG-002**: エラーオブジェクト全体をログ出力
   - ファイル: 複数ファイル
@@ -193,6 +212,13 @@
   - ファイル: `src/app/api/{areas,tasks/all,tasks/ng}/route.ts`
   - 問題: Route Handlerに不要なディレクティブ（Server Actions用）
   - 対応: 各ファイルの1行目 `'use server';` を削除
+  - 工数: 0.5h
+
+- [ ] **CODE-019**: validateId使用の統一（PR #120 Suggestions）
+  - ファイル: `src/app/api/comment/route.ts`
+  - 問題: DELETEハンドラで直接`validateId()`を使用し、`requireValidId()`ヘルパーを使っていない
+  - 対応: `requireValidId(commentIdParam ?? '')`に変更
+  - 備考: 現状でも動作に問題なし。コード一貫性の向上のため
   - 工数: 0.5h
 
 ### ドキュメント
@@ -263,6 +289,8 @@
 | LOG-003 | PR #96 Suggestions | Low |
 | ERR-L01 | PR #112 Important | Low |
 | TYPE-003, TYPE-004 | PR #113 Suggestions | Low |
+| LOG-001, LOG-004 | PR #120 Important | Low |
+| TYPE-005, LOG-005, CODE-019 | PR #120 Suggestions | Low |
 
 ---
 
