@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 12 | 13 |
-| **合計** | **37** | **23** | **14** |
+| Low | 25 | 13 | 12 |
+| **合計** | **37** | **24** | **13** |
 
 ---
 
@@ -202,12 +202,12 @@
   - 対応: `[Category:function]`形式に統一
   - 工数: 1h
 
-- [ ] **LOG-006**: get-week-complete.tsにエラーログ追加
+- [x] **LOG-006**: get-week-complete.tsにエラーログ追加 ✅完了
   - ファイル: `src/api/get-week-complete.ts`
+  - 完了日: 2025-12-30
   - 問題: エラー時に`logError()`を呼ばずに`ErrorResponse`を返却
   - 対応: `logError('[getWeekComplete]', result.error)`を追加
   - 出典: PR #130 レビュー
-  - 工数: 0.5h
 
 ### コード品質
 
@@ -329,6 +329,7 @@
 | 2025-12-29 | DRY-M01 | Route Handler認証パターン共通化（PR #120） | Claude |
 | 2025-12-29 | LOG-001, LOG-004 | 認証・認可失敗ログ追加（PR #121） | Claude |
 | 2025-12-30 | LOG-002 | エラーオブジェクト全体をログ出力 | Claude |
+| 2025-12-30 | LOG-006 | get-week-complete.tsにエラーログ追加 | Claude |
 
 ---
 
