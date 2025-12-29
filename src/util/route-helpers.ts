@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server';
 
 import { isAuthenticated, isAdminFromCookie } from './auth-check';
 import { getAuthHeaders } from './auth-headers';
+import { logWarn } from './safe-logger';
 import { validateId } from './validation';
 
 /**
@@ -27,6 +28,8 @@ type AuthResult =
  */
 export const requireAuth = (): AuthResult => {
   if (!isAuthenticated()) {
+    // LOG-001: 認証失敗ログ
+    logWarn('[requireAuth]', '認証トークンが存在しません');
     return {
       ok: false,
       response: NextResponse.json(
@@ -38,6 +41,8 @@ export const requireAuth = (): AuthResult => {
 
   const authResult = getAuthHeaders();
   if (!authResult.ok) {
+    // LOG-001: 認証ヘッダー取得失敗ログ
+    logWarn('[requireAuth]', `認証ヘッダー取得失敗: ${authResult.reason}`);
     return {
       ok: false,
       response: NextResponse.json(
@@ -60,6 +65,8 @@ export const requireAuth = (): AuthResult => {
  */
 export const requireAdmin = (): NextResponse | null => {
   if (!isAdminFromCookie()) {
+    // LOG-004: 認可失敗ログ（セキュリティ監視用）
+    logWarn('[requireAdmin]', '管理者権限が必要な操作への非管理者アクセス試行');
     return NextResponse.json(
       { errors: ['この操作には管理者権限が必要です'] },
       { status: 403 },
