@@ -55,7 +55,8 @@ describe('useTaskMutation', () => {
         response = await result.current.completeTask(1, 'h1');
       });
 
-      expect(response).toEqual({ success: true });
+      // TYPE-001: 判別共用体により、success: trueの場合はdataが必須
+      expect(response).toEqual({ success: true, data: undefined });
       expect(mockHttpClient.put).toHaveBeenCalledWith('/api/task/h1/complete');
       expect(mockMutate).toHaveBeenCalledWith(
         expect.any(Function),
@@ -145,7 +146,8 @@ describe('useTaskMutation', () => {
         response = await result.current.markAsNG(1, 'h1');
       });
 
-      expect(response).toEqual({ success: true });
+      // TYPE-001: 判別共用体により、success: trueの場合はdataが必須
+      expect(response).toEqual({ success: true, data: undefined });
       expect(mockHttpClient.put).toHaveBeenCalledWith('/api/task/h1/ng');
     });
 
@@ -224,7 +226,8 @@ describe('useTaskMutation', () => {
         response = await result.current.reassign(1, 't1');
       });
 
-      expect(response).toEqual({ success: true });
+      // TYPE-001: 判別共用体により、success: trueの場合はdataが必須
+      expect(response).toEqual({ success: true, data: undefined });
       expect(mockHttpClient.put).toHaveBeenCalledWith('/api/task/t1/reassign');
     });
 
