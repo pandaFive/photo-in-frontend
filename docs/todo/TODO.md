@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 4 | 19 |
-| **合計** | **35** | **15** | **20** |
+| Low | 23 | 5 | 18 |
+| **合計** | **35** | **16** | **19** |
 
 ---
 
@@ -122,11 +122,12 @@
 
 ### セキュリティ
 
-- [ ] **SEC-012**: Content Security Policy (CSP) 設定追加
+- [x] **SEC-012**: Content Security Policy (CSP) 設定追加 ✅完了
   - ファイル: `next.config.mjs`
-  - 問題: CSPヘッダーが未設定
-  - 備考: SEC-004で他のセキュリティヘッダーは追加済み。CSPは外部リソース（MUI CDN、Google Fonts等）の調査が必要。
-  - 工数: 2h
+  - 完了日: 2025-12-29
+  - 対応: CSPヘッダーを追加（default-src, script-src, style-src, img-src, font-src, connect-src, object-src, frame-ancestors, base-uri, form-action, upgrade-insecure-requests）
+  - 備考: MUIインラインスタイル、Next.jsハイドレーション、S3プリサインドURLを考慮
+  - PR: #124
 
 ### 型定義改善
 
