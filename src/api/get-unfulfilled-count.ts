@@ -16,7 +16,7 @@ export async function getUnfulfilledCount(): Promise<ApiResult<number>> {
     return result.value;
   }
 
-  logError('[getUnfulfilledCount]', result.error.message);
+  logError('[getUnfulfilledCount]', result.error);
   const errorResponse: ErrorResponse = {
     errors: [result.error.message],
   };

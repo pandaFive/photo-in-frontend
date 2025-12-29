@@ -21,7 +21,7 @@ export async function getAccountStatus(): Promise<ApiResult<MemberStatus[]>> {
     return result.value;
   }
 
-  logError('[getAccountStatus]', result.error.message);
+  logError('[getAccountStatus]', result.error);
   const errorResponse: ErrorResponse = {
     errors: [result.error.message],
   };

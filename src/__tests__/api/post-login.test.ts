@@ -163,7 +163,11 @@ describe('postLogin', () => {
 
       await postLogin('user', 'pass');
 
-      expect(mockLogError).toHaveBeenCalledWith('[postLogin]', '認証エラー');
+      expect(mockLogError).toHaveBeenCalledWith('[postLogin]', {
+        type: 'api',
+        status: 401,
+        message: '認証エラー',
+      });
     });
 
     test('400エラー時もErrorResponseを返す', async () => {
@@ -233,7 +237,10 @@ describe('postLogin', () => {
 
       await postLogin('user', 'pass');
 
-      expect(mockLogError).toHaveBeenCalledWith('[postLogin]', 'タイムアウト');
+      expect(mockLogError).toHaveBeenCalledWith('[postLogin]', {
+        type: 'network',
+        message: 'タイムアウト',
+      });
     });
   });
 

@@ -24,7 +24,7 @@ export const useCommentMutation = () => {
       });
 
       if (!result.ok) {
-        logError('[createComment]', result.error.message);
+        logError('[createComment]', result.error);
         return { success: false, error: result.error.message };
       }
 
@@ -44,7 +44,7 @@ export const useCommentMutation = () => {
       });
 
       if (!result.ok) {
-        logError('[updateComment]', result.error.message);
+        logError('[updateComment]', result.error);
         return { success: false, error: result.error.message };
       }
 
@@ -63,7 +63,7 @@ export const useCommentMutation = () => {
       );
 
       if (!result.ok) {
-        logError('[deleteComment]', result.error.message);
+        logError('[deleteComment]', result.error);
         return { success: false, error: result.error.message };
       }
 

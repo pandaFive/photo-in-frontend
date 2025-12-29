@@ -176,7 +176,11 @@ describe('postSignup', () => {
 
       await postSignup('user', 'pass', [], 'member', 5);
 
-      expect(mockLogError).toHaveBeenCalledWith('[postSignup]', 'バリデーションエラー');
+      expect(mockLogError).toHaveBeenCalledWith('[postSignup]', {
+        type: 'api',
+        status: 400,
+        message: 'バリデーションエラー',
+      });
     });
 
     test('422エラー（バリデーションエラー）時もErrorResponseを返す', async () => {
@@ -246,7 +250,10 @@ describe('postSignup', () => {
 
       await postSignup('user', 'pass', ['東京'], 'member', 5);
 
-      expect(mockLogError).toHaveBeenCalledWith('[postSignup]', 'タイムアウト');
+      expect(mockLogError).toHaveBeenCalledWith('[postSignup]', {
+        type: 'network',
+        message: 'タイムアウト',
+      });
     });
   });
 

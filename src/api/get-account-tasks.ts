@@ -17,6 +17,6 @@ export const getAccountTasks = async (
   if (result.ok) {
     return result.value;
   }
-  logError('[getAccountTasks]', result.error.message);
+  logError('[getAccountTasks]', result.error);
   return { errors: [result.error.message] };
 };

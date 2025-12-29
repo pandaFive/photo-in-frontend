@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 11 | 12 |
-| **合計** | **35** | **22** | **13** |
+| Low | 25 | 12 | 13 |
+| **合計** | **37** | **23** | **14** |
 
 ---
 
@@ -163,6 +163,13 @@
   - 問題: `requireAdmin()`が`null | NextResponse`を返し、他のヘルパー（`requireAuth`, `requireValidId`）の`{ ok: boolean }`パターンと不整合
   - 対応: `AdminResult = { ok: true } | { ok: false; response: NextResponse }` に変更
 
+- [ ] **TYPE-006**: MutationResultでフルエラーオブジェクト保持
+  - ファイル: `src/types/index.ts`, `src/mutations/*.ts`
+  - 問題: `MutationResult.error`が`string`型のため、mutation層でエラー情報（type, status）が消失
+  - 対応: `error: string`を`error: DomainError | string`に変更、またはerrorCode追加を検討
+  - 出典: PR #130 レビュー
+  - 工数: 2h
+
 ### ログ改善
 
 - [x] **LOG-001**: 認証失敗ログ追加 ✅完了
@@ -183,17 +190,24 @@
   - 対応: `logDebug('[requireValidId]', 'IDバリデーション失敗: ...')` を追加（デバッグレベル）
   - PR: #122
 
-- [ ] **LOG-002**: エラーオブジェクト全体をログ出力
-  - ファイル: 複数ファイル
+- [x] **LOG-002**: エラーオブジェクト全体をログ出力 ✅完了
+  - ファイル: `src/api/*.ts`（8ファイル）、`src/mutations/*.ts`（2ファイル）
+  - 完了日: 2025-12-30
   - 問題: `result.error.message`のみでフルオブジェクトが消失
-  - 対応: `logError(ctx, result.error)`に変更
-  - 工数: 1h
+  - 対応: `logError(ctx, result.error)`に変更（12箇所）
 
 - [ ] **LOG-003**: ログコンテキスト形式の統一
   - ファイル: 複数ファイル
   - 問題: `[postLogin]`と`[Middleware] レート制限`で形式が異なる
   - 対応: `[Category:function]`形式に統一
   - 工数: 1h
+
+- [ ] **LOG-006**: get-week-complete.tsにエラーログ追加
+  - ファイル: `src/api/get-week-complete.ts`
+  - 問題: エラー時に`logError()`を呼ばずに`ErrorResponse`を返却
+  - 対応: `logError('[getWeekComplete]', result.error)`を追加
+  - 出典: PR #130 レビュー
+  - 工数: 0.5h
 
 ### コード品質
 
@@ -292,6 +306,7 @@
 | TYPE-003, TYPE-004 | PR #113 Suggestions | Low |
 | LOG-001, LOG-004 | PR #120 Important | Low |
 | TYPE-005, LOG-005, CODE-019 | PR #120 Suggestions | Low |
+| TYPE-006, LOG-006 | PR #130 Suggestions | Low |
 
 ---
 
@@ -313,6 +328,7 @@
 | 2025-12-29 | PERF-M01 | 大規模リストコンポーネントのmemo化（PR #119） | Claude |
 | 2025-12-29 | DRY-M01 | Route Handler認証パターン共通化（PR #120） | Claude |
 | 2025-12-29 | LOG-001, LOG-004 | 認証・認可失敗ログ追加（PR #121） | Claude |
+| 2025-12-30 | LOG-002 | エラーオブジェクト全体をログ出力 | Claude |
 
 ---
 

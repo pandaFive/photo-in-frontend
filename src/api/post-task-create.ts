@@ -21,7 +21,7 @@ const postTaskCreate = async (
   if (result.ok) {
     return result.value;
   }
-  logError('[postTaskCreate]', result.error.message);
+  logError('[postTaskCreate]', result.error);
   return { errors: [result.error.message] };
 };
 

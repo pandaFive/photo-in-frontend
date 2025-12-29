@@ -14,6 +14,6 @@ export const getAreas = async (): Promise<Area[] | ErrorResponse> => {
   if (result.ok) {
     return result.value;
   }
-  logError('[getAreas]', result.error.message);
+  logError('[getAreas]', result.error);
   return { errors: [result.error.message] };
 };

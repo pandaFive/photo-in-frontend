@@ -29,6 +29,6 @@ export async function postLogin(
   if (result.ok) {
     return result.value.account;
   }
-  logError('[postLogin]', result.error.message);
+  logError('[postLogin]', result.error);
   return { errors: [result.error.message] };
 }
