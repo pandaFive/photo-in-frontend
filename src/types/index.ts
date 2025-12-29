@@ -1,11 +1,61 @@
-export type Task = {
+/**
+ * TYPE-002: Task型の分離
+ *
+ * バックエンドのPresenterごとに返却フィールドが異なるため、
+ * フロントエンドでも型を分離してtype safetyを確保する。
+ *
+ * @see photo-in-backend/app/presenters/task_presenter.rb
+ */
+
+/**
+ * タスク共通フィールド（全レスポンスで共通）
+ */
+export type BaseTask = {
   id: number;
   task_title: string;
   area_name: string;
-  history_id: number;
-  assign_cycle_id: number;
   created_at: string;
 };
+
+/**
+ * アサイン済みタスク一覧用（メンバー/NGタスク一覧）
+ *
+ * @see render_account_assign_tasks - /account/tasks?id=X
+ * @see render_ng_tasks - /tasks?type=ng
+ */
+export type TaskListItem = BaseTask & {
+  history_id: number;
+  assign_cycle_id: number;
+};
+
+/**
+ * アクティブタスク一覧用（管理者の全タスク一覧）
+ * history_idは含まれない（アサインサイクルのみ）
+ *
+ * @see render_active_tasks - /tasks?type=all
+ */
+export type ActiveTask = BaseTask & {
+  assign_cycle_id: number;
+};
+
+/**
+ * タスク詳細/作成/更新レスポンス用
+ * history_id/assign_cycle_idは含まれない
+ *
+ * @see render_task - /tasks/:id (show/create/update)
+ */
+export type TaskDetail = BaseTask & {
+  area_id: number;
+  updated_at: string;
+};
+
+/**
+ * 後方互換性のためのエイリアス
+ * 新規コードではTaskListItemを使用すること
+ *
+ * @deprecated TaskListItemを使用
+ */
+export type Task = TaskListItem;
 
 export type Comment = {
   id: number;
@@ -47,8 +97,12 @@ export type ResponseStatus = {
   [key: string]: string;
 };
 
+/**
+ * タスクグルーピング結果型
+ * TaskListItem（アサイン済みタスク）のグルーピングに使用
+ */
 export type GroupType = {
-  [key: string]: Task[];
+  [key: string]: TaskListItem[];
 };
 
 export type GroupKey = 'time' | 'area';
