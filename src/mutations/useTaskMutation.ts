@@ -4,20 +4,45 @@ import { KeyedMutator } from 'swr';
 import { DomainError, isDomainError } from '@/src/domain/types/error';
 import { httpClient } from '@/src/infra/http';
 import { MutationErrorType, MutationResult, Task } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 /**
  * DomainErrorからMutationResultを生成するヘルパー
  * TYPE-006: エラー情報を保持してMutationResult形式に変換
  */
 const toMutationError = (
+  context: string,
   error: DomainError,
   fallbackMessage: string
-): MutationResult => ({
-  success: false,
-  error: error.message || fallbackMessage,
-  errorType: error.type as MutationErrorType,
-  statusCode: error.type === 'api' ? error.status : undefined,
-});
+): MutationResult => {
+  logError(context, error);
+  return {
+    success: false,
+    error: error.message || fallbackMessage,
+    errorType: error.type as MutationErrorType,
+    statusCode: error.type === 'api' ? error.status : undefined,
+  };
+};
+
+/**
+ * 非DomainErrorをMutationResultに変換するヘルパー
+ * TypeError: ネットワークエラー（fetch失敗）
+ * その他: 予期しないエラー
+ */
+const toUnexpectedError = (
+  context: string,
+  error: unknown,
+  fallbackMessage: string
+): MutationResult => {
+  logError(context, error);
+  const isNetworkError = error instanceof TypeError;
+  const message = error instanceof Error ? error.message : fallbackMessage;
+  return {
+    success: false,
+    error: message,
+    errorType: isNetworkError ? 'network' : undefined,
+  };
+};
 
 /**
  * タスク更新用Mutation Hook
@@ -65,10 +90,9 @@ export const useTaskMutation = (mutate: KeyedMutator<Task[]>) => {
         return { success: true, data: undefined };
       } catch (e) {
         if (isDomainError(e)) {
-          return toMutationError(e, '完了処理に失敗しました');
+          return toMutationError('[completeTask]', e, '完了処理に失敗しました');
         }
-        const message = e instanceof Error ? e.message : '完了処理に失敗しました';
-        return { success: false, error: message };
+        return toUnexpectedError('[completeTask]', e, '完了処理に失敗しました');
       } finally {
         pendingTasksRef.current.delete(taskId);
       }
@@ -105,10 +129,9 @@ export const useTaskMutation = (mutate: KeyedMutator<Task[]>) => {
         return { success: true, data: undefined };
       } catch (e) {
         if (isDomainError(e)) {
-          return toMutationError(e, 'NG処理に失敗しました');
+          return toMutationError('[markAsNG]', e, 'NG処理に失敗しました');
         }
-        const message = e instanceof Error ? e.message : 'NG処理に失敗しました';
-        return { success: false, error: message };
+        return toUnexpectedError('[markAsNG]', e, 'NG処理に失敗しました');
       } finally {
         pendingTasksRef.current.delete(taskId);
       }
@@ -147,11 +170,9 @@ export const useTaskMutation = (mutate: KeyedMutator<Task[]>) => {
         return { success: true, data: undefined };
       } catch (e) {
         if (isDomainError(e)) {
-          return toMutationError(e, '再アサイン処理に失敗しました');
+          return toMutationError('[reassign]', e, '再アサイン処理に失敗しました');
         }
-        const message =
-          e instanceof Error ? e.message : '再アサイン処理に失敗しました';
-        return { success: false, error: message };
+        return toUnexpectedError('[reassign]', e, '再アサイン処理に失敗しました');
       } finally {
         pendingTasksRef.current.delete(taskId);
       }

@@ -95,6 +95,33 @@ describe('useTaskMutation', () => {
       });
     });
 
+    test('returns error with errorType on network failure', async () => {
+      mockHttpClient.put.mockResolvedValueOnce({
+        ok: false,
+        error: { type: 'network', message: 'Network error' },
+      });
+      mockMutate.mockImplementation(async (updater) => {
+        if (typeof updater === 'function') {
+          await updater(mockTasks);
+        }
+      });
+
+      const { result } = renderHook(() => useTaskMutation(mockMutate));
+
+      let response;
+      await act(async () => {
+        response = await result.current.completeTask(1, 'h1');
+      });
+
+      // TYPE-006: ネットワークエラー時はstatusCodeなし
+      expect(response).toEqual({
+        success: false,
+        error: 'Network error',
+        errorType: 'network',
+        statusCode: undefined,
+      });
+    });
+
     test('prevents duplicate requests for same task', async () => {
       let resolveFirst: () => void;
       const firstPromise = new Promise<void>((resolve) => {
@@ -188,6 +215,33 @@ describe('useTaskMutation', () => {
       });
     });
 
+    test('returns error with errorType on network failure', async () => {
+      mockHttpClient.put.mockResolvedValueOnce({
+        ok: false,
+        error: { type: 'network', message: 'Network error' },
+      });
+      mockMutate.mockImplementation(async (updater) => {
+        if (typeof updater === 'function') {
+          await updater(mockTasks);
+        }
+      });
+
+      const { result } = renderHook(() => useTaskMutation(mockMutate));
+
+      let response;
+      await act(async () => {
+        response = await result.current.markAsNG(1, 'h1');
+      });
+
+      // TYPE-006: ネットワークエラー時はstatusCodeなし
+      expect(response).toEqual({
+        success: false,
+        error: 'Network error',
+        errorType: 'network',
+        statusCode: undefined,
+      });
+    });
+
     test('prevents duplicate requests for same task', async () => {
       let resolveFirst: () => void;
       const firstPromise = new Promise<void>((resolve) => {
@@ -275,6 +329,33 @@ describe('useTaskMutation', () => {
         error: 'Task not found',
         errorType: 'api',
         statusCode: 404,
+      });
+    });
+
+    test('returns error with errorType on network failure', async () => {
+      mockHttpClient.put.mockResolvedValueOnce({
+        ok: false,
+        error: { type: 'network', message: 'Network error' },
+      });
+      mockMutate.mockImplementation(async (updater) => {
+        if (typeof updater === 'function') {
+          await updater(mockTasks);
+        }
+      });
+
+      const { result } = renderHook(() => useTaskMutation(mockMutate));
+
+      let response;
+      await act(async () => {
+        response = await result.current.reassign(1, 't1');
+      });
+
+      // TYPE-006: ネットワークエラー時はstatusCodeなし
+      expect(response).toEqual({
+        success: false,
+        error: 'Network error',
+        errorType: 'network',
+        statusCode: undefined,
       });
     });
 
