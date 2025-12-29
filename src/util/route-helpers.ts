@@ -56,23 +56,34 @@ export const requireAuth = (): AuthResult => {
 };
 
 /**
+ * TYPE-005: 管理者権限チェック結果の型（判別共用体）
+ * requireAuth, requireValidIdと同じパターンに統一
+ */
+type AdminResult =
+  | { ok: true }
+  | { ok: false; response: NextResponse };
+
+/**
  * 管理者権限チェック
  * 権限がない場合はNextResponseを返す
  *
  * @example
- * const adminCheck = requireAdmin();
- * if (adminCheck) return adminCheck;
+ * const adminResult = requireAdmin();
+ * if (!adminResult.ok) return adminResult.response;
  */
-export const requireAdmin = (): NextResponse | null => {
+export const requireAdmin = (): AdminResult => {
   if (!isAdminFromCookie()) {
     // LOG-004: 認可失敗ログ（セキュリティ監視用）
     logWarn('[requireAdmin]', '管理者権限が必要な操作への非管理者アクセス試行');
-    return NextResponse.json(
-      { errors: ['この操作には管理者権限が必要です'] },
-      { status: 403 },
-    );
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { errors: ['この操作には管理者権限が必要です'] },
+        { status: 403 },
+      ),
+    };
   }
-  return null;
+  return { ok: true };
 };
 
 /**
