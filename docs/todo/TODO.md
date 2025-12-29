@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 17 | 8 |
-| **合計** | **37** | **28** | **9** |
+| Low | 25 | 18 | 7 |
+| **合計** | **37** | **29** | **8** |
 
 ---
 
@@ -163,12 +163,13 @@
   - 問題: `requireAdmin()`が`null | NextResponse`を返し、他のヘルパー（`requireAuth`, `requireValidId`）の`{ ok: boolean }`パターンと不整合
   - 対応: `AdminResult = { ok: true } | { ok: false; response: NextResponse }` に変更
 
-- [ ] **TYPE-006**: MutationResultでフルエラーオブジェクト保持
+- [x] **TYPE-006**: MutationResultでフルエラーオブジェクト保持 ✅完了
   - ファイル: `src/types/index.ts`, `src/mutations/*.ts`
+  - 完了日: 2025-12-30
   - 問題: `MutationResult.error`が`string`型のため、mutation層でエラー情報（type, status）が消失
-  - 対応: `error: string`を`error: DomainError | string`に変更、またはerrorCode追加を検討
+  - 対応: `MutationErrorType`型を追加、`errorType?: 'api' | 'network' | 'validation'`と`statusCode?: number`フィールドを追加
+  - 修正箇所: 型定義、useTaskMutation、useAccountMutation、useCommentMutation、関連テスト
   - 出典: PR #130 レビュー
-  - 工数: 2h
 
 ### ログ改善
 
@@ -333,6 +334,7 @@
 | 2025-12-30 | LOG-003 | ログコンテキスト形式の統一 | Claude |
 | 2025-12-30 | FEAT-001 | 404 Not Found ページ作成 | Claude |
 | 2025-12-30 | ERR-L01 | AreaListCheckの広範なcatchブロック改善 | Claude |
+| 2025-12-30 | TYPE-006 | MutationResultでフルエラーオブジェクト保持 | Claude |
 
 ---
 

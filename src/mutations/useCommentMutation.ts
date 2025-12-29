@@ -1,12 +1,18 @@
 import { useCallback } from 'react';
 
 import { httpClient } from '@/src/infra/http';
-import { Comment, CommentApiResponse, MutationResult } from '@/src/types';
+import {
+  Comment,
+  CommentApiResponse,
+  MutationErrorType,
+  MutationResult,
+} from '@/src/types';
 import { logError } from '@/src/util/safe-logger';
 
 /**
  * コメント操作用のmutation hook
  * POST/PUT/DELETE操作を提供
+ * TYPE-006: エラー時にerrorType, statusCodeを保持
  */
 export const useCommentMutation = () => {
   /**
@@ -25,7 +31,13 @@ export const useCommentMutation = () => {
 
       if (!result.ok) {
         logError('[createComment]', result.error);
-        return { success: false, error: result.error.message };
+        return {
+          success: false,
+          error: result.error.message,
+          errorType: result.error.type as MutationErrorType,
+          statusCode:
+            result.error.type === 'api' ? result.error.status : undefined,
+        };
       }
 
       return { success: true, data: result.value };
@@ -45,7 +57,13 @@ export const useCommentMutation = () => {
 
       if (!result.ok) {
         logError('[updateComment]', result.error);
-        return { success: false, error: result.error.message };
+        return {
+          success: false,
+          error: result.error.message,
+          errorType: result.error.type as MutationErrorType,
+          statusCode:
+            result.error.type === 'api' ? result.error.status : undefined,
+        };
       }
 
       return { success: true, data: result.value };
@@ -64,7 +82,13 @@ export const useCommentMutation = () => {
 
       if (!result.ok) {
         logError('[deleteComment]', result.error);
-        return { success: false, error: result.error.message };
+        return {
+          success: false,
+          error: result.error.message,
+          errorType: result.error.type as MutationErrorType,
+          statusCode:
+            result.error.type === 'api' ? result.error.status : undefined,
+        };
       }
 
       return { success: true, data: result.value };
