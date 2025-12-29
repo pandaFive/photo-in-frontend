@@ -232,7 +232,8 @@ const CommentList = (props: Props) => {
         // 新規コメント作成
         createComment(newRow.comment, props.cycleId)
           .then((result) => {
-            if (result.success && result.data) {
+            if (result.success) {
+              // TYPE-001: 判別共用体により、success: trueの場合はdataが保証される
               const newId = result.data.id;
               const newUpdatedRow: CommentRow = { ...updatedRow, id: newId };
               setRows((currentRows) =>
@@ -242,7 +243,7 @@ const CommentList = (props: Props) => {
               );
               showSuccess('コメントを投稿しました');
             } else {
-              showError(result.error ?? 'コメントの投稿に失敗しました');
+              showError(result.error);
             }
           })
           .catch((e) => {

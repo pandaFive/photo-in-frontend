@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 23 | 6 | 17 |
-| **合計** | **35** | **17** | **18** |
+| Low | 23 | 7 | 16 |
+| **合計** | **35** | **18** | **17** |
 
 ---
 
@@ -138,11 +138,12 @@
   - 修正箇所: 型定義、useTaskMutation、useAccountMutation、関連テスト
   - PR: #125
 
-- [ ] **TYPE-002**: Task型とTaskDetail型の分離
-  - ファイル: `src/types/index.ts`
+- [x] **TYPE-002**: Task型とTaskDetail型の分離 ✅完了
+  - ファイル: `src/types/index.ts`, `src/domain/schemas/index.ts`, `src/util/grouping.ts`
+  - 完了日: 2025-12-29
   - 問題: `render_task`は`history_id`/`assign_cycle_id`を返さない
-  - 対応: `TaskListItem`と`TaskDetail`型を新設
-  - 工数: 2h
+  - 対応: `BaseTask`, `TaskListItem`, `ActiveTask`, `TaskDetail`型を新設
+  - 備考: `Task`は後方互換性のため`TaskListItem`のエイリアスとして維持
 
 - [ ] **TYPE-003**: ValidationResult型の判別共用体化（PR #113 Suggestions）
   - ファイル: `src/mutations/useFileUpload.ts`
