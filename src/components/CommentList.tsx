@@ -20,7 +20,7 @@ import {
   GridSlots,
 } from '@mui/x-data-grid';
 import * as React from 'react';
-import { useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 
 import { useToast } from '@/src/context/ToastContext';
 import { getNow } from '@/src/infra/time';
@@ -61,7 +61,7 @@ interface EditToolbarProps {
  * DataGridのツールバーコンポーネント
  * 新しいコメントを追加するためのボタンを提供する
  */
-const EditToolbar = (props: EditToolbarProps) => {
+const EditToolbar = memo((props: EditToolbarProps) => {
   const { setRows, setRowModesModel, role, name } = props;
 
   /**
@@ -102,7 +102,8 @@ const EditToolbar = (props: EditToolbarProps) => {
       </Button>
     </GridToolbarContainer>
   );
-};
+});
+EditToolbar.displayName = 'EditToolbar';
 
 /**
  * コメントデータをDataGrid用の行データに変換する
@@ -408,4 +409,4 @@ const CommentList = (props: Props) => {
   );
 };
 
-export default CommentList;
+export default memo(CommentList);

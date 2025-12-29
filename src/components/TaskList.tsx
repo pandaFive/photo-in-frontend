@@ -12,7 +12,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 import LoadCircle from '@/src/components/LoadCircle';
 import TaskAccordion from '@/src/components/TaskAccordion';
@@ -272,4 +272,4 @@ const TaskList = (props: Props) => {
   );
 };
 
-export default TaskList;
+export default memo(TaskList);
