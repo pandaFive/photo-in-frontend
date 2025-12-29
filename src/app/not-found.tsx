@@ -7,7 +7,11 @@ import Link from 'next/link';
 
 /**
  * 404 Not Found ページ
+ *
  * FEAT-001: カスタム404ページの実装
+ *
+ * Next.js App Routerの規約により、存在しないルートへのアクセス時に
+ * 自動的に表示される。ホームページへの導線を提供。
  */
 const NotFound = () => {
   return (
