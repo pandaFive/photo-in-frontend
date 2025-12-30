@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 22 | 3 |
-| **合計** | **37** | **33** | **4** |
+| Low | 25 | 23 | 2 |
+| **合計** | **37** | **34** | **3** |
 
 ---
 
@@ -270,9 +270,15 @@
 
 ### ツール・インフラ
 
-- [ ] **TOOL-001**: oxlint, oxfmt, tsgo導入
-  - 内容: 高速リンター・フォーマッターへの移行検討
-  - 工数: 4h
+- [x] **TOOL-001**: oxlint, tsgo導入 ✅完了
+  - ファイル: `package.json`, `.eslintrc.json`, `oxlint.json`（新規）
+  - 完了日: 2025-12-30
+  - 内容:
+    - oxlint v1.0導入（30x高速化: 9.2s→0.3s）
+    - tsgo（TypeScript 7 Preview）導入（1.8x高速化: 4.8s→2.6s）
+    - eslint-plugin-oxlint追加（重複ルール無効化）
+  - スクリプト: `npm run lint:ox`, `npm run typecheck`
+  - 備考: oxfmtはAlpha版のため導入見送り（Prettier継続）
 
 ### 新機能
 
@@ -346,6 +352,7 @@
 | 2025-12-30 | DOC-002 | コンポーネントカタログの作成（27コンポーネント） | Claude |
 | 2025-12-30 | OPT-001 | バンドルサイズ分析・最適化（131パッケージ削減） | Claude |
 | 2025-12-30 | OPT-002 | Lighthouseパフォーマンス改善（viewport, 動的インポート, Skeleton） | Claude |
+| 2025-12-30 | TOOL-001 | oxlint, tsgo導入（リント30x高速化、型チェック1.8x高速化） | Claude |
 
 ---
 
