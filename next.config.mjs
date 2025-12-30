@@ -1,4 +1,14 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
+
 /** @type {import('next').NextConfig} */
+
+/**
+ * OPT-001: バンドル分析設定
+ * npm run build:analyze または ANALYZE=true npm run build でバンドルサイズを可視化
+ */
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 /**
  * SEC-012: Content Security Policy (CSP) 設定
@@ -88,4 +98,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
