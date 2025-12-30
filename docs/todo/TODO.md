@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 20 | 5 |
-| **合計** | **37** | **31** | **6** |
+| Low | 25 | 21 | 4 |
+| **合計** | **37** | **32** | **5** |
 
 ---
 
@@ -250,10 +250,14 @@
 
 ### 最適化
 
-- [ ] **OPT-001**: バンドルサイズ分析・最適化
-  - 内容: `@next/bundle-analyzer`導入、未使用コードの削除
-  - 備考: styled-components削除（PERF-004）で12パッケージ削減済み
-  - 工数: 2h
+- [x] **OPT-001**: バンドルサイズ分析・最適化 ✅完了
+  - ファイル: `next.config.mjs`, `package.json`
+  - 完了日: 2025-12-30
+  - 内容:
+    - `@next/bundle-analyzer`導入（`npm run build:analyze`で実行可能）
+    - 未使用パッケージ削除（131パッケージ削減）: tailwindcss, postcss, autoprefixer, eslint-plugin-tailwindcss, @mui/x-data-grid-generator, @types/aria-query
+    - 未使用設定ファイル削除: tailwind.config.ts, postcss.config.js
+    - globals.cssからコメントアウトされたTailwindディレクティブを削除
 
 - [ ] **OPT-002**: Lighthouse パフォーマンススコア改善
   - 内容: Core Web Vitals（LCP, FID, CLS）の計測・改善
@@ -335,6 +339,8 @@
 | 2025-12-30 | ERR-L01 | AreaListCheckの広範なcatchブロック改善 | Claude |
 | 2025-12-30 | TYPE-006 | MutationResultでフルエラーオブジェクト保持 | Claude |
 | 2025-12-30 | DOC-001 | API仕様書の作成（14エンドポイント） | Claude |
+| 2025-12-30 | DOC-002 | コンポーネントカタログの作成（27コンポーネント） | Claude |
+| 2025-12-30 | OPT-001 | バンドルサイズ分析・最適化（131パッケージ削減） | Claude |
 
 ---
 
