@@ -3,6 +3,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
+import dynamic from 'next/dynamic';
 import * as React from 'react';
 
 import { getAccountStatus } from '@/src/api/get-account-status';
@@ -10,13 +11,23 @@ import { getAreas } from '@/src/api/get-areas';
 import { getUnfulfilledCount } from '@/src/api/get-unfulfilled-count';
 import AreaChips from '@/src/components/AreaChips';
 import UploadButton from '@/src/components/Buttons/UploadButton';
-import Chart from '@/src/components/Chart';
+import ChartSkeleton from '@/src/components/ChartSkeleton';
 import Orders from '@/src/components/Orders';
 import Uncompletes from '@/src/components/Uncompletes';
 import { formatDateToEnglish } from '@/src/domain/functions/date';
 import { getNow } from '@/src/infra/time';
 import { isErrorResponse, MemberStatus } from '@/src/types';
 import { logError } from '@/src/util/safe-logger';
+
+/**
+ * OPT-002: Chartを動的インポート
+ * - MUI X Chartsは重いため、コード分割でLCP改善
+ * - ssr: false でクライアントサイドのみでレンダリング
+ */
+const Chart = dynamic(() => import('@/src/components/Chart'), {
+  ssr: false,
+  loading: () => <ChartSkeleton />,
+});
 
 const Dashboard = async () => {
   // PERF-002: バッチ化 - 3つのAPIを並列で呼び出し
