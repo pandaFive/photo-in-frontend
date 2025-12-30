@@ -13,8 +13,8 @@
 | Critical | 2 | 2 | 0 |
 | High | 3 | 2 | 1 |
 | Medium | 7 | 7 | 0 |
-| Low | 25 | 21 | 4 |
-| **合計** | **37** | **32** | **5** |
+| Low | 25 | 22 | 3 |
+| **合計** | **37** | **33** | **4** |
 
 ---
 
@@ -259,10 +259,14 @@
     - 未使用設定ファイル削除: tailwind.config.ts, postcss.config.js
     - globals.cssからコメントアウトされたTailwindディレクティブを削除
 
-- [ ] **OPT-002**: Lighthouse パフォーマンススコア改善
-  - 内容: Core Web Vitals（LCP, FID, CLS）の計測・改善
+- [x] **OPT-002**: Lighthouse パフォーマンススコア改善 ✅完了
+  - ファイル: `src/app/layout.tsx`, `src/app/(admin)/dashboard/page.tsx`, `src/components/ChartSkeleton.tsx`
+  - 完了日: 2025-12-30
+  - 内容:
+    - viewport設定追加（モバイル最適化、アクセシビリティ考慮のズーム許可）
+    - Chart コンポーネントを動的インポート化（MUI X Charts のコード分割）
+    - ChartSkeleton コンポーネント追加（CLS改善）
   - 目標: パフォーマンススコア90以上
-  - 工数: 4h
 
 ### ツール・インフラ
 
@@ -341,6 +345,7 @@
 | 2025-12-30 | DOC-001 | API仕様書の作成（14エンドポイント） | Claude |
 | 2025-12-30 | DOC-002 | コンポーネントカタログの作成（27コンポーネント） | Claude |
 | 2025-12-30 | OPT-001 | バンドルサイズ分析・最適化（131パッケージ削減） | Claude |
+| 2025-12-30 | OPT-002 | Lighthouseパフォーマンス改善（viewport, 動的インポート, Skeleton） | Claude |
 
 ---
 
