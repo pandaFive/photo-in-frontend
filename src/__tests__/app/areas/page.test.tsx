@@ -191,6 +191,80 @@ describe('AreasPage', () => {
     });
   });
 
+  describe('エラー状態', () => {
+    it('エラー時はエラーメッセージを表示する', () => {
+      mockUseSWR.mockReturnValue({
+        data: undefined,
+        error: new Error('ネットワークエラーが発生しました'),
+        isLoading: false,
+        isValidating: false,
+        mutate: mockMutate,
+      } as ReturnType<typeof useSWR>);
+
+      render(<AreasPage />);
+      expect(screen.getByText('エリアの読み込みに失敗しました')).toBeInTheDocument();
+      expect(screen.getByText('ネットワークエラーが発生しました')).toBeInTheDocument();
+    });
+
+    it('エラー時は再試行ボタンが表示される', () => {
+      mockUseSWR.mockReturnValue({
+        data: undefined,
+        error: new Error('エラー'),
+        isLoading: false,
+        isValidating: false,
+        mutate: mockMutate,
+      } as ReturnType<typeof useSWR>);
+
+      render(<AreasPage />);
+      expect(screen.getByRole('button', { name: '再試行' })).toBeInTheDocument();
+    });
+
+    it('再試行ボタンをクリックするとmutateが呼ばれる', async () => {
+      mockUseSWR.mockReturnValue({
+        data: undefined,
+        error: new Error('エラー'),
+        isLoading: false,
+        isValidating: false,
+        mutate: mockMutate,
+      } as ReturnType<typeof useSWR>);
+
+      render(<AreasPage />);
+      const retryButton = screen.getByRole('button', { name: '再試行' });
+      fireEvent.click(retryButton);
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled();
+      });
+    });
+
+    it('エラー時はエリアカードを表示しない', () => {
+      mockUseSWR.mockReturnValue({
+        data: undefined,
+        error: new Error('エラー'),
+        isLoading: false,
+        isValidating: false,
+        mutate: mockMutate,
+      } as ReturnType<typeof useSWR>);
+
+      render(<AreasPage />);
+      expect(screen.queryByText('エリアA')).not.toBeInTheDocument();
+      expect(screen.queryByText('エリアがまだ登録されていません')).not.toBeInTheDocument();
+    });
+
+    it('エラーがError以外の場合は不明なエラーメッセージを表示する', () => {
+      mockUseSWR.mockReturnValue({
+        data: undefined,
+        error: 'string error',
+        isLoading: false,
+        isValidating: false,
+        mutate: mockMutate,
+      } as ReturnType<typeof useSWR>);
+
+      render(<AreasPage />);
+      expect(screen.getByText('不明なエラーが発生しました')).toBeInTheDocument();
+    });
+  });
+
   describe('ダイアログ操作', () => {
     beforeEach(() => {
       mockUseSWR.mockReturnValue({
