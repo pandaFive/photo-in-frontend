@@ -1,5 +1,5 @@
 /**
- * Area DELETE API Route Handler
+ * エリア削除API Route Handler
  *
  * DELETE /api/area/[id] - エリア削除
  */

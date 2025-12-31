@@ -20,6 +20,8 @@ const mockAreas: Area[] = [
 const mockCreateArea = jest.fn();
 const mockUpdateArea = jest.fn();
 const mockDeleteArea = jest.fn();
+const mockShowSuccess = jest.fn();
+const mockShowErrorWithRetry = jest.fn();
 
 jest.mock('@/src/infra/http', () => ({
   httpClient: {
@@ -37,9 +39,9 @@ jest.mock('@/src/mutations', () => ({
 
 jest.mock('@/src/context/ToastContext', () => ({
   useToast: () => ({
-    showSuccess: jest.fn(),
+    showSuccess: mockShowSuccess,
     showError: jest.fn(),
-    showErrorWithRetry: jest.fn(),
+    showErrorWithRetry: mockShowErrorWithRetry,
     showToast: jest.fn(),
     removeToast: jest.fn(),
     toasts: [],
@@ -284,6 +286,152 @@ describe('AreasPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText('エリア追加', { selector: 'h2' })).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('CRUD操作', () => {
+    beforeEach(() => {
+      mockUseSWR.mockReturnValue({
+        data: mockAreas,
+        error: undefined,
+        isLoading: false,
+        isValidating: false,
+        mutate: mockMutate,
+      } as ReturnType<typeof useSWR>);
+    });
+
+    describe('作成', () => {
+      it('新規エリア作成が成功するとmutateが呼ばれる', async () => {
+        mockCreateArea.mockResolvedValue({ success: true, data: { id: 4, name: '新規エリア' } });
+        render(<AreasPage />);
+
+        // ダイアログを開く
+        const addButton = screen.getByRole('button', { name: /エリア追加/ });
+        fireEvent.click(addButton);
+
+        await waitFor(() => {
+          expect(screen.getByText('エリア追加', { selector: 'h2' })).toBeInTheDocument();
+        });
+
+        // エリア名を入力して保存（ダイアログ内のテキストボックスを取得）
+        const input = screen.getByRole('textbox');
+        fireEvent.change(input, { target: { value: '新規エリア' } });
+
+        const saveButton = screen.getByRole('button', { name: '追加' });
+        fireEvent.click(saveButton);
+
+        await waitFor(() => {
+          expect(mockCreateArea).toHaveBeenCalledWith('新規エリア');
+          expect(mockShowSuccess).toHaveBeenCalledWith('エリアを作成しました');
+          expect(mockMutate).toHaveBeenCalled();
+        });
+      });
+
+      it('作成失敗時にshowErrorWithRetryが呼ばれる', async () => {
+        mockCreateArea.mockResolvedValue({ success: false, error: 'エリア名は既に使用されています' });
+        render(<AreasPage />);
+
+        const addButton = screen.getByRole('button', { name: /エリア追加/ });
+        fireEvent.click(addButton);
+
+        await waitFor(() => {
+          expect(screen.getByText('エリア追加', { selector: 'h2' })).toBeInTheDocument();
+        });
+
+        const input = screen.getByRole('textbox');
+        fireEvent.change(input, { target: { value: '既存エリア' } });
+
+        const saveButton = screen.getByRole('button', { name: '追加' });
+        fireEvent.click(saveButton);
+
+        await waitFor(() => {
+          expect(mockCreateArea).toHaveBeenCalledWith('既存エリア');
+          expect(mockShowErrorWithRetry).toHaveBeenCalled();
+          expect(mockMutate).not.toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe('更新', () => {
+      it('エリア更新が成功するとmutateが呼ばれる', async () => {
+        mockUpdateArea.mockResolvedValue({ success: true, data: { id: 1, name: '更新エリア' } });
+        render(<AreasPage />);
+
+        // 編集ボタンをクリック
+        const editButtons = screen.getAllByLabelText('編集');
+        fireEvent.click(editButtons[0]);
+
+        await waitFor(() => {
+          expect(screen.getByText('エリア編集', { selector: 'h2' })).toBeInTheDocument();
+        });
+
+        // エリア名を更新して保存（ダイアログ内のテキストボックスを取得）
+        const input = screen.getByRole('textbox');
+        fireEvent.change(input, { target: { value: '更新エリア' } });
+
+        const saveButton = screen.getByRole('button', { name: '更新' });
+        fireEvent.click(saveButton);
+
+        await waitFor(() => {
+          expect(mockUpdateArea).toHaveBeenCalledWith(1, '更新エリア');
+          expect(mockShowSuccess).toHaveBeenCalledWith('エリアを更新しました');
+          expect(mockMutate).toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe('削除', () => {
+      it('エリア削除が成功するとmutateが呼ばれる', async () => {
+        // confirmをモック
+        const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+        mockDeleteArea.mockResolvedValue({ success: true });
+        render(<AreasPage />);
+
+        // 削除ボタンをクリック
+        const deleteButtons = screen.getAllByRole('button', { name: '削除' });
+        fireEvent.click(deleteButtons[0]);
+
+        await waitFor(() => {
+          expect(confirmSpy).toHaveBeenCalledWith('エリアAを削除しますか？');
+          expect(mockDeleteArea).toHaveBeenCalledWith(1);
+          expect(mockShowSuccess).toHaveBeenCalledWith('エリアを削除しました');
+          expect(mockMutate).toHaveBeenCalled();
+        });
+
+        confirmSpy.mockRestore();
+      });
+
+      it('確認ダイアログでキャンセルすると削除されない', async () => {
+        const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+        render(<AreasPage />);
+
+        const deleteButtons = screen.getAllByRole('button', { name: '削除' });
+        fireEvent.click(deleteButtons[0]);
+
+        await waitFor(() => {
+          expect(confirmSpy).toHaveBeenCalled();
+          expect(mockDeleteArea).not.toHaveBeenCalled();
+        });
+
+        confirmSpy.mockRestore();
+      });
+
+      it('削除失敗時にshowErrorWithRetryが呼ばれる', async () => {
+        const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+        mockDeleteArea.mockResolvedValue({ success: false, error: '削除できませんでした' });
+        render(<AreasPage />);
+
+        const deleteButtons = screen.getAllByRole('button', { name: '削除' });
+        fireEvent.click(deleteButtons[0]);
+
+        await waitFor(() => {
+          expect(mockDeleteArea).toHaveBeenCalledWith(1);
+          expect(mockShowErrorWithRetry).toHaveBeenCalled();
+          expect(mockMutate).not.toHaveBeenCalled();
+        });
+
+        confirmSpy.mockRestore();
       });
     });
   });

@@ -211,6 +211,49 @@ describe('POST /api/area', () => {
       expect(data.errors).toContain('サーバーエラーが発生しました');
       expect(mockLogError).toHaveBeenCalled();
     });
+
+    it('成功レスポンスのJSONパースに失敗した場合は502を返す', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => {
+          throw new Error('Invalid JSON');
+        },
+      });
+
+      const request = new NextRequest('http://localhost/api/area', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'テストエリア' }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(502);
+      expect(data.errors).toContain('サーバーからの応答を解析できませんでした');
+      expect(mockLogError).toHaveBeenCalled();
+    });
+
+    it('エラーレスポンスのテキスト読み取りに失敗した場合もエラーを返す', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: async () => {
+          throw new Error('Read error');
+        },
+      });
+
+      const request = new NextRequest('http://localhost/api/area', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'テストエリア' }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.errors).toBeDefined();
+      expect(mockLogError).toHaveBeenCalled();
+    });
   });
 });
 
@@ -384,6 +427,49 @@ describe('PUT /api/area', () => {
 
       expect(response.status).toBe(500);
       expect(data.errors).toContain('サーバーエラーが発生しました');
+      expect(mockLogError).toHaveBeenCalled();
+    });
+
+    it('成功レスポンスのJSONパースに失敗した場合は502を返す', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => {
+          throw new Error('Invalid JSON');
+        },
+      });
+
+      const request = new NextRequest('http://localhost/api/area', {
+        method: 'PUT',
+        body: JSON.stringify({ id: 1, name: '更新エリア' }),
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(502);
+      expect(data.errors).toContain('サーバーからの応答を解析できませんでした');
+      expect(mockLogError).toHaveBeenCalled();
+    });
+
+    it('エラーレスポンスのテキスト読み取りに失敗した場合もエラーを返す', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: async () => {
+          throw new Error('Read error');
+        },
+      });
+
+      const request = new NextRequest('http://localhost/api/area', {
+        method: 'PUT',
+        body: JSON.stringify({ id: 1, name: '更新エリア' }),
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.errors).toBeDefined();
       expect(mockLogError).toHaveBeenCalled();
     });
   });

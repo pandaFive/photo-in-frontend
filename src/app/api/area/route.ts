@@ -1,5 +1,5 @@
 /**
- * Area API Route Handler
+ * エリアAPI Route Handler
  *
  * POST /api/area - エリア新規作成
  * PUT /api/area - エリア更新

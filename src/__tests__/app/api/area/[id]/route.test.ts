@@ -182,5 +182,38 @@ describe('DELETE /api/area/[id]', () => {
       expect(data.errors).toContain('サーバーエラーが発生しました');
       expect(mockLogError).toHaveBeenCalled();
     });
+
+    it('成功レスポンスのJSONパースに失敗した場合は502を返す', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => {
+          throw new Error('Invalid JSON');
+        },
+      });
+
+      const response = await DELETE(createRequest('1'), createContext('1'));
+      const data = await response.json();
+
+      expect(response.status).toBe(502);
+      expect(data.errors).toContain('サーバーからの応答を解析できませんでした');
+      expect(mockLogError).toHaveBeenCalled();
+    });
+
+    it('エラーレスポンスのテキスト読み取りに失敗した場合もエラーを返す', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: async () => {
+          throw new Error('Read error');
+        },
+      });
+
+      const response = await DELETE(createRequest('1'), createContext('1'));
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.errors).toBeDefined();
+      expect(mockLogError).toHaveBeenCalled();
+    });
   });
 });
