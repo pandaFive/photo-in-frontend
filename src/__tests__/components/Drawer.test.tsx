@@ -225,20 +225,20 @@ describe('Drawer', () => {
   });
 
   describe('リスト構造', () => {
-    test('メインリストにはListItemButtonが4つある', () => {
+    test('メインリストにはListItemButtonが5つある', () => {
       render(<Drawer {...defaultProps} open={true} />);
 
-      // Main menu items: ダッシュボード、タスク一覧、アカウント一覧、アカウント作成
+      // Main menu items: ダッシュボード、タスク一覧、アカウント一覧、アカウント作成、エリア管理
       // Secondary items: 今月、前四半期、年間
       const listItemButtons = document.querySelectorAll('.MuiListItemButton-root');
-      expect(listItemButtons.length).toBe(7);
+      expect(listItemButtons.length).toBe(8);
     });
 
     test('ListItemIconが各メニュー項目に存在する', () => {
       render(<Drawer {...defaultProps} />);
 
       const listItemIcons = document.querySelectorAll('.MuiListItemIcon-root');
-      expect(listItemIcons.length).toBe(7);
+      expect(listItemIcons.length).toBe(8);
     });
   });
 
