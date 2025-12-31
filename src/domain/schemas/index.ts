@@ -43,7 +43,26 @@ export const TaskDetailSchema = BaseTaskSchema.extend({
 export const TaskSchema = TaskListItemSchema;
 export const TaskArraySchema = TaskListItemArraySchema;
 
-// Comment型スキーマ
+// バックエンドAPIレスポンス用スキーマ（snake_case）
+// @see photo-in-backend/app/presenters/comment_presenter.rb
+export const CommentApiResponseSchema = z.object({
+  id: z.number(),
+  content: z.string(),
+  task_id: z.number(),
+  account_id: z.number(),
+  account_name: z.string().nullable(),
+  account_role: z.string().nullable(),
+  updated_at: z.string(),
+});
+
+export const CommentApiResponseArraySchema = z.array(CommentApiResponseSchema);
+
+// DELETEレスポンス用スキーマ
+export const CommentDeleteResponseSchema = z.object({
+  message: z.string(),
+});
+
+// Comment型スキーマ（フロントエンド用、camelCase）
 export const CommentSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -103,6 +122,7 @@ export type TaskListItemSchemaType = z.infer<typeof TaskListItemSchema>;
 export type ActiveTaskSchemaType = z.infer<typeof ActiveTaskSchema>;
 export type TaskDetailSchemaType = z.infer<typeof TaskDetailSchema>;
 export type TaskSchemaType = z.infer<typeof TaskSchema>; // エイリアス
+export type CommentApiResponseSchemaType = z.infer<typeof CommentApiResponseSchema>;
 export type CommentSchemaType = z.infer<typeof CommentSchema>;
 export type AccountDataSchemaType = z.infer<typeof AccountDataSchema>;
 export type AreaSchemaType = z.infer<typeof AreaSchema>;

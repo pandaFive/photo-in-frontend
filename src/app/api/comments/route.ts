@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { convertApiCommentsToComments } from '@/src/domain/functions/converters';
+import { CommentApiResponseArraySchema } from '@/src/domain/schemas';
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
-import { Comment } from '@/src/types';
+import { CommentApiResponse } from '@/src/types/api-responses';
 import { requireAuth } from '@/src/util/route-helpers';
 import { logError } from '@/src/util/safe-logger';
 import { validateId } from '@/src/util/validation';
@@ -47,9 +49,22 @@ export const GET = async (request: NextRequest) => {
     );
 
     if (res.ok) {
-      let result: Comment[];
+      let apiComments: CommentApiResponse[];
       try {
-        result = (await res.json()) as Comment[];
+        const rawData: unknown = await res.json();
+        // Zodバリデーション: バックエンドレスポンスの構造を検証
+        const validationResult = CommentApiResponseArraySchema.safeParse(rawData);
+        if (!validationResult.success) {
+          logError(
+            '[GET] /api/comments: バリデーション失敗',
+            validationResult.error,
+          );
+          return NextResponse.json(
+            { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+            { status: 502 },
+          );
+        }
+        apiComments = validationResult.data;
       } catch (jsonErr) {
         logError(
           `[GET] /api/comments: res.json() failed (content-type: ${res.headers.get('content-type')})`,
@@ -60,7 +75,11 @@ export const GET = async (request: NextRequest) => {
           { status: 502 },
         );
       }
-      return NextResponse.json(result, {
+
+      // snake_case → camelCase 変換
+      const comments = convertApiCommentsToComments(apiComments);
+
+      return NextResponse.json(comments, {
         headers: {
           'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
         },

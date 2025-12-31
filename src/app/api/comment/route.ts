@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { convertApiCommentToComment } from '@/src/domain/functions/converters';
+import { CommentApiResponseSchema, CommentDeleteResponseSchema } from '@/src/domain/schemas';
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
-import { Comment, CommentApiResponse } from '@/src/types';
+import { CommentApiResponse } from '@/src/types/api-responses';
 import { requireAuth, requireValidId } from '@/src/util/route-helpers';
 import { logError } from '@/src/util/safe-logger';
 
@@ -57,9 +59,22 @@ export const POST = async (request: NextRequest) => {
       }),
     });
     if (res.ok) {
-      let result: Comment;
+      let apiComment: CommentApiResponse;
       try {
-        result = (await res.json()) as Comment;
+        const rawData: unknown = await res.json();
+        // Zodバリデーション: バックエンドレスポンスの構造を検証
+        const validationResult = CommentApiResponseSchema.safeParse(rawData);
+        if (!validationResult.success) {
+          logError(
+            '[POST] /api/comment: バリデーション失敗',
+            validationResult.error,
+          );
+          return NextResponse.json(
+            { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+            { status: 502 },
+          );
+        }
+        apiComment = validationResult.data;
       } catch (jsonErr) {
         logError(
           `[POST] /api/comment: res.json() failed (content-type: ${res.headers.get('content-type')})`,
@@ -70,7 +85,10 @@ export const POST = async (request: NextRequest) => {
           { status: 502 },
         );
       }
-      return NextResponse.json(result);
+
+      // snake_case → camelCase 変換
+      const comment = convertApiCommentToComment(apiComment);
+      return NextResponse.json(comment);
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[POST] /api/comment: res.text() failed', err);
@@ -130,9 +148,22 @@ export const PUT = async (request: NextRequest) => {
       }),
     });
     if (res.ok) {
-      let result: Comment;
+      let apiComment: CommentApiResponse;
       try {
-        result = (await res.json()) as Comment;
+        const rawData: unknown = await res.json();
+        // Zodバリデーション: バックエンドレスポンスの構造を検証
+        const validationResult = CommentApiResponseSchema.safeParse(rawData);
+        if (!validationResult.success) {
+          logError(
+            '[PUT] /api/comment: バリデーション失敗',
+            validationResult.error,
+          );
+          return NextResponse.json(
+            { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+            { status: 502 },
+          );
+        }
+        apiComment = validationResult.data;
       } catch (jsonErr) {
         logError(
           `[PUT] /api/comment: res.json() failed (content-type: ${res.headers.get('content-type')})`,
@@ -143,7 +174,10 @@ export const PUT = async (request: NextRequest) => {
           { status: 502 },
         );
       }
-      return NextResponse.json(result);
+
+      // snake_case → camelCase 変換
+      const comment = convertApiCommentToComment(apiComment);
+      return NextResponse.json(comment);
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[PUT] /api/comment: res.text() failed', err);
@@ -180,9 +214,21 @@ export const DELETE = async (request: NextRequest) => {
     });
 
     if (res.ok) {
-      let result: CommentApiResponse;
       try {
-        result = (await res.json()) as CommentApiResponse;
+        const rawData: unknown = await res.json();
+        // Zodバリデーション: バックエンドレスポンスの構造を検証
+        const validationResult = CommentDeleteResponseSchema.safeParse(rawData);
+        if (!validationResult.success) {
+          logError(
+            '[DELETE] /api/comment: バリデーション失敗',
+            validationResult.error,
+          );
+          return NextResponse.json(
+            { errors: ['バックエンドから不正なレスポンスを受信しました'] },
+            { status: 502 },
+          );
+        }
+        return NextResponse.json(validationResult.data);
       } catch (jsonErr) {
         logError(
           `[DELETE] /api/comment: res.json() failed (content-type: ${res.headers.get('content-type')})`,
@@ -193,7 +239,6 @@ export const DELETE = async (request: NextRequest) => {
           { status: 502 },
         );
       }
-      return NextResponse.json(result);
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[DELETE] /api/comment: res.text() failed', err);

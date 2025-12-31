@@ -20,7 +20,8 @@ type Props = {
   comments: Comment[];
   cycleId: number;
   isLoaded: boolean;
-  error: string | null;
+  fileUrlError: string | null;
+  commentsError: string | null;
   onRetry: () => void;
   url: string;
   date: string;
@@ -115,8 +116,29 @@ const AdminDetail = (props: Props) => {
 
       <Divider sx={{ mb: 2 }} />
 
+      {/* ファイルURLエラー表示 */}
+      {props.fileUrlError && (
+        <Alert
+          action={
+            <Button
+              color="inherit"
+              onClick={props.onRetry}
+              size="small"
+              startIcon={<RefreshIcon />}
+            >
+              再試行
+            </Button>
+          }
+          icon={<ErrorOutlineIcon />}
+          severity="error"
+          sx={{ borderRadius: 2, mb: 2 }}
+        >
+          ファイルURLの取得に失敗しました。
+        </Alert>
+      )}
+
       {/* コメントセクション */}
-      {props.error ? (
+      {props.commentsError ? (
         <Alert
           action={
             <Button
@@ -132,7 +154,7 @@ const AdminDetail = (props: Props) => {
           severity="error"
           sx={{ borderRadius: 2 }}
         >
-          データの取得に失敗しました。再試行してください。
+          コメントの取得に失敗しました。
         </Alert>
       ) : !props.isLoaded ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>

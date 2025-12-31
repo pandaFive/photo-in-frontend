@@ -24,7 +24,8 @@ jest.mock('@/src/queries', () => ({
     comments: [{ id: 1, content: 'Test Comment' }],
     isLoaded: true,
     isLoading: false,
-    error: null,
+    fileUrlError: null,
+    commentsError: null,
     mutate: mockDetailMutate,
   })),
 }));
@@ -61,7 +62,8 @@ describe('TaskAccordion', () => {
       comments: [{ id: 1, content: 'Test Comment' }],
       isLoaded: true,
       isLoading: false,
-      error: null,
+      fileUrlError: null,
+      commentsError: null,
       mutate: mockDetailMutate,
     });
   });
@@ -168,13 +170,14 @@ describe('TaskAccordion', () => {
     expect(screen.getByText('ファイルを開く')).toBeInTheDocument();
   });
 
-  test('displays error message and retry button when error occurs', () => {
+  test('displays error message and retry button when comments error occurs', () => {
     mockUseTaskDetail.mockReturnValue({
-      fileUrl: '',
+      fileUrl: 'http://example.com/file',
       comments: [],
-      isLoaded: false,
+      isLoaded: true,
       isLoading: false,
-      error: 'データの取得に失敗しました',
+      fileUrlError: null,
+      commentsError: 'コメントの取得に失敗しました',
       mutate: mockDetailMutate,
     });
 
@@ -191,19 +194,50 @@ describe('TaskAccordion', () => {
       />,
     );
 
-    // エラーメッセージが表示される（汎用メッセージ）
-    expect(screen.getByText('データの取得に失敗しました。再試行してください。')).toBeInTheDocument();
+    // コメントエラーメッセージが表示される
+    expect(screen.getByText('コメントの取得に失敗しました。')).toBeInTheDocument();
     // 再試行ボタンが表示される
     expect(screen.getByText('再試行')).toBeInTheDocument();
+  });
+
+  test('displays file URL error separately from comments', () => {
+    mockUseTaskDetail.mockReturnValue({
+      fileUrl: '',
+      comments: [{ id: 1, content: 'Test Comment' }],
+      isLoaded: true,
+      isLoading: false,
+      fileUrlError: 'ファイルURLの取得に失敗しました',
+      commentsError: null,
+      mutate: mockDetailMutate,
+    });
+
+    render(
+      <TaskAccordion
+        account={mockAccount}
+        task={mockTask}
+        index={0}
+        type="member"
+        dataType="test"
+        reload={mockReload}
+        mutate={mockListMutate}
+        taskId={mockTask.id}
+      />,
+    );
+
+    // ファイルURLエラーメッセージが表示される
+    expect(screen.getByText('ファイルURLの取得に失敗しました。')).toBeInTheDocument();
+    // コメントは正常に表示される（CommentListがレンダリングされる）
+    expect(screen.getByText('Add comment')).toBeInTheDocument();
   });
 
   test('calls mutate when retry button is clicked', () => {
     mockUseTaskDetail.mockReturnValue({
       fileUrl: '',
       comments: [],
-      isLoaded: false,
+      isLoaded: true,
       isLoading: false,
-      error: 'エラーが発生しました',
+      fileUrlError: null,
+      commentsError: 'エラーが発生しました',
       mutate: mockDetailMutate,
     });
 
@@ -234,7 +268,8 @@ describe('TaskAccordion', () => {
       comments: [],
       isLoaded: false,
       isLoading: true,
-      error: null,
+      fileUrlError: null,
+      commentsError: null,
       mutate: mockDetailMutate,
     });
 
