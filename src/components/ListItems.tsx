@@ -3,6 +3,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import PlaceIcon from '@mui/icons-material/Place';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -82,6 +83,19 @@ export const MainListItems = ({ open }: ListItemsProps) => (
         {open && (
           <ListItemText
             primary="アカウント作成"
+            primaryTypographyProps={{ fontWeight: 500 }}
+          />
+        )}
+      </ListItemButton>
+    </Tooltip>
+    <Tooltip arrow disableHoverListener={open} placement="right" title="エリア管理">
+      <ListItemButton href="/areas" sx={listItemStyle}>
+        <ListItemIcon sx={listItemIconStyle}>
+          <PlaceIcon />
+        </ListItemIcon>
+        {open && (
+          <ListItemText
+            primary="エリア管理"
             primaryTypographyProps={{ fontWeight: 500 }}
           />
         )}
