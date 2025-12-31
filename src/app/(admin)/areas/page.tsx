@@ -44,6 +44,7 @@ const AreasPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // 検索フィルタリング
   const filteredAreas = useMemo(() => {
@@ -107,15 +108,21 @@ const AreasPage = () => {
   // 削除処理
   const handleDelete = useCallback(
     async (id: number) => {
-      const result = await deleteArea(id);
-      if (result.success) {
-        showSuccess('エリアを削除しました');
-        void mutate();
-      } else {
-        showErrorWithRetry(result.error, () => void handleDelete(id));
+      if (deletingId !== null) return;
+      setDeletingId(id);
+      try {
+        const result = await deleteArea(id);
+        if (result.success) {
+          showSuccess('エリアを削除しました');
+          void mutate();
+        } else {
+          showErrorWithRetry(result.error, () => void handleDelete(id));
+        }
+      } finally {
+        setDeletingId(null);
       }
     },
-    [deleteArea, showSuccess, showErrorWithRetry, mutate],
+    [deleteArea, showSuccess, showErrorWithRetry, mutate, deletingId],
   );
 
   const areaCount = areas?.length ?? 0;
@@ -257,6 +264,7 @@ const AreasPage = () => {
             {filteredAreas.map((area) => (
               <AreaCard
                 area={area}
+                isDeleting={deletingId === area.id}
                 key={area.id}
                 onDelete={handleDelete}
                 onEdit={handleOpenEdit}

@@ -39,7 +39,7 @@ describe('AreaCard', () => {
 
     it('削除ボタンが表示される', () => {
       render(<AreaCard {...defaultProps} />);
-      expect(screen.getByLabelText('削除')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '削除' })).toBeInTheDocument();
     });
   });
 
@@ -59,7 +59,7 @@ describe('AreaCard', () => {
       const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
       render(<AreaCard {...defaultProps} />);
 
-      const deleteButton = screen.getByLabelText('削除');
+      const deleteButton = screen.getByRole('button', { name: '削除' });
       fireEvent.click(deleteButton);
 
       expect(confirmSpy).toHaveBeenCalledWith('テストエリアを削除しますか？');
@@ -70,7 +70,7 @@ describe('AreaCard', () => {
       const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
       render(<AreaCard {...defaultProps} />);
 
-      const deleteButton = screen.getByLabelText('削除');
+      const deleteButton = screen.getByRole('button', { name: '削除' });
       fireEvent.click(deleteButton);
 
       expect(mockOnDelete).not.toHaveBeenCalled();
@@ -81,7 +81,7 @@ describe('AreaCard', () => {
       const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
       render(<AreaCard {...defaultProps} />);
 
-      const deleteButton = screen.getByLabelText('削除');
+      const deleteButton = screen.getByRole('button', { name: '削除' });
       fireEvent.click(deleteButton);
 
       expect(mockOnDelete).toHaveBeenCalledWith(1);
@@ -108,6 +108,33 @@ describe('AreaCard', () => {
       const shortNameArea: Area = { id: 3, name: 'A' };
       render(<AreaCard {...defaultProps} area={shortNameArea} />);
       expect(screen.getByText('A')).toBeInTheDocument();
+    });
+  });
+
+  describe('削除中状態', () => {
+    it('isDeleting=trueの時、削除ボタンが無効化される', () => {
+      render(<AreaCard {...defaultProps} isDeleting={true} />);
+
+      const deleteButton = screen.getByRole('button', { name: '削除' });
+      expect(deleteButton).toBeDisabled();
+    });
+
+    it('isDeleting=trueの時、削除ボタンクリックでconfirmが呼ばれない', () => {
+      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+      render(<AreaCard {...defaultProps} isDeleting={true} />);
+
+      const deleteButton = screen.getByRole('button', { name: '削除' });
+      fireEvent.click(deleteButton);
+
+      expect(confirmSpy).not.toHaveBeenCalled();
+      expect(mockOnDelete).not.toHaveBeenCalled();
+      confirmSpy.mockRestore();
+    });
+
+    it('isDeleting=trueの時、ローディングインジケーターが表示される', () => {
+      render(<AreaCard {...defaultProps} isDeleting={true} />);
+
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
   });
 });

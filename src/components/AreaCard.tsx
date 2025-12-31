@@ -3,7 +3,16 @@
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import PlaceIcon from '@mui/icons-material/Place';
-import { Avatar, Box, Card, CardContent, IconButton, Tooltip, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { memo } from 'react';
 
 import { Area } from '@/src/types';
@@ -12,14 +21,16 @@ type Props = {
   area: Area;
   onEdit: (area: Area) => void;
   onDelete: (id: number) => void;
+  isDeleting?: boolean;
 };
 
 /**
  * エリアカードコンポーネント
  * エリア名と編集・削除ボタンを表示
  */
-const AreaCard = ({ area, onEdit, onDelete }: Props) => {
+const AreaCard = ({ area, onEdit, onDelete, isDeleting = false }: Props) => {
   const handleDelete = () => {
+    if (isDeleting) return;
     if (confirm(`${area.name}を削除しますか？`)) {
       onDelete(area.id);
     }
@@ -90,20 +101,27 @@ const AreaCard = ({ area, onEdit, onDelete }: Props) => {
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="削除">
-            <IconButton
-              aria-label="削除"
-              onClick={handleDelete}
-              size="small"
-              sx={{
-                color: 'error.main',
-                '&:hover': {
-                  bgcolor: 'rgba(211, 47, 47, 0.1)',
-                },
-              }}
-            >
-              <DeleteOutlineIcon fontSize="small" />
-            </IconButton>
+          <Tooltip title={isDeleting ? '削除中...' : '削除'}>
+            <span>
+              <IconButton
+                aria-label="削除"
+                disabled={isDeleting}
+                onClick={handleDelete}
+                size="small"
+                sx={{
+                  color: 'error.main',
+                  '&:hover': {
+                    bgcolor: 'rgba(211, 47, 47, 0.1)',
+                  },
+                }}
+              >
+                {isDeleting ? (
+                  <CircularProgress color="error" size={18} />
+                ) : (
+                  <DeleteOutlineIcon fontSize="small" />
+                )}
+              </IconButton>
+            </span>
           </Tooltip>
         </Box>
       </CardContent>

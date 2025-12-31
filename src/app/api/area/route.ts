@@ -29,7 +29,7 @@ const validateAreaName = (name: unknown): { valid: true } | { valid: false; erro
   if (!name || typeof name !== 'string' || name.trim() === '') {
     return { valid: false, error: 'エリア名は必須です' };
   }
-  if (name.length > MAX_NAME_LENGTH) {
+  if (name.trim().length > MAX_NAME_LENGTH) {
     return { valid: false, error: 'エリア名は32文字以内で入力してください' };
   }
   return { valid: true };
@@ -51,7 +51,8 @@ export const POST = async (request: NextRequest) => {
   let body: CreateBody;
   try {
     body = (await request.json()) as CreateBody;
-  } catch {
+  } catch (parseError) {
+    logError('[POST] /api/area: JSON parse failed', parseError);
     return NextResponse.json(
       { errors: ['リクエストボディのJSON形式が不正です'] },
       { status: 400 },
@@ -78,8 +79,16 @@ export const POST = async (request: NextRequest) => {
     });
 
     if (res.ok) {
-      const data: unknown = await res.json();
-      return NextResponse.json(data);
+      try {
+        const data: unknown = await res.json();
+        return NextResponse.json(data);
+      } catch (jsonError) {
+        logError('[POST] /api/area: Success response JSON parse failed', jsonError);
+        return NextResponse.json(
+          { errors: ['サーバーからの応答を解析できませんでした'] },
+          { status: 502 },
+        );
+      }
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[POST] /api/area: res.text() failed', err);
@@ -109,7 +118,8 @@ export const PUT = async (request: NextRequest) => {
   let body: UpdateBody;
   try {
     body = (await request.json()) as UpdateBody;
-  } catch {
+  } catch (parseError) {
+    logError('[PUT] /api/area: JSON parse failed', parseError);
     return NextResponse.json(
       { errors: ['リクエストボディのJSON形式が不正です'] },
       { status: 400 },
@@ -141,8 +151,16 @@ export const PUT = async (request: NextRequest) => {
     });
 
     if (res.ok) {
-      const data: unknown = await res.json();
-      return NextResponse.json(data);
+      try {
+        const data: unknown = await res.json();
+        return NextResponse.json(data);
+      } catch (jsonError) {
+        logError('[PUT] /api/area: Success response JSON parse failed', jsonError);
+        return NextResponse.json(
+          { errors: ['サーバーからの応答を解析できませんでした'] },
+          { status: 502 },
+        );
+      }
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[PUT] /api/area: res.text() failed', err);

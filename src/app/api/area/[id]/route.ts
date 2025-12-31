@@ -41,8 +41,16 @@ export const DELETE = async (_request: NextRequest, context: Context) => {
     });
 
     if (res.ok) {
-      const data: unknown = await res.json();
-      return NextResponse.json(data);
+      try {
+        const data: unknown = await res.json();
+        return NextResponse.json(data);
+      } catch (jsonError) {
+        logError('[DELETE] /api/area/[id]: Success response JSON parse failed', jsonError);
+        return NextResponse.json(
+          { errors: ['サーバーからの応答を解析できませんでした'] },
+          { status: 502 },
+        );
+      }
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[DELETE] /api/area/[id]: res.text() failed', err);
