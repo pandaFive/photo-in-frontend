@@ -7,6 +7,9 @@
  * @see photo-in-backend/app/presenters/task_presenter.rb
  */
 
+// バックエンドAPIレスポンス型のre-export
+export type { CommentApiResponse } from './api-responses';
+
 /**
  * タスク共通フィールド（全レスポンスで共通）
  */

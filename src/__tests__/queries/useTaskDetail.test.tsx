@@ -41,7 +41,8 @@ describe('useTaskDetail (SWR版)', () => {
       expect(result.current.comments).toEqual([]);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.isLoaded).toBe(false);
-      expect(result.current.error).toBeNull();
+      expect(result.current.fileUrlError).toBeNull();
+      expect(result.current.commentsError).toBeNull();
       expect(mockHttpClient.get).not.toHaveBeenCalled();
     });
   });
@@ -64,7 +65,8 @@ describe('useTaskDetail (SWR版)', () => {
       expect(result.current.fileUrl).toBe('https://example.com/file.pdf');
       expect(result.current.comments).toEqual(mockComments);
       expect(result.current.isLoading).toBe(false);
-      expect(result.current.error).toBeNull();
+      expect(result.current.fileUrlError).toBeNull();
+      expect(result.current.commentsError).toBeNull();
     });
 
     test('正しいAPIエンドポイントを呼び出す', async () => {
@@ -144,7 +146,7 @@ describe('useTaskDetail (SWR版)', () => {
   });
 
   describe('エラーハンドリング', () => {
-    test('ファイル取得エラー時にエラーメッセージを返す', async () => {
+    test('ファイル取得エラー時にfileUrlErrorを返し、コメントは正常に取得', async () => {
       mockHttpClient.get
         .mockResolvedValueOnce({ ok: false, error: { type: 'api', status: 404, message: 'File not found' } })
         .mockResolvedValueOnce({ ok: true, value: mockComments });
@@ -155,13 +157,17 @@ describe('useTaskDetail (SWR版)', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.error).toBe('File not found');
+        expect(result.current.isLoaded).toBe(true);
       });
 
-      expect(result.current.isLoaded).toBe(false);
+      // ファイルURLエラーのみ、コメントは正常
+      expect(result.current.fileUrlError).toBe('File not found');
+      expect(result.current.commentsError).toBeNull();
+      expect(result.current.fileUrl).toBe('');
+      expect(result.current.comments).toEqual(mockComments);
     });
 
-    test('コメント取得エラー時にエラーメッセージを返す', async () => {
+    test('コメント取得エラー時にcommentsErrorを返し、ファイルURLは正常に取得', async () => {
       mockHttpClient.get
         .mockResolvedValueOnce({ ok: true, value: 'https://example.com/file.pdf' })
         .mockResolvedValueOnce({ ok: false, error: { type: 'api', status: 500, message: 'Server error' } });
@@ -172,10 +178,14 @@ describe('useTaskDetail (SWR版)', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.error).toBe('Server error');
+        expect(result.current.isLoaded).toBe(true);
       });
 
-      expect(result.current.isLoaded).toBe(false);
+      // コメントエラーのみ、ファイルURLは正常
+      expect(result.current.commentsError).toBe('Server error');
+      expect(result.current.fileUrlError).toBeNull();
+      expect(result.current.fileUrl).toBe('https://example.com/file.pdf');
+      expect(result.current.comments).toEqual([]);
     });
   });
 
@@ -218,7 +228,8 @@ describe('useTaskDetail (SWR版)', () => {
       expect(result.current.comments).toBeDefined();
       expect(result.current.isLoading).toBeDefined();
       expect(result.current.isLoaded).toBeDefined();
-      expect(result.current.error).toBeDefined();
+      expect(result.current.fileUrlError).toBeDefined();
+      expect(result.current.commentsError).toBeDefined();
       // mutate関数も提供（再検証用）
       expect(result.current.mutate).toBeDefined();
     });
@@ -266,7 +277,7 @@ describe('useTaskDetail (SWR版)', () => {
   });
 
   describe('両方のAPIエラー', () => {
-    test('両方のAPIが失敗した場合、ファイル取得エラーが優先される', async () => {
+    test('両方のAPIが失敗した場合、両方のエラーを個別に返す', async () => {
       mockHttpClient.get
         .mockResolvedValueOnce({ ok: false, error: { type: 'api', status: 404, message: 'File not found' } })
         .mockResolvedValueOnce({ ok: false, error: { type: 'api', status: 500, message: 'Comments error' } });
@@ -277,12 +288,14 @@ describe('useTaskDetail (SWR版)', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.error).not.toBeNull();
+        expect(result.current.isLoaded).toBe(true);
       });
 
-      // Promise.allの実装順序により、ファイルエラーが先に処理される
-      expect(result.current.error).toBe('File not found');
-      expect(result.current.isLoaded).toBe(false);
+      // 両方のエラーが個別に返される
+      expect(result.current.fileUrlError).toBe('File not found');
+      expect(result.current.commentsError).toBe('Comments error');
+      expect(result.current.fileUrl).toBe('');
+      expect(result.current.comments).toEqual([]);
     });
   });
 

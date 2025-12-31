@@ -7,11 +7,9 @@ import { logError } from '@/src/util/safe-logger';
 type TaskDetailData = {
   fileUrl: string;
   comments: Comment[];
-};
-
-// エラー型（SWRに渡すため）
-type TaskDetailError = {
-  message: string;
+  // 各リソースのエラー状態を保持
+  fileUrlError: string | null;
+  commentsError: string | null;
 };
 
 // SWRキーの型定義（配列形式で特殊文字問題を回避）
@@ -20,6 +18,7 @@ type TaskDetailKey = readonly ['taskDetail', number, string, number];
 /**
  * タスク詳細データ取得用fetcher
  * ファイルURLとコメントを並列で取得
+ * 各リソースは独立してエラーハンドリングされる
  */
 const taskDetailFetcher = async (
   key: TaskDetailKey
@@ -34,18 +33,26 @@ const taskDetailFetcher = async (
     ),
   ]);
 
+  // 各リソースのエラーを個別にログ出力
   if (!fileResult.ok) {
-    const error: TaskDetailError = { message: fileResult.error.message };
-    throw error;
+    logError('[useTaskDetail] fileUrl fetch failed', {
+      taskTitle,
+      error: fileResult.error.message,
+    });
   }
   if (!commentsResult.ok) {
-    const error: TaskDetailError = { message: commentsResult.error.message };
-    throw error;
+    logError('[useTaskDetail] comments fetch failed', {
+      taskId,
+      accountId,
+      error: commentsResult.error.message,
+    });
   }
 
   return {
-    fileUrl: fileResult.value,
-    comments: commentsResult.value,
+    fileUrl: fileResult.ok ? fileResult.value : '',
+    comments: commentsResult.ok ? commentsResult.value : [],
+    fileUrlError: fileResult.ok ? null : fileResult.error.message,
+    commentsError: commentsResult.ok ? null : commentsResult.error.message,
   };
 };
 
@@ -54,8 +61,10 @@ type UseTaskDetailReturn = {
   comments: Comment[];
   isLoading: boolean;
   isLoaded: boolean;
-  error: string | null;
-  mutate: ReturnType<typeof useSWR<TaskDetailData, TaskDetailError>>['mutate'];
+  // 各リソースごとのエラー状態
+  fileUrlError: string | null;
+  commentsError: string | null;
+  mutate: ReturnType<typeof useSWR<TaskDetailData, Error>>['mutate'];
 };
 
 /**
@@ -83,31 +92,23 @@ export const useTaskDetail = (
     ? ['taskDetail', taskId, taskTitle, accountId] as const
     : null;
 
-  const { data, error, isLoading, mutate } = useSWR<
-    TaskDetailData,
-    TaskDetailError
-  >(swrKey, taskDetailFetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 60000, // 1分間の重複リクエスト防止
-    onError: (err, key) => {
-      // エラーログにコンテキストを追加
-      const [, taskId, taskTitle, accountId] = key as TaskDetailKey;
-      logError('[useTaskDetail]', {
-        error: err,
-        taskId,
-        taskTitle,
-        accountId,
-      });
-    },
-  });
+  const { data, isLoading, mutate } = useSWR<TaskDetailData>(
+    swrKey,
+    taskDetailFetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // 1分間の重複リクエスト防止
+    }
+  );
 
   return {
     fileUrl: data?.fileUrl ?? '',
     comments: data?.comments ?? [],
     isLoading,
     isLoaded: !!data,
-    error: error?.message ?? null,
+    fileUrlError: data?.fileUrlError ?? null,
+    commentsError: data?.commentsError ?? null,
     mutate,
   };
 };

@@ -30,7 +30,7 @@ type Props = {
 const TaskAccordion = (props: Props) => {
   const [expanded, setExpanded] = useState(false);
   // PERF-001: SWRの条件付きフェッチ - expandedがtrueの時のみデータ取得
-  const { fileUrl, comments, isLoaded, error, mutate: mutateDetail } = useTaskDetail(
+  const { fileUrl, comments, isLoaded, fileUrlError, commentsError, mutate: mutateDetail } = useTaskDetail(
     props.task.id,
     props.task.task_title,
     props.account.id,
@@ -130,9 +130,10 @@ const TaskAccordion = (props: Props) => {
           <MemberDetail
             account={props.account}
             comments={comments}
+            commentsError={commentsError}
             cycleId={props.task.assign_cycle_id}
             date={formattedDate}
-            error={error}
+            fileUrlError={fileUrlError}
             id={String(props.task.history_id)}
             isLoaded={isLoaded}
             mutate={props.mutate}
@@ -145,10 +146,11 @@ const TaskAccordion = (props: Props) => {
           <AdminDetail
             account={props.account}
             comments={comments}
+            commentsError={commentsError}
             cycleId={props.task.assign_cycle_id}
             dataType={props.dataType}
             date={formattedDate}
-            error={error}
+            fileUrlError={fileUrlError}
             id={String(props.task.id)}
             isLoaded={isLoaded}
             mutate={props.mutate}
