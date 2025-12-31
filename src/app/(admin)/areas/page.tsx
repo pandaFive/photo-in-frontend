@@ -1,6 +1,7 @@
 'use client';
 
 import AddIcon from '@mui/icons-material/Add';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import PlaceIcon from '@mui/icons-material/Place';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -23,6 +24,7 @@ import { useToast } from '@/src/context/ToastContext';
 import { httpClient } from '@/src/infra/http';
 import { useAreaMutation } from '@/src/mutations';
 import { Area } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 /**
  * エリアデータのフェッチャー
@@ -30,13 +32,14 @@ import { Area } from '@/src/types';
 const fetcher = async (): Promise<Area[]> => {
   const result = await httpClient.get<Area[]>('/api/areas');
   if (!result.ok) {
+    logError('[AreasPage:fetcher]', result.error);
     throw new Error(result.error.message);
   }
   return result.value;
 };
 
 const AreasPage = () => {
-  const { data: areas, isLoading, mutate } = useSWR<Area[]>('areas', fetcher);
+  const { data: areas, error, isLoading, mutate } = useSWR<Area[]>('areas', fetcher);
   const { createArea, updateArea, deleteArea } = useAreaMutation();
   const { showSuccess, showErrorWithRetry } = useToast();
 
@@ -247,8 +250,36 @@ const AreasPage = () => {
           </Box>
         )}
 
+        {/* エラー状態 */}
+        {error && !isLoading && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              borderRadius: 3,
+              bgcolor: 'white',
+            }}
+          >
+            <ErrorOutlineIcon sx={{ fontSize: 64, color: 'error.main', mb: 2 }} />
+            <Typography color="text.secondary" variant="h6">
+              エリアの読み込みに失敗しました
+            </Typography>
+            <Typography color="text.secondary" sx={{ mt: 1 }} variant="body2">
+              {error instanceof Error ? error.message : '不明なエラーが発生しました'}
+            </Typography>
+            <Button
+              onClick={() => void mutate()}
+              sx={{ mt: 2 }}
+              variant="contained"
+            >
+              再試行
+            </Button>
+          </Paper>
+        )}
+
         {/* エリアカードグリッド */}
-        {!isLoading && filteredAreas.length > 0 && (
+        {!isLoading && !error && filteredAreas.length > 0 && (
           <Box
             sx={{
               display: 'grid',
@@ -274,7 +305,7 @@ const AreasPage = () => {
         )}
 
         {/* 空状態 */}
-        {!isLoading && filteredAreas.length === 0 && (
+        {!isLoading && !error && filteredAreas.length === 0 && (
           <Paper
             elevation={0}
             sx={{
