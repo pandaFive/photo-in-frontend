@@ -39,7 +39,7 @@ const fetcher = async (): Promise<Area[]> => {
 };
 
 const AreasPage = () => {
-  const { data: areas, error, isLoading, mutate } = useSWR<Area[]>('areas', fetcher);
+  const { data: areas, error, isLoading, mutate } = useSWR<Area[], Error>('areas', fetcher);
   const { createArea, updateArea, deleteArea } = useAreaMutation();
   const { showSuccess, showErrorWithRetry } = useToast();
 
@@ -297,7 +297,7 @@ const AreasPage = () => {
                 area={area}
                 isDeleting={deletingId === area.id}
                 key={area.id}
-                onDelete={handleDelete}
+                onDelete={(id) => void handleDelete(id)}
                 onEdit={handleOpenEdit}
               />
             ))}

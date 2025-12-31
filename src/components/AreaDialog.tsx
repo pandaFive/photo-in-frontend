@@ -92,6 +92,7 @@ const AreaDialog = ({ open, onClose, onSave, editingArea, isSubmitting }: Props)
           error={!!error}
           fullWidth
           helperText={error}
+          inputProps={{ maxLength: MAX_NAME_LENGTH + 1 }}
           label="エリア名"
           margin="dense"
           onChange={(e) => {
@@ -99,7 +100,6 @@ const AreaDialog = ({ open, onClose, onSave, editingArea, isSubmitting }: Props)
             setError(null);
           }}
           required
-          inputProps={{ maxLength: MAX_NAME_LENGTH + 1 }}
           value={name}
           variant="outlined"
         />
@@ -117,7 +117,7 @@ const AreaDialog = ({ open, onClose, onSave, editingArea, isSubmitting }: Props)
         </Button>
         <Button
           disabled={isSubmitting}
-          onClick={handleSubmit}
+          onClick={() => void handleSubmit()}
           sx={{
             borderRadius: 2,
             bgcolor: '#667eea',
