@@ -170,9 +170,10 @@ export const httpClient = {
       try {
         const data: unknown = JSON.parse(text);
         return validateWithSchema(data, options?.schema);
-      } catch {
+      } catch (jsonErr) {
         // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
-        return err(createApiError(422, 'Invalid JSON response from server'));
+        logError('[httpClient.put] JSON.parse failed', jsonErr);
+        return err(createApiError(502, 'サーバーからの応答を解析できませんでした'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
@@ -213,9 +214,10 @@ export const httpClient = {
       try {
         const data: unknown = JSON.parse(text);
         return validateWithSchema(data, options?.schema);
-      } catch {
+      } catch (jsonErr) {
         // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
-        return err(createApiError(422, 'Invalid JSON response from server'));
+        logError('[httpClient.delete] JSON.parse failed', jsonErr);
+        return err(createApiError(502, 'サーバーからの応答を解析できませんでした'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
@@ -259,9 +261,10 @@ export const httpClient = {
       try {
         const data: unknown = JSON.parse(text);
         return validateWithSchema(data, options?.schema);
-      } catch {
+      } catch (jsonErr) {
         // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
-        return err(createApiError(422, 'Invalid JSON response from server'));
+        logError('[httpClient.postFormData] JSON.parse failed', jsonErr);
+        return err(createApiError(502, 'サーバーからの応答を解析できませんでした'));
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {

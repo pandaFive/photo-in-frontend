@@ -163,6 +163,35 @@ describe('httpClient', () => {
       await expect(httpClient.get('/api/test')).rejects.toThrow('Aborted');
     });
 
+    test('returns 502 error when JSON parsing fails on successful response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve('invalid json {'),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.status).toBe(502);
+        expect(result.error.message).toBe('サーバーからの応答を解析できませんでした');
+      }
+    });
+
+    test('returns empty object on successful empty response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve(''),
+      });
+
+      const result = await httpClient.get('/api/test');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toEqual({});
+      }
+    });
+
     test('passes headers when provided', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -234,6 +263,35 @@ describe('httpClient', () => {
         body: undefined,
       });
     });
+
+    test('returns 502 error when JSON parsing fails on successful response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve('not valid json'),
+      });
+
+      const result = await httpClient.post('/api/test', { name: 'Test' });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.status).toBe(502);
+        expect(result.error.message).toBe('サーバーからの応答を解析できませんでした');
+      }
+    });
+
+    test('returns empty object on successful empty response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve(''),
+      });
+
+      const result = await httpClient.post('/api/test', { name: 'Test' });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toEqual({});
+      }
+    });
   });
 
   describe('put', () => {
@@ -277,7 +335,7 @@ describe('httpClient', () => {
       // 非JSONレスポンスはエラーとして扱う（サイレント失敗防止）
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error.message).toBe('Invalid JSON response from server');
+        expect(result.error.message).toBe('サーバーからの応答を解析できませんでした');
       }
     });
   });
