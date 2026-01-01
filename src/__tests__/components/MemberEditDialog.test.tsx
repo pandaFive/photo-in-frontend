@@ -17,14 +17,6 @@ const mockAreas: Area[] = [
   { id: 3, name: 'エリアC' },
 ];
 
-jest.mock('@/src/api/get-areas', () => ({
-  getAreas: jest.fn().mockResolvedValue([
-    { id: 1, name: 'エリアA' },
-    { id: 2, name: 'エリアB' },
-    { id: 3, name: 'エリアC' },
-  ]),
-}));
-
 jest.mock('@/src/context/ToastContext', () => ({
   useToast: () => ({
     showSuccess: jest.fn(),

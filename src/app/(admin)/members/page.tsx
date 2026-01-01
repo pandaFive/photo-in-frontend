@@ -96,6 +96,7 @@ const Members = () => {
   // 編集ダイアログを開く
   const handleOpenEdit = useCallback((member: MemberStatus) => {
     if (areasError) {
+      logError('[MembersPage:handleOpenEdit] Edit blocked due to areas fetch failure', areasError);
       showError('エリア情報の読み込みに失敗したため、編集できません');
       return;
     }

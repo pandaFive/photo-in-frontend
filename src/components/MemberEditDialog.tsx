@@ -99,6 +99,7 @@ const MemberEditDialog = ({
       await onSave(name.trim(), selectedAreaIds, capacity);
     } catch (error) {
       logError('[MemberEditDialog:handleSubmit] onSave threw', error);
+      throw error; // 親のcatchで処理させる
     }
   };
 
