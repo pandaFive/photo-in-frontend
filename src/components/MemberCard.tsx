@@ -4,6 +4,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
 import PersonIcon from '@mui/icons-material/Person';
 import SpeedIcon from '@mui/icons-material/Speed';
 import {
@@ -18,7 +19,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { memo } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import { useToast } from '@/src/context/ToastContext';
 import { parseIsoToYYYYMMDD } from '@/src/domain/functions/date';
@@ -28,7 +29,8 @@ import { logError } from '@/src/util/safe-logger';
 
 type Props = {
   member: MemberStatus;
-  handleDelete: (id: number) => void;
+  onDelete: (id: number) => void;
+  onEdit: (member: MemberStatus) => void;
 };
 
 // NG率に応じた色を返す
@@ -69,26 +71,33 @@ const StatItem = ({
 const MemberCard = (props: Props) => {
   const { deleteAccount } = useAccountMutation();
   const { showSuccess, showErrorWithRetry } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
   const ngRatePercent = props.member.ng_rate * 100;
   const ngRateColor = getNgRateColor(props.member.ng_rate);
 
-  const onDelete = async () => {
+  const onDelete = useCallback(async () => {
+    if (isDeleting) return;
     if (!confirm(`${props.member.name}を削除しますか？`)) {
       return;
     }
 
-    const result = await deleteAccount(props.member.id);
-    if (result.success) {
-      props.handleDelete(props.member.id);
-      showSuccess('メンバーを削除しました');
-    } else {
-      logError('[MemberCard] deleteAccount', result.error);
-      showErrorWithRetry(
-        result.error ?? 'メンバーの削除に失敗しました',
-        () => void onDelete(),
-      );
+    setIsDeleting(true);
+    try {
+      const result = await deleteAccount(props.member.id);
+      if (result.success) {
+        props.onDelete(props.member.id);
+        showSuccess('メンバーを削除しました');
+      } else {
+        logError('[MemberCard] deleteAccount', result.error);
+        showErrorWithRetry(
+          result.error ?? 'メンバーの削除に失敗しました',
+          () => void onDelete(),
+        );
+      }
+    } finally {
+      setIsDeleting(false);
     }
-  };
+  }, [isDeleting, props, deleteAccount, showSuccess, showErrorWithRetry]);
 
   return (
     <Card
@@ -149,21 +158,44 @@ const MemberCard = (props: Props) => {
               登録: {parseIsoToYYYYMMDD(props.member.createdAt)}
             </Typography>
           </Box>
-          <Tooltip title="メンバーを削除">
-            <IconButton
-              onClick={() => void onDelete()}
-              size="small"
-              sx={{
-                color: 'rgba(255,255,255,0.7)',
-                '&:hover': {
-                  color: 'white',
-                  bgcolor: 'rgba(255,255,255,0.1)',
-                },
-              }}
-            >
-              <DeleteOutlineIcon />
-            </IconButton>
-          </Tooltip>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Tooltip title="編集">
+              <IconButton
+                aria-label="編集"
+                onClick={() => props.onEdit(props.member)}
+                size="small"
+                sx={{
+                  color: 'rgba(255,255,255,0.7)',
+                  '&:hover': {
+                    color: 'white',
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                  },
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="メンバーを削除">
+              <IconButton
+                aria-label="メンバーを削除"
+                disabled={isDeleting}
+                onClick={() => void onDelete()}
+                size="small"
+                sx={{
+                  color: 'rgba(255,255,255,0.7)',
+                  '&:hover': {
+                    color: 'white',
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                  },
+                  '&.Mui-disabled': {
+                    color: 'rgba(255,255,255,0.3)',
+                  },
+                }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </Box>
 

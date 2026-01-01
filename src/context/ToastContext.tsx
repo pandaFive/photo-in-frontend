@@ -24,6 +24,7 @@ type ToastContextValue = {
   showToast: (message: string, type?: ToastType, duration?: number) => void;
   showError: (message: string) => void;
   showSuccess: (message: string) => void;
+  showWarning: (message: string) => void;
   showErrorWithRetry: (message: string, onRetry: () => void) => void;
   removeToast: (id: string) => void;
 };
@@ -83,6 +84,13 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
     [showToast],
   );
 
+  const showWarning = useCallback(
+    (message: string) => {
+      showToast(message, 'warning');
+    },
+    [showToast],
+  );
+
   const showErrorWithRetry = useCallback(
     (message: string, onRetry: () => void) => {
       const id = generateToastId();
@@ -105,10 +113,11 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       showToast,
       showError,
       showSuccess,
+      showWarning,
       showErrorWithRetry,
       removeToast,
     }),
-    [toasts, showToast, showError, showSuccess, showErrorWithRetry, removeToast],
+    [toasts, showToast, showError, showSuccess, showWarning, showErrorWithRetry, removeToast],
   );
 
   return (
