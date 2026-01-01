@@ -126,11 +126,14 @@ const Members = () => {
             void handleSave(name, areaIds, capacity),
           );
         }
+      } catch (error) {
+        logError('[MembersPage:handleSave] Unexpected error', error);
+        showError('予期せぬエラーが発生しました。ページを再読み込みしてください。');
       } finally {
         setIsSubmitting(false);
       }
     },
-    [editingMember, updateAccount, showSuccess, showErrorWithRetry, handleCloseDialog, mutate],
+    [editingMember, updateAccount, showSuccess, showError, showErrorWithRetry, handleCloseDialog, mutate],
   );
 
   const memberCount = members?.length ?? 0;

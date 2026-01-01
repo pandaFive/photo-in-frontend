@@ -33,6 +33,12 @@ jest.mock('@/src/context/ToastContext', () => ({
   }),
 }));
 
+jest.mock('@/src/util/safe-logger', () => ({
+  logError: jest.fn(),
+  logWarn: jest.fn(),
+  logDebug: jest.fn(),
+}));
+
 /**
  * MUI TextFieldの入力要素を取得するヘルパー
  */
@@ -175,7 +181,24 @@ describe('MemberEditDialog', () => {
       fireEvent.click(updateButton);
 
       await waitFor(() => {
-        expect(screen.getByText('1日の最大撮影数は0以上で入力してください')).toBeInTheDocument();
+        expect(screen.getByText('1日の最大撮影数は0以上1000以下の整数で入力してください')).toBeInTheDocument();
+      });
+      expect(mockOnSave).not.toHaveBeenCalled();
+    });
+
+    it('キャパシティが上限を超えるとエラーメッセージが表示される', async () => {
+      render(<MemberEditDialog {...defaultProps} />);
+
+      await waitFor(() => {
+        const input = getCapacityInput();
+        fireEvent.change(input, { target: { value: '1001' } });
+      });
+
+      const updateButton = screen.getByRole('button', { name: '更新' });
+      fireEvent.click(updateButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('1日の最大撮影数は0以上1000以下の整数で入力してください')).toBeInTheDocument();
       });
       expect(mockOnSave).not.toHaveBeenCalled();
     });

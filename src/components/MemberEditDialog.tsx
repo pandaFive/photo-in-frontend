@@ -16,9 +16,13 @@ import {
 import { useState, useEffect } from 'react';
 
 import { Area, MemberStatus } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
 
 /** 名前の最大文字数 */
 const MAX_NAME_LENGTH = 32;
+
+/** キャパシティの最大値 */
+const MAX_CAPACITY = 1000;
 
 type Props = {
   open: boolean;
@@ -76,8 +80,8 @@ const MemberEditDialog = ({
   };
 
   const validateCapacity = (value: number): string | null => {
-    if (value < 0 || !Number.isInteger(value)) {
-      return '1日の最大撮影数は0以上で入力してください';
+    if (value < 0 || !Number.isInteger(value) || value > MAX_CAPACITY) {
+      return `1日の最大撮影数は0以上${MAX_CAPACITY}以下の整数で入力してください`;
     }
     return null;
   };
@@ -91,7 +95,11 @@ const MemberEditDialog = ({
       return;
     }
 
-    await onSave(name.trim(), selectedAreaIds, capacity);
+    try {
+      await onSave(name.trim(), selectedAreaIds, capacity);
+    } catch (error) {
+      logError('[MemberEditDialog:handleSubmit] onSave threw', error);
+    }
   };
 
   const handleClose = () => {

@@ -204,7 +204,7 @@ describe('PUT /api/account', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.errors).toContain('キャパシティは0以上の整数で指定してください');
+      expect(data.errors).toContain('1日の最大撮影数は0以上1000以下の整数で入力してください');
     });
 
     it('capacityが整数でない場合は400を返す', async () => {
@@ -217,7 +217,20 @@ describe('PUT /api/account', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.errors).toContain('キャパシティは0以上の整数で指定してください');
+      expect(data.errors).toContain('1日の最大撮影数は0以上1000以下の整数で入力してください');
+    });
+
+    it('capacityが上限を超える場合は400を返す', async () => {
+      const request = new NextRequest('http://localhost/api/account', {
+        method: 'PUT',
+        body: JSON.stringify({ id: 1, name: 'テスト', area: [], capacity: 1001 }),
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.errors).toContain('1日の最大撮影数は0以上1000以下の整数で入力してください');
     });
   });
 

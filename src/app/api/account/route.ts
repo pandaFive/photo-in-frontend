@@ -12,6 +12,9 @@ import { logError } from '@/src/util/safe-logger';
 /** 名前の最大文字数 */
 const MAX_NAME_LENGTH = 32;
 
+/** キャパシティの最大値 */
+const MAX_CAPACITY = 1000;
+
 type UpdateBody = {
   id: number;
   name: string;
@@ -61,8 +64,8 @@ const validateAreaArray = (area: unknown): { valid: true } | { valid: false; err
  * キャパシティのバリデーション
  */
 const validateCapacity = (capacity: unknown): { valid: true } | { valid: false; error: string } => {
-  if (!Number.isInteger(capacity) || (capacity as number) < 0) {
-    return { valid: false, error: 'キャパシティは0以上の整数で指定してください' };
+  if (!Number.isInteger(capacity) || (capacity as number) < 0 || (capacity as number) > MAX_CAPACITY) {
+    return { valid: false, error: `1日の最大撮影数は0以上${MAX_CAPACITY}以下の整数で入力してください` };
   }
   return { valid: true };
 };
