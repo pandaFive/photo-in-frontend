@@ -13,6 +13,7 @@ import { Area, MemberStatus } from '@/src/types';
 const mockMutate = jest.fn();
 const mockUpdateAccount = jest.fn();
 const mockShowSuccess = jest.fn();
+const mockShowError = jest.fn();
 const mockShowErrorWithRetry = jest.fn();
 
 // テストデータ
@@ -107,7 +108,7 @@ jest.mock('@/src/mutations', () => ({
 jest.mock('@/src/context/ToastContext', () => ({
   useToast: () => ({
     showSuccess: mockShowSuccess,
-    showError: jest.fn(),
+    showError: mockShowError,
     showErrorWithRetry: mockShowErrorWithRetry,
   }),
 }));
@@ -326,6 +327,27 @@ describe('Members Page', () => {
         expect(screen.getByText('山田太郎')).toBeInTheDocument();
         expect(screen.getByText('佐藤花子')).toBeInTheDocument();
       });
+    });
+
+    it('エリア読み込みエラー時に編集ボタンをクリックするとエラートーストが表示される', async () => {
+      areasResponse = {
+        data: undefined,
+        error: new Error('エリアの読み込みに失敗'),
+        isLoading: false,
+        mutate: jest.fn(),
+      };
+
+      render(<Members />);
+
+      await waitFor(() => {
+        expect(screen.getByText('山田太郎')).toBeInTheDocument();
+      });
+
+      const editButtons = screen.getAllByLabelText('編集');
+      fireEvent.click(editButtons[0]);
+
+      expect(mockShowError).toHaveBeenCalledWith('エリア情報の読み込みに失敗したため、編集できません');
+      expect(screen.queryByText('メンバー編集')).not.toBeInTheDocument();
     });
   });
 

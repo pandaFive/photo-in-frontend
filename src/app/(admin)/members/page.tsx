@@ -58,10 +58,10 @@ const Members = () => {
     isLoading: membersLoading,
     mutate,
   } = useSWR<MemberStatus[], Error>('members', membersFetcher);
-  const { data: areas, isLoading: areasLoading } = useSWR<Area[], Error>('areas', areasFetcher);
+  const { data: areas, error: areasError, isLoading: areasLoading } = useSWR<Area[], Error>('areas', areasFetcher);
 
   const { updateAccount } = useAccountMutation();
-  const { showSuccess, showErrorWithRetry } = useToast();
+  const { showSuccess, showError, showErrorWithRetry } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,9 +95,13 @@ const Members = () => {
 
   // 編集ダイアログを開く
   const handleOpenEdit = useCallback((member: MemberStatus) => {
+    if (areasError) {
+      showError('エリア情報の読み込みに失敗したため、編集できません');
+      return;
+    }
     setEditingMember(member);
     setDialogOpen(true);
-  }, []);
+  }, [areasError, showError]);
 
   // ダイアログを閉じる
   const handleCloseDialog = useCallback(() => {
