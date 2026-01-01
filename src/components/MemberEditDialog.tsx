@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Area, MemberStatus } from '@/src/types';
 
@@ -63,13 +63,6 @@ const MemberEditDialog = ({
       setErrors({ name: null, capacity: null });
     }
   }, [open, editingMember, areas]);
-
-  // エリア名からIDへのマッピング
-  const areaNameToId = useMemo(() => {
-    const map = new Map<string, number>();
-    areas.forEach((area) => map.set(area.name, area.id));
-    return map;
-  }, [areas]);
 
   const validateName = (value: string): string | null => {
     const trimmed = value.trim();
