@@ -9,11 +9,13 @@
 
 // モック設定
 const mockIsAuthenticated = jest.fn();
+const mockIsAdminFromCookie = jest.fn();
 const mockGetAuthHeaders = jest.fn();
 const mockLogError = jest.fn();
 
 jest.mock('@/src/util/auth-check', () => ({
   isAuthenticated: () => mockIsAuthenticated(),
+  isAdminFromCookie: () => mockIsAdminFromCookie(),
 }));
 
 jest.mock('@/src/util/auth-headers', () => ({
@@ -43,14 +45,16 @@ describe('GET /api/accounts', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // デフォルト: 認証・認可成功
     mockIsAuthenticated.mockReturnValue(true);
+    mockIsAdminFromCookie.mockReturnValue(true);
     mockGetAuthHeaders.mockReturnValue({
       ok: true,
       headers: { Authorization: 'Bearer test-token' },
     });
   });
 
-  describe('認証', () => {
+  describe('認証・認可', () => {
     it('未認証の場合は401を返す', async () => {
       mockIsAuthenticated.mockReturnValue(false);
 
@@ -59,6 +63,16 @@ describe('GET /api/accounts', () => {
 
       expect(response.status).toBe(401);
       expect(data.errors).toContain('認証が必要です');
+    });
+
+    it('管理者でない場合は403を返す', async () => {
+      mockIsAdminFromCookie.mockReturnValue(false);
+
+      const response = await GET();
+      const data = await response.json();
+
+      expect(response.status).toBe(403);
+      expect(data.errors).toContain('この操作には管理者権限が必要です');
     });
   });
 

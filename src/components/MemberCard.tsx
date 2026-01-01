@@ -19,7 +19,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { memo } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import { useToast } from '@/src/context/ToastContext';
 import { parseIsoToYYYYMMDD } from '@/src/domain/functions/date';
@@ -71,26 +71,33 @@ const StatItem = ({
 const MemberCard = (props: Props) => {
   const { deleteAccount } = useAccountMutation();
   const { showSuccess, showErrorWithRetry } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
   const ngRatePercent = props.member.ng_rate * 100;
   const ngRateColor = getNgRateColor(props.member.ng_rate);
 
-  const onDelete = async () => {
+  const onDelete = useCallback(async () => {
+    if (isDeleting) return;
     if (!confirm(`${props.member.name}を削除しますか？`)) {
       return;
     }
 
-    const result = await deleteAccount(props.member.id);
-    if (result.success) {
-      props.handleDelete(props.member.id);
-      showSuccess('メンバーを削除しました');
-    } else {
-      logError('[MemberCard] deleteAccount', result.error);
-      showErrorWithRetry(
-        result.error ?? 'メンバーの削除に失敗しました',
-        () => void onDelete(),
-      );
+    setIsDeleting(true);
+    try {
+      const result = await deleteAccount(props.member.id);
+      if (result.success) {
+        props.handleDelete(props.member.id);
+        showSuccess('メンバーを削除しました');
+      } else {
+        logError('[MemberCard] deleteAccount', result.error);
+        showErrorWithRetry(
+          result.error ?? 'メンバーの削除に失敗しました',
+          () => void onDelete(),
+        );
+      }
+    } finally {
+      setIsDeleting(false);
     }
-  };
+  }, [isDeleting, props, deleteAccount, showSuccess, showErrorWithRetry]);
 
   return (
     <Card
@@ -171,6 +178,7 @@ const MemberCard = (props: Props) => {
             <Tooltip title="メンバーを削除">
               <IconButton
                 aria-label="メンバーを削除"
+                disabled={isDeleting}
                 onClick={() => void onDelete()}
                 size="small"
                 sx={{
@@ -178,6 +186,9 @@ const MemberCard = (props: Props) => {
                   '&:hover': {
                     color: 'white',
                     bgcolor: 'rgba(255,255,255,0.1)',
+                  },
+                  '&.Mui-disabled': {
+                    color: 'rgba(255,255,255,0.3)',
                   },
                 }}
               >

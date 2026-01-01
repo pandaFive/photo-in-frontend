@@ -158,6 +158,40 @@ describe('MemberCard', () => {
 
       confirmSpy.mockRestore();
     });
+
+    it('削除中は削除ボタンが無効化されダブルクリックを防ぐ', async () => {
+      let resolveDelete: (value: { success: boolean }) => void;
+      const deletePromise = new Promise<{ success: boolean }>((resolve) => {
+        resolveDelete = resolve;
+      });
+      mockDeleteAccount.mockReturnValue(deletePromise);
+
+      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+      render(<MemberCard {...defaultProps} />);
+
+      const deleteButton = screen.getByLabelText('メンバーを削除');
+
+      // 1回目のクリック
+      fireEvent.click(deleteButton);
+
+      // 削除中はボタンが無効化される
+      await waitFor(() => {
+        expect(deleteButton).toBeDisabled();
+      });
+
+      // 2回目のクリックは無視される
+      fireEvent.click(deleteButton);
+      expect(mockDeleteAccount).toHaveBeenCalledTimes(1);
+
+      // 削除完了
+      resolveDelete!({ success: true });
+
+      await waitFor(() => {
+        expect(deleteButton).not.toBeDisabled();
+      });
+
+      confirmSpy.mockRestore();
+    });
   });
 
   describe('NG率表示', () => {

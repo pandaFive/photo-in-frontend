@@ -55,9 +55,20 @@ const MemberEditDialog = ({
       setName(editingMember.name);
       setCapacity(editingMember.capacity);
       // メンバーのエリア名からエリアIDに変換
-      const areaIds = areas
-        .filter((area) => editingMember.area.includes(area.name))
-        .map((area) => area.id);
+      const matchedAreas = areas.filter((area) => editingMember.area.includes(area.name));
+      const areaIds = matchedAreas.map((area) => area.id);
+
+      // マッピングできなかったエリア名がある場合は警告ログを出力
+      const mappedNames = matchedAreas.map((area) => area.name);
+      const unmappedAreas = editingMember.area.filter((name) => !mappedNames.includes(name));
+      if (unmappedAreas.length > 0) {
+        logError('[MemberEditDialog] エリア名のマッピングに失敗', {
+          memberId: editingMember.id,
+          memberName: editingMember.name,
+          unmappedAreas,
+        });
+      }
+
       setSelectedAreaIds(areaIds);
       setErrors({ name: null, capacity: null });
     }
@@ -182,28 +193,34 @@ const MemberEditDialog = ({
           >
             撮影可能エリア
           </Typography>
-          <FormGroup
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              flexDirection: 'row',
-            }}
-          >
-            {areas.map((area) => (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedAreaIds.includes(area.id)}
-                    disabled={isSubmitting}
-                    onChange={() => handleAreaToggle(area.id)}
-                  />
-                }
-                key={area.id}
-                label={area.name}
-                sx={{ flex: '1 1 calc(33.333% - 10px)' }}
-              />
-            ))}
-          </FormGroup>
+          {areas.length === 0 ? (
+            <Typography color="error" sx={{ fontSize: '0.875rem' }}>
+              エリア情報を読み込めませんでした。ダイアログを閉じて再試行してください。
+            </Typography>
+          ) : (
+            <FormGroup
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                flexDirection: 'row',
+              }}
+            >
+              {areas.map((area) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedAreaIds.includes(area.id)}
+                      disabled={isSubmitting}
+                      onChange={() => handleAreaToggle(area.id)}
+                    />
+                  }
+                  key={area.id}
+                  label={area.name}
+                  sx={{ flex: '1 1 calc(33.333% - 10px)' }}
+                />
+              ))}
+            </FormGroup>
+          )}
         </Box>
 
         <TextField

@@ -82,7 +82,8 @@ const Members = () => {
     );
   }, [members, searchQuery]);
 
-  // 削除ハンドラー: SWRキャッシュを楽観的に更新後、サーバーと同期
+  // 削除成功後のコールバック: ローカルキャッシュから削除し、サーバーと再同期
+  // 注: 実際のDELETE APIはMemberCardコンポーネント内で実行される
   const handleDelete = useCallback(
     (id: number) => {
       void mutate(
