@@ -43,10 +43,12 @@ const mockAreas: Area[] = [
 
 // SWRモック用のレスポンス設定
 let membersData: MemberStatus[] | undefined = mockMemberStatus;
-const mockMutate = jest.fn((fn) => {
+let areasLoading = false;
+const mockMutate = jest.fn((fn, options) => {
   if (typeof fn === 'function') {
     membersData = fn(membersData);
   }
+  return Promise.resolve(membersData);
 });
 
 // モック関数
@@ -69,9 +71,9 @@ jest.mock('swr', () => ({
     }
     if (key === 'areas') {
       return {
-        data: mockAreas,
+        data: areasLoading ? undefined : mockAreas,
         error: undefined,
-        isLoading: false,
+        isLoading: areasLoading,
         mutate: jest.fn(),
       };
     }
@@ -181,6 +183,7 @@ describe('Members Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     membersData = [...mockMemberStatus];
+    areasLoading = false;
   });
 
   it('renders the component and fetches member status', async () => {
@@ -209,7 +212,38 @@ describe('Members Component', () => {
     });
   });
 
+  it('削除時にサーバー再検証オプションが渡される', async () => {
+    render(<Members />);
+
+    await waitFor(() => {
+      expect(screen.getByText('2名の撮影者が登録されています')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText('delete1'));
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.any(Function),
+        { revalidate: true },
+      );
+    });
+  });
+
   describe('編集機能', () => {
+    it('エリア読み込み中はページがローディング状態で編集ボタンが表示されない', async () => {
+      areasLoading = true;
+      render(<Members />);
+
+      // ページがローディング状態であることを確認
+      await waitFor(() => {
+        expect(screen.getByText('読み込み中...')).toBeInTheDocument();
+      });
+
+      // メンバーカードが表示されないため編集ボタンもない
+      expect(screen.queryByLabelText('edit1')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('member-edit-dialog')).not.toBeInTheDocument();
+    });
+
     it('編集ボタンクリックでダイアログが開く', async () => {
       render(<Members />);
 
