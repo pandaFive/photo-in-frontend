@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { useToast } from '@/src/context/ToastContext';
 import { MAX_CAPACITY, MAX_NAME_LENGTH } from '@/src/domain/constants/account';
@@ -51,9 +51,18 @@ const MemberEditDialog = ({
   const [selectedAreaIds, setSelectedAreaIds] = useState<number[]>([]);
   const [errors, setErrors] = useState<FormErrors>({ name: null, capacity: null });
 
+  // 初期化済みのメンバーIDを追跡（areasの再検証によるリセットを防止）
+  const initializedMemberIdRef = useRef<number | null>(null);
+
   // 初期化: ダイアログが開いたときに編集対象のデータをセット
+  // areasが再検証されても、同じメンバーを編集中ならリセットしない
   useEffect(() => {
     if (open && editingMember) {
+      // 既に同じメンバーで初期化済みならスキップ
+      if (initializedMemberIdRef.current === editingMember.id) {
+        return;
+      }
+
       setName(editingMember.name);
       setCapacity(editingMember.capacity);
       // メンバーのエリア名からエリアIDに変換
@@ -74,8 +83,16 @@ const MemberEditDialog = ({
 
       setSelectedAreaIds(areaIds);
       setErrors({ name: null, capacity: null });
+      initializedMemberIdRef.current = editingMember.id;
     }
   }, [open, editingMember, areas, showWarning]);
+
+  // ダイアログが閉じたら初期化フラグをリセット
+  useEffect(() => {
+    if (!open) {
+      initializedMemberIdRef.current = null;
+    }
+  }, [open]);
 
   const validateName = (value: string): string | null => {
     const trimmed = value.trim();

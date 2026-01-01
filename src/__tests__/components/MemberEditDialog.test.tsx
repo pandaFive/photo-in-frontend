@@ -435,4 +435,71 @@ describe('MemberEditDialog', () => {
       });
     });
   });
+
+  describe('areasの再検証時のフォームリセット防止', () => {
+    it('areasが変更されても編集中の入力値がリセットされない', async () => {
+      const { rerender } = render(<MemberEditDialog {...defaultProps} />);
+
+      // 初期値を確認
+      await waitFor(() => {
+        expect(getNameInput()).toHaveValue('山田太郎');
+        expect(getCapacityInput()).toHaveValue(5);
+      });
+
+      // ユーザーが入力値を変更
+      fireEvent.change(getNameInput(), { target: { value: '変更後の名前' } });
+      fireEvent.change(getCapacityInput(), { target: { value: '10' } });
+
+      expect(getNameInput()).toHaveValue('変更後の名前');
+      expect(getCapacityInput()).toHaveValue(10);
+
+      // SWRの再検証でareasの参照が変わる（同じ内容の新しい配列）
+      const newAreas: Area[] = [
+        { id: 1, name: 'エリアA' },
+        { id: 2, name: 'エリアB' },
+        { id: 3, name: 'エリアC' },
+      ];
+      rerender(<MemberEditDialog {...defaultProps} areas={newAreas} />);
+
+      // 編集中の入力値がリセットされていないことを確認
+      expect(getNameInput()).toHaveValue('変更後の名前');
+      expect(getCapacityInput()).toHaveValue(10);
+    });
+
+    it('ダイアログを閉じて再度開くと新しいメンバーで初期化される', async () => {
+      const { rerender } = render(<MemberEditDialog {...defaultProps} />);
+
+      // 初期値を確認
+      await waitFor(() => {
+        expect(getNameInput()).toHaveValue('山田太郎');
+      });
+
+      // 入力値を変更
+      fireEvent.change(getNameInput(), { target: { value: '変更後の名前' } });
+
+      // ダイアログを閉じる
+      rerender(<MemberEditDialog {...defaultProps} open={false} />);
+
+      // 別のメンバーで再度開く
+      const anotherMember: MemberStatus = {
+        id: 2,
+        name: '佐藤花子',
+        capacity: 3,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+        area: ['エリアC'],
+        total: 30,
+        week: 3,
+        ng_rate: 0.05,
+        assign: 2,
+      };
+      rerender(<MemberEditDialog {...defaultProps} open={true} editingMember={anotherMember} />);
+
+      // 新しいメンバーのデータで初期化されることを確認
+      await waitFor(() => {
+        expect(getNameInput()).toHaveValue('佐藤花子');
+        expect(getCapacityInput()).toHaveValue(3);
+      });
+    });
+  });
 });
