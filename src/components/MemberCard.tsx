@@ -4,6 +4,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
 import PersonIcon from '@mui/icons-material/Person';
 import SpeedIcon from '@mui/icons-material/Speed';
 import {
@@ -29,6 +30,7 @@ import { logError } from '@/src/util/safe-logger';
 type Props = {
   member: MemberStatus;
   handleDelete: (id: number) => void;
+  onEdit: (member: MemberStatus) => void;
 };
 
 // NG率に応じた色を返す
@@ -149,21 +151,40 @@ const MemberCard = (props: Props) => {
               登録: {parseIsoToYYYYMMDD(props.member.createdAt)}
             </Typography>
           </Box>
-          <Tooltip title="メンバーを削除">
-            <IconButton
-              onClick={() => void onDelete()}
-              size="small"
-              sx={{
-                color: 'rgba(255,255,255,0.7)',
-                '&:hover': {
-                  color: 'white',
-                  bgcolor: 'rgba(255,255,255,0.1)',
-                },
-              }}
-            >
-              <DeleteOutlineIcon />
-            </IconButton>
-          </Tooltip>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Tooltip title="編集">
+              <IconButton
+                aria-label="編集"
+                onClick={() => props.onEdit(props.member)}
+                size="small"
+                sx={{
+                  color: 'rgba(255,255,255,0.7)',
+                  '&:hover': {
+                    color: 'white',
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                  },
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="メンバーを削除">
+              <IconButton
+                aria-label="メンバーを削除"
+                onClick={() => void onDelete()}
+                size="small"
+                sx={{
+                  color: 'rgba(255,255,255,0.7)',
+                  '&:hover': {
+                    color: 'white',
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                  },
+                }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </Box>
 

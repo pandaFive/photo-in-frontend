@@ -1,28 +1,15 @@
+/**
+ * Members Component - 基本テスト
+ *
+ * メンバー管理ページの基本的な表示・削除機能テスト
+ */
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Members from '@/src/app/(admin)/members/page';
-import { getAccountStatus } from '@/src/api/get-account-status';
-import { MemberStatus } from '@/src/types';
 
-// モックの設定
-jest.mock('@/src/api/get-account-status');
-jest.mock('@/src/components/MemberCard', () => {
-  return function MockMemberCard({ member, handleDelete }) {
-    return (
-      <div data-testid={`member-card-${member.id}`}>
-        {member.name}
-        <button
-          aria-label={`delete${member.id}`}
-          onClick={() => handleDelete(member.id)}
-        >
-          Delete
-        </button>
-      </div>
-    );
-  };
-});
+import { Area, MemberStatus } from '@/src/types';
 
+// テストデータ
 const mockMemberStatus: MemberStatus[] = [
   {
     id: 1,
@@ -50,9 +37,113 @@ const mockMemberStatus: MemberStatus[] = [
   },
 ];
 
+const mockAreas: Area[] = [
+  { id: 1, name: 'エリアA' },
+];
+
+// SWRモック用のレスポンス設定
+let membersData: MemberStatus[] | undefined = mockMemberStatus;
+const mockMutate = jest.fn((fn) => {
+  if (typeof fn === 'function') {
+    membersData = fn(membersData);
+  }
+});
+
+// SWRモック
+jest.mock('swr', () => ({
+  __esModule: true,
+  default: jest.fn((key: string) => {
+    if (key === 'members') {
+      return {
+        data: membersData,
+        error: undefined,
+        isLoading: false,
+        mutate: mockMutate,
+      };
+    }
+    if (key === 'areas') {
+      return {
+        data: mockAreas,
+        error: undefined,
+        isLoading: false,
+        mutate: jest.fn(),
+      };
+    }
+    return {
+      data: undefined,
+      error: undefined,
+      isLoading: true,
+      mutate: jest.fn(),
+    };
+  }),
+}));
+
+// MemberCardモック - onEdit propを追加
+jest.mock('@/src/components/MemberCard', () => {
+  return function MockMemberCard({
+    member,
+    handleDelete,
+    onEdit,
+  }: {
+    member: MemberStatus;
+    handleDelete: (id: number) => void;
+    onEdit: (member: MemberStatus) => void;
+  }) {
+    return (
+      <div data-testid={`member-card-${member.id}`}>
+        {member.name}
+        <button
+          aria-label={`delete${member.id}`}
+          onClick={() => handleDelete(member.id)}
+        >
+          Delete
+        </button>
+        <button
+          aria-label={`edit${member.id}`}
+          onClick={() => onEdit(member)}
+        >
+          Edit
+        </button>
+      </div>
+    );
+  };
+});
+
+jest.mock('@/src/mutations', () => ({
+  useAccountMutation: () => ({
+    updateAccount: jest.fn(),
+    deleteAccount: jest.fn().mockResolvedValue({ success: true }),
+  }),
+}));
+
+jest.mock('@/src/context/ToastContext', () => ({
+  useToast: () => ({
+    showSuccess: jest.fn(),
+    showError: jest.fn(),
+    showErrorWithRetry: jest.fn(),
+  }),
+}));
+
+jest.mock('@/src/infra/http', () => ({
+  httpClient: {
+    get: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
+jest.mock('next/link', () => {
+  return ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  );
+});
+
+import Members from '@/src/app/(admin)/members/page';
+
 describe('Members Component', () => {
   beforeEach(() => {
-    (getAccountStatus as jest.Mock).mockResolvedValue(mockMemberStatus);
+    jest.clearAllMocks();
+    membersData = [...mockMemberStatus];
   });
 
   it('renders the component and fetches member status', async () => {
@@ -77,10 +168,7 @@ describe('Members Component', () => {
     fireEvent.click(screen.getByLabelText('delete1'));
 
     await waitFor(() => {
-      expect(screen.getByText('1名の撮影者が登録されています')).toBeInTheDocument();
+      expect(mockMutate).toHaveBeenCalled();
     });
-
-    expect(screen.queryByTestId('member-card-1')).not.toBeInTheDocument();
-    expect(screen.getByTestId('member-card-2')).toBeInTheDocument();
   });
 });

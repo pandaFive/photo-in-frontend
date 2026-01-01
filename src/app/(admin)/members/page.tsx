@@ -1,6 +1,7 @@
 'use client';
 
 import AddIcon from '@mui/icons-material/Add';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import GroupIcon from '@mui/icons-material/Group';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -15,45 +16,120 @@ import {
   Typography,
 } from '@mui/material';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import useSWR from 'swr';
 
-import { getAccountStatus } from '@/src/api/get-account-status';
 import MemberCard from '@/src/components/MemberCard';
-import { MemberStatus } from '@/src/types';
+import MemberEditDialog from '@/src/components/MemberEditDialog';
+import { useToast } from '@/src/context/ToastContext';
+import { httpClient } from '@/src/infra/http';
+import { useAccountMutation } from '@/src/mutations';
+import { Area, MemberStatus } from '@/src/types';
+import { logError } from '@/src/util/safe-logger';
+
+/**
+ * メンバーデータのフェッチャー
+ */
+const membersFetcher = async (): Promise<MemberStatus[]> => {
+  const result = await httpClient.get<MemberStatus[]>('/api/accounts');
+  if (!result.ok) {
+    logError('[MembersPage:membersFetcher]', result.error);
+    throw new Error(result.error.message);
+  }
+  return result.value;
+};
+
+/**
+ * エリアデータのフェッチャー
+ */
+const areasFetcher = async (): Promise<Area[]> => {
+  const result = await httpClient.get<Area[]>('/api/areas');
+  if (!result.ok) {
+    logError('[MembersPage:areasFetcher]', result.error);
+    throw new Error(result.error.message);
+  }
+  return result.value;
+};
 
 const Members = () => {
-  const [membersStatus, setMembersStatus] = useState<MemberStatus[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    data: members,
+    error: membersError,
+    isLoading: membersLoading,
+    mutate,
+  } = useSWR<MemberStatus[], Error>('members', membersFetcher);
+  const { data: areas, isLoading: areasLoading } = useSWR<Area[], Error>('areas', areasFetcher);
+
+  const { updateAccount } = useAccountMutation();
+  const { showSuccess, showErrorWithRetry } = useToast();
+
   const [searchQuery, setSearchQuery] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<MemberStatus | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      const response = await getAccountStatus();
-
-      if (response !== undefined) {
-        setMembersStatus(response as MemberStatus[]);
-      }
-      setIsLoading(false);
-    };
-
-    void fetchData();
-  }, []);
-
-  const handleDelete = useCallback((id: number) => {
-    setMembersStatus((prev) => prev.filter((member) => member.id !== id));
-  }, []);
+  const isLoading = membersLoading || areasLoading;
 
   // 検索フィルタリング
   const filteredMembers = useMemo(() => {
-    if (!searchQuery.trim()) return membersStatus;
+    if (!members) return [];
+    if (!searchQuery.trim()) return members;
     const query = searchQuery.toLowerCase();
-    return membersStatus.filter(
+    return members.filter(
       (member) =>
         member.name.toLowerCase().includes(query) ||
         member.area.some((area) => area.toLowerCase().includes(query)),
     );
-  }, [membersStatus, searchQuery]);
+  }, [members, searchQuery]);
+
+  // 削除ハンドラー（ローカルの楽観的更新）
+  const handleDelete = useCallback(
+    (id: number) => {
+      void mutate(
+        (current) => current?.filter((member) => member.id !== id),
+        false,
+      );
+    },
+    [mutate],
+  );
+
+  // 編集ダイアログを開く
+  const handleOpenEdit = useCallback((member: MemberStatus) => {
+    setEditingMember(member);
+    setDialogOpen(true);
+  }, []);
+
+  // ダイアログを閉じる
+  const handleCloseDialog = useCallback(() => {
+    setDialogOpen(false);
+    setEditingMember(null);
+  }, []);
+
+  // 保存処理
+  const handleSave = useCallback(
+    async (name: string, areaIds: number[], capacity: number) => {
+      if (!editingMember) return;
+
+      setIsSubmitting(true);
+      try {
+        const result = await updateAccount(editingMember.id, name, areaIds, capacity);
+        if (result.success) {
+          showSuccess('メンバーを更新しました');
+          handleCloseDialog();
+          void mutate();
+        } else {
+          showErrorWithRetry(result.error ?? '更新に失敗しました', () =>
+            void handleSave(name, areaIds, capacity),
+          );
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [editingMember, updateAccount, showSuccess, showErrorWithRetry, handleCloseDialog, mutate],
+  );
+
+  const memberCount = members?.length ?? 0;
 
   return (
     <Box
@@ -103,7 +179,7 @@ const Members = () => {
                   撮影者管理
                 </Typography>
                 <Typography sx={{ opacity: 0.9, fontSize: '0.875rem' }}>
-                  {isLoading ? '読み込み中...' : `${membersStatus.length}名の撮影者が登録されています`}
+                  {isLoading ? '読み込み中...' : `${memberCount}名の撮影者が登録されています`}
                 </Typography>
               </Box>
             </Box>
@@ -174,8 +250,36 @@ const Members = () => {
           </Box>
         )}
 
+        {/* エラー状態 */}
+        {membersError && !isLoading && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              borderRadius: 3,
+              bgcolor: 'white',
+            }}
+          >
+            <ErrorOutlineIcon sx={{ fontSize: 64, color: 'error.main', mb: 2 }} />
+            <Typography color="text.secondary" variant="h6">
+              撮影者の読み込みに失敗しました
+            </Typography>
+            <Typography color="text.secondary" sx={{ mt: 1 }} variant="body2">
+              {membersError instanceof Error ? membersError.message : '不明なエラーが発生しました'}
+            </Typography>
+            <Button
+              onClick={() => void mutate()}
+              sx={{ mt: 2 }}
+              variant="contained"
+            >
+              再試行
+            </Button>
+          </Paper>
+        )}
+
         {/* メンバーカードグリッド */}
-        {!isLoading && (
+        {!isLoading && !membersError && filteredMembers.length > 0 && (
           <Box
             sx={{
               display: 'grid',
@@ -192,13 +296,14 @@ const Members = () => {
                 handleDelete={handleDelete}
                 key={memberStatus.id}
                 member={memberStatus}
+                onEdit={handleOpenEdit}
               />
             ))}
           </Box>
         )}
 
-        {/* 検索結果なし */}
-        {!isLoading && filteredMembers.length === 0 && (
+        {/* 検索結果なし / 空状態 */}
+        {!isLoading && !membersError && filteredMembers.length === 0 && (
           <Paper
             elevation={0}
             sx={{
@@ -228,6 +333,16 @@ const Members = () => {
           </Paper>
         )}
       </Container>
+
+      {/* 編集ダイアログ */}
+      <MemberEditDialog
+        areas={areas ?? []}
+        editingMember={editingMember}
+        isSubmitting={isSubmitting}
+        onClose={handleCloseDialog}
+        onSave={handleSave}
+        open={dialogOpen}
+      />
     </Box>
   );
 };
