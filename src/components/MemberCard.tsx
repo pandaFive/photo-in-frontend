@@ -29,7 +29,7 @@ import { logError } from '@/src/util/safe-logger';
 
 type Props = {
   member: MemberStatus;
-  handleDelete: (id: number) => void;
+  onDelete: (id: number) => void;
   onEdit: (member: MemberStatus) => void;
 };
 
@@ -85,7 +85,7 @@ const MemberCard = (props: Props) => {
     try {
       const result = await deleteAccount(props.member.id);
       if (result.success) {
-        props.handleDelete(props.member.id);
+        props.onDelete(props.member.id);
         showSuccess('メンバーを削除しました');
       } else {
         logError('[MemberCard] deleteAccount', result.error);

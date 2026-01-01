@@ -34,7 +34,7 @@ const validateName = (name: unknown): { valid: true } | { valid: false; error: s
  * IDのバリデーション
  */
 const validateId = (id: unknown): { valid: true } | { valid: false; error: string } => {
-  if (!id || !Number.isInteger(id) || id <= 0) {
+  if (!id || typeof id !== 'number' || !Number.isInteger(id) || id <= 0) {
     return { valid: false, error: '有効なアカウントIDが必要です' };
   }
   return { valid: true };
@@ -141,7 +141,9 @@ export const PUT = async (request: NextRequest) => {
     if (res.ok) {
       try {
         const data: unknown = await res.json();
-        return NextResponse.json(data);
+        return NextResponse.json(data, {
+          headers: { 'Cache-Control': 'no-store, max-age=0' },
+        });
       } catch (jsonError) {
         logError('[PUT] /api/account: Success response JSON parse failed', jsonError);
         return NextResponse.json(

@@ -14,7 +14,7 @@ describe('httpClient', () => {
       const mockData = { id: 1, name: 'Test' };
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockData),
+        text: () => Promise.resolve(JSON.stringify(mockData)),
       });
 
       const result = await httpClient.get('/api/test');
@@ -166,7 +166,7 @@ describe('httpClient', () => {
     test('passes headers when provided', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({}),
+        text: () => Promise.resolve(JSON.stringify({})),
       });
 
       await httpClient.get('/api/test', {
@@ -186,7 +186,7 @@ describe('httpClient', () => {
       const mockData = { id: 1 };
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockData),
+        text: () => Promise.resolve(JSON.stringify(mockData)),
       });
 
       const result = await httpClient.post('/api/test', { name: 'Test' });
@@ -222,7 +222,7 @@ describe('httpClient', () => {
     test('handles post without body', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({}),
+        text: () => Promise.resolve(JSON.stringify({})),
       });
 
       await httpClient.post('/api/test');

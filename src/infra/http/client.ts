@@ -60,8 +60,20 @@ export const httpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data: unknown = await res.json();
-      return validateWithSchema(data, options?.schema);
+      // GETは空レスポンスの場合がある
+      const text = await res.text();
+      if (!text) {
+        return ok({} as T);
+      }
+
+      try {
+        const data: unknown = JSON.parse(text);
+        return validateWithSchema(data, options?.schema);
+      } catch (jsonErr) {
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        logError('[httpClient.get] JSON.parse failed', jsonErr);
+        return err(createApiError(502, 'サーバーからの応答を解析できませんでした'));
+      }
     } catch (e) {
       // AbortErrorは再throwして呼び出し側でハンドリング
       if (e instanceof Error && e.name === 'AbortError') {
@@ -98,8 +110,20 @@ export const httpClient = {
         return err(createApiError(res.status, parseErrorMessage(text)));
       }
 
-      const data: unknown = await res.json();
-      return validateWithSchema(data, options?.schema);
+      // POSTは空レスポンスの場合がある
+      const text = await res.text();
+      if (!text) {
+        return ok({} as T);
+      }
+
+      try {
+        const data: unknown = JSON.parse(text);
+        return validateWithSchema(data, options?.schema);
+      } catch (jsonErr) {
+        // JSONパースに失敗した場合はエラーを返す（サイレント失敗防止）
+        logError('[httpClient.post] JSON.parse failed', jsonErr);
+        return err(createApiError(502, 'サーバーからの応答を解析できませんでした'));
+      }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') {
         throw e;

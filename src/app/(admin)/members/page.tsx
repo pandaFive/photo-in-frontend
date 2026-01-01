@@ -306,9 +306,9 @@ const Members = () => {
           >
             {filteredMembers.map((memberStatus) => (
               <MemberCard
-                handleDelete={handleDelete}
                 key={memberStatus.id}
                 member={memberStatus}
+                onDelete={handleDelete}
                 onEdit={handleOpenEdit}
               />
             ))}

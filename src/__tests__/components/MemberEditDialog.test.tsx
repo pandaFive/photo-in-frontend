@@ -17,10 +17,13 @@ const mockAreas: Area[] = [
   { id: 3, name: 'エリアC' },
 ];
 
+const mockShowWarning = jest.fn();
+
 jest.mock('@/src/context/ToastContext', () => ({
   useToast: () => ({
     showSuccess: jest.fn(),
     showError: jest.fn(),
+    showWarning: mockShowWarning,
     showErrorWithRetry: jest.fn(),
   }),
 }));
@@ -71,6 +74,7 @@ describe('MemberEditDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockOnSave.mockResolvedValue(undefined);
+    mockShowWarning.mockClear();
   });
 
   describe('初期表示', () => {
@@ -360,6 +364,74 @@ describe('MemberEditDialog', () => {
 
       await waitFor(() => {
         expect(mockOnSave).toHaveBeenCalledWith('山田太郎', [1, 2], 0);
+      });
+    });
+  });
+
+  describe('エリア情報が空の場合', () => {
+    it('エリアが空配列の場合はエラーメッセージが表示される', async () => {
+      render(<MemberEditDialog {...defaultProps} areas={[]} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('エリア情報を読み込めませんでした。ダイアログを閉じて再試行してください。'),
+        ).toBeInTheDocument();
+      });
+
+      // チェックボックスが表示されないことを確認
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('エリアマッピング', () => {
+    it('存在しないエリア名がある場合はlogErrorとshowWarningが呼ばれる', async () => {
+      const { logError } = jest.requireMock('@/src/util/safe-logger');
+      const memberWithUnknownArea: MemberStatus = {
+        ...mockMember,
+        area: ['エリアA', '未知のエリア', '存在しないエリア'],
+      };
+
+      render(<MemberEditDialog {...defaultProps} editingMember={memberWithUnknownArea} />);
+
+      await waitFor(() => {
+        expect(logError).toHaveBeenCalledWith(
+          '[MemberEditDialog] エリア名のマッピングに失敗',
+          expect.objectContaining({
+            memberId: memberWithUnknownArea.id,
+            memberName: memberWithUnknownArea.name,
+            unmappedAreas: ['未知のエリア', '存在しないエリア'],
+          }),
+        );
+        expect(mockShowWarning).toHaveBeenCalledWith(
+          '次のエリアは選択リストにありません: 未知のエリア, 存在しないエリア',
+        );
+      });
+    });
+
+    it('すべてのエリアがマッピングできる場合はlogErrorもshowWarningも呼ばれない', async () => {
+      const { logError } = jest.requireMock('@/src/util/safe-logger');
+
+      render(<MemberEditDialog {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('エリアA')).toBeInTheDocument();
+      });
+
+      expect(logError).not.toHaveBeenCalledWith(
+        '[MemberEditDialog] エリア名のマッピングに失敗',
+        expect.anything(),
+      );
+      expect(mockShowWarning).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('送信中のチェックボックス状態', () => {
+    it('送信中はエリアチェックボックスも無効化される', async () => {
+      render(<MemberEditDialog {...defaultProps} isSubmitting={true} />);
+
+      await waitFor(() => {
+        const areaACheckbox = screen.getByLabelText('エリアA');
+        expect(areaACheckbox).toBeDisabled();
       });
     });
   });

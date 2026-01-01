@@ -45,7 +45,9 @@ export const GET = async () => {
           { status: 502 },
         );
       }
-      return NextResponse.json(result);
+      return NextResponse.json(result, {
+        headers: { 'Cache-Control': 'no-store, max-age=0' },
+      });
     } else {
       const errorText = await res.text().catch((err) => {
         logError('[GET] /api/accounts: res.text() failed', err);

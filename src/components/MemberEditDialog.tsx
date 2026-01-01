@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 
+import { useToast } from '@/src/context/ToastContext';
 import { MAX_CAPACITY, MAX_NAME_LENGTH } from '@/src/domain/constants/account';
 import { Area, MemberStatus } from '@/src/types';
 import { logError } from '@/src/util/safe-logger';
@@ -44,6 +45,7 @@ const MemberEditDialog = ({
   isSubmitting,
   areas,
 }: Props) => {
+  const { showWarning } = useToast();
   const [name, setName] = useState('');
   const [capacity, setCapacity] = useState(0);
   const [selectedAreaIds, setSelectedAreaIds] = useState<number[]>([]);
@@ -58,21 +60,22 @@ const MemberEditDialog = ({
       const matchedAreas = areas.filter((area) => editingMember.area.includes(area.name));
       const areaIds = matchedAreas.map((area) => area.id);
 
-      // マッピングできなかったエリア名がある場合は警告ログを出力
+      // マッピングできなかったエリア名がある場合は警告ログを出力し、ユーザーに通知
       const mappedNames = matchedAreas.map((area) => area.name);
-      const unmappedAreas = editingMember.area.filter((name) => !mappedNames.includes(name));
+      const unmappedAreas = editingMember.area.filter((areaName) => !mappedNames.includes(areaName));
       if (unmappedAreas.length > 0) {
         logError('[MemberEditDialog] エリア名のマッピングに失敗', {
           memberId: editingMember.id,
           memberName: editingMember.name,
           unmappedAreas,
         });
+        showWarning(`次のエリアは選択リストにありません: ${unmappedAreas.join(', ')}`);
       }
 
       setSelectedAreaIds(areaIds);
       setErrors({ name: null, capacity: null });
     }
-  }, [open, editingMember, areas]);
+  }, [open, editingMember, areas, showWarning]);
 
   const validateName = (value: string): string | null => {
     const trimmed = value.trim();

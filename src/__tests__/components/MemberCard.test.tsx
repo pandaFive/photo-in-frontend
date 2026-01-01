@@ -44,13 +44,13 @@ describe('MemberCard', () => {
     assign: 3,
   };
 
-  const mockHandleDelete = jest.fn();
-  const mockHandleEdit = jest.fn();
+  const mockOnDelete = jest.fn();
+  const mockOnEdit = jest.fn();
 
   const defaultProps = {
     member: mockMember,
-    handleDelete: mockHandleDelete,
-    onEdit: mockHandleEdit,
+    onDelete: mockOnDelete,
+    onEdit: mockOnEdit,
   };
 
   beforeEach(() => {
@@ -88,7 +88,7 @@ describe('MemberCard', () => {
       const editButton = screen.getByLabelText('編集');
       fireEvent.click(editButton);
 
-      expect(mockHandleEdit).toHaveBeenCalledWith(mockMember);
+      expect(mockOnEdit).toHaveBeenCalledWith(mockMember);
     });
   });
 
@@ -113,7 +113,7 @@ describe('MemberCard', () => {
       confirmSpy.mockRestore();
     });
 
-    it('削除成功時にhandleDeleteが呼ばれる', async () => {
+    it('削除成功時にonDeleteが呼ばれる', async () => {
       const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
       mockDeleteAccount.mockResolvedValue({ success: true });
       render(<MemberCard {...defaultProps} />);
@@ -122,7 +122,7 @@ describe('MemberCard', () => {
       fireEvent.click(deleteButton);
 
       await waitFor(() => {
-        expect(mockHandleDelete).toHaveBeenCalledWith(1);
+        expect(mockOnDelete).toHaveBeenCalledWith(1);
         expect(mockShowSuccess).toHaveBeenCalledWith('メンバーを削除しました');
       });
 

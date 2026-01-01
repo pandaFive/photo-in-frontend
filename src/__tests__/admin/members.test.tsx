@@ -86,15 +86,15 @@ jest.mock('swr', () => ({
   }),
 }));
 
-// MemberCardモック - onEdit propを追加
+// MemberCardモック - onEdit, onDelete propsを使用
 jest.mock('@/src/components/MemberCard', () => {
   return function MockMemberCard({
     member,
-    handleDelete,
+    onDelete,
     onEdit,
   }: {
     member: MemberStatus;
-    handleDelete: (id: number) => void;
+    onDelete: (id: number) => void;
     onEdit: (member: MemberStatus) => void;
   }) {
     return (
@@ -102,7 +102,7 @@ jest.mock('@/src/components/MemberCard', () => {
         {member.name}
         <button
           aria-label={`delete${member.id}`}
-          onClick={() => handleDelete(member.id)}
+          onClick={() => onDelete(member.id)}
         >
           Delete
         </button>

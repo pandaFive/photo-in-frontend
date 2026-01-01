@@ -109,6 +109,7 @@ jest.mock('@/src/context/ToastContext', () => ({
   useToast: () => ({
     showSuccess: mockShowSuccess,
     showError: mockShowError,
+    showWarning: jest.fn(),
     showErrorWithRetry: mockShowErrorWithRetry,
   }),
 }));
@@ -120,6 +121,70 @@ jest.mock('@/src/infra/http', () => ({
     delete: jest.fn(),
   },
 }));
+
+// MemberCardモック - 軽量化のため
+jest.mock('@/src/components/MemberCard', () => {
+  return function MockMemberCard({
+    member,
+    onDelete,
+    onEdit,
+  }: {
+    member: MemberStatus;
+    onDelete: (id: number) => void;
+    onEdit: (member: MemberStatus) => void;
+  }) {
+    return (
+      <div data-testid={`member-card-${member.id}`}>
+        <span>{member.name}</span>
+        <button aria-label="編集" onClick={() => onEdit(member)}>編集</button>
+        <button aria-label="削除" onClick={() => onDelete(member.id)}>削除</button>
+      </div>
+    );
+  };
+});
+
+// MemberEditDialogモック - 軽量化のため
+jest.mock('@/src/components/MemberEditDialog', () => {
+  return function MockMemberEditDialog({
+    open,
+    onClose,
+    onSave,
+    editingMember,
+    areas,
+    isSubmitting,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onSave: (name: string, areaIds: number[], capacity: number) => Promise<void>;
+    editingMember: MemberStatus | null;
+    areas: Area[];
+    isSubmitting: boolean;
+  }) {
+    if (!open || !editingMember) return null;
+
+    const areaIds = editingMember.area
+      .map((areaName) => areas.find((a) => a.name === areaName)?.id)
+      .filter((id): id is number => id !== undefined);
+
+    return (
+      <div data-testid="member-edit-dialog">
+        <h2>メンバー編集</h2>
+        <input
+          aria-label="名前"
+          defaultValue={editingMember.name}
+          data-testid="name-input"
+        />
+        <button
+          disabled={isSubmitting}
+          onClick={() => void onSave(editingMember.name, areaIds, editingMember.capacity)}
+        >
+          更新
+        </button>
+        <button onClick={onClose}>キャンセル</button>
+      </div>
+    );
+  };
+});
 
 // テスト対象のページをインポート（モック設定後）
 import Members from '@/src/app/(admin)/members/page';
@@ -365,6 +430,26 @@ describe('Members Page', () => {
       await waitFor(() => {
         expect(screen.getByText('撮影者の読み込みに失敗しました')).toBeInTheDocument();
       });
+    });
+
+    it('再試行ボタンをクリックするとmutateが呼ばれる', async () => {
+      membersResponse = {
+        data: undefined,
+        error: new Error('メンバーの読み込みに失敗しました'),
+        isLoading: false,
+        mutate: mockMutate,
+      };
+
+      render(<Members />);
+
+      await waitFor(() => {
+        expect(screen.getByText('撮影者の読み込みに失敗しました')).toBeInTheDocument();
+      });
+
+      const retryButton = screen.getByRole('button', { name: '再試行' });
+      fireEvent.click(retryButton);
+
+      expect(mockMutate).toHaveBeenCalled();
     });
   });
 });
