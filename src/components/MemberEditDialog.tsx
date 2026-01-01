@@ -114,7 +114,26 @@ const MemberEditDialog = ({
   };
 
   const handleCapacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
+    const rawValue = e.target.value;
+
+    // 空の場合は0にリセット
+    if (rawValue === '') {
+      setCapacity(0);
+      setErrors((prev) => ({ ...prev, capacity: null }));
+      return;
+    }
+
+    // 小数点を含む場合はエラー表示（parseIntの黙示的切り捨てを防止）
+    if (rawValue.includes('.')) {
+      setCapacity(0);
+      setErrors((prev) => ({
+        ...prev,
+        capacity: `1日の最大撮影数は0以上${MAX_CAPACITY}以下の整数で入力してください`,
+      }));
+      return;
+    }
+
+    const value = parseInt(rawValue, 10);
     setCapacity(isNaN(value) ? 0 : value);
     setErrors((prev) => ({ ...prev, capacity: null }));
   };

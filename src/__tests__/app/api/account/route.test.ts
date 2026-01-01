@@ -102,6 +102,32 @@ describe('PUT /api/account', () => {
       expect(data.errors).toContain('リクエストボディのJSON形式が不正です');
     });
 
+    it('ボディがnullの場合は400を返す', async () => {
+      const request = new NextRequest('http://localhost/api/account', {
+        method: 'PUT',
+        body: JSON.stringify(null),
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.errors).toContain('リクエストボディはオブジェクト形式で指定してください');
+    });
+
+    it('ボディが配列の場合は400を返す', async () => {
+      const request = new NextRequest('http://localhost/api/account', {
+        method: 'PUT',
+        body: JSON.stringify([1, 2, 3]),
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.errors).toContain('リクエストボディはオブジェクト形式で指定してください');
+    });
+
     it('idが無効な場合は400を返す', async () => {
       const request = new NextRequest('http://localhost/api/account', {
         method: 'PUT',

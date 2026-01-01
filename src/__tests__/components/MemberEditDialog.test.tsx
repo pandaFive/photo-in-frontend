@@ -195,6 +195,19 @@ describe('MemberEditDialog', () => {
       expect(mockOnSave).not.toHaveBeenCalled();
     });
 
+    it('小数のキャパシティ入力で即座にエラーメッセージが表示される', async () => {
+      render(<MemberEditDialog {...defaultProps} />);
+
+      await waitFor(() => {
+        const input = getCapacityInput();
+        fireEvent.change(input, { target: { value: '1.5' } });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('1日の最大撮影数は0以上1000以下の整数で入力してください')).toBeInTheDocument();
+      });
+    });
+
     it('有効な入力でonSaveが呼ばれる', async () => {
       render(<MemberEditDialog {...defaultProps} />);
 

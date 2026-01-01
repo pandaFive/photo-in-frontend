@@ -89,6 +89,14 @@ export const PUT = async (request: NextRequest) => {
     );
   }
 
+  // ボディがnullまたはオブジェクトでない場合のガード
+  if (body === null || typeof body !== 'object' || Array.isArray(body)) {
+    return NextResponse.json(
+      { errors: ['リクエストボディはオブジェクト形式で指定してください'] },
+      { status: 400 },
+    );
+  }
+
   // IDバリデーション
   const idResult = validateId(body.id);
   if (!idResult.valid) {
