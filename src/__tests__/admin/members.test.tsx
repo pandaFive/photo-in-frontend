@@ -49,6 +49,12 @@ const mockMutate = jest.fn((fn) => {
   }
 });
 
+// モック関数
+const mockShowSuccess = jest.fn();
+const mockShowError = jest.fn();
+const mockShowErrorWithRetry = jest.fn();
+const mockUpdateAccount = jest.fn();
+
 // SWRモック
 jest.mock('swr', () => ({
   __esModule: true,
@@ -111,16 +117,16 @@ jest.mock('@/src/components/MemberCard', () => {
 
 jest.mock('@/src/mutations', () => ({
   useAccountMutation: () => ({
-    updateAccount: jest.fn(),
+    updateAccount: mockUpdateAccount,
     deleteAccount: jest.fn().mockResolvedValue({ success: true }),
   }),
 }));
 
 jest.mock('@/src/context/ToastContext', () => ({
   useToast: () => ({
-    showSuccess: jest.fn(),
-    showError: jest.fn(),
-    showErrorWithRetry: jest.fn(),
+    showSuccess: mockShowSuccess,
+    showError: mockShowError,
+    showErrorWithRetry: mockShowErrorWithRetry,
   }),
 }));
 
@@ -137,6 +143,37 @@ jest.mock('next/link', () => {
     <a href={href}>{children}</a>
   );
 });
+
+// MemberEditDialogモック
+let capturedOnSave: ((name: string, areaIds: number[], capacity: number) => Promise<void>) | null = null;
+jest.mock('@/src/components/MemberEditDialog', () => {
+  return function MockMemberEditDialog({
+    open,
+    onSave,
+  }: {
+    open: boolean;
+    onSave: (name: string, areaIds: number[], capacity: number) => Promise<void>;
+  }) {
+    capturedOnSave = onSave;
+    if (!open) return null;
+    return (
+      <div data-testid="member-edit-dialog">
+        <button
+          data-testid="save-button"
+          onClick={() => void onSave('Test User', [1], 5)}
+        >
+          Save
+        </button>
+      </div>
+    );
+  };
+});
+
+jest.mock('@/src/util/safe-logger', () => ({
+  logError: jest.fn(),
+  logWarn: jest.fn(),
+  logDebug: jest.fn(),
+}));
 
 import Members from '@/src/app/(admin)/members/page';
 
@@ -169,6 +206,93 @@ describe('Members Component', () => {
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalled();
+    });
+  });
+
+  describe('編集機能', () => {
+    it('編集ボタンクリックでダイアログが開く', async () => {
+      render(<Members />);
+
+      await waitFor(() => {
+        expect(screen.getByText('2名の撮影者が登録されています')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByLabelText('edit1'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('member-edit-dialog')).toBeInTheDocument();
+      });
+    });
+
+    it('更新成功時に成功トーストが表示される', async () => {
+      mockUpdateAccount.mockResolvedValue({ success: true });
+
+      render(<Members />);
+
+      await waitFor(() => {
+        expect(screen.getByText('2名の撮影者が登録されています')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByLabelText('edit1'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('member-edit-dialog')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByTestId('save-button'));
+
+      await waitFor(() => {
+        expect(mockShowSuccess).toHaveBeenCalledWith('メンバーを更新しました');
+      });
+    });
+
+    it('更新失敗時にリトライ付きエラートーストが表示される', async () => {
+      mockUpdateAccount.mockResolvedValue({ success: false, error: '更新に失敗しました' });
+
+      render(<Members />);
+
+      await waitFor(() => {
+        expect(screen.getByText('2名の撮影者が登録されています')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByLabelText('edit1'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('member-edit-dialog')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByTestId('save-button'));
+
+      await waitFor(() => {
+        expect(mockShowErrorWithRetry).toHaveBeenCalledWith(
+          '更新に失敗しました',
+          expect.any(Function),
+        );
+      });
+    });
+
+    it('予期せぬエラー発生時に適切なエラーメッセージが表示される', async () => {
+      mockUpdateAccount.mockRejectedValue(new Error('Unexpected error'));
+
+      render(<Members />);
+
+      await waitFor(() => {
+        expect(screen.getByText('2名の撮影者が登録されています')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByLabelText('edit1'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('member-edit-dialog')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByTestId('save-button'));
+
+      await waitFor(() => {
+        expect(mockShowError).toHaveBeenCalledWith(
+          '予期せぬエラーが発生しました。ページを再読み込みしてください。',
+        );
+      });
     });
   });
 });

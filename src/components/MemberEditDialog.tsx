@@ -15,14 +15,9 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 
+import { MAX_CAPACITY, MAX_NAME_LENGTH } from '@/src/domain/constants/account';
 import { Area, MemberStatus } from '@/src/types';
 import { logError } from '@/src/util/safe-logger';
-
-/** 名前の最大文字数 */
-const MAX_NAME_LENGTH = 32;
-
-/** キャパシティの最大値 */
-const MAX_CAPACITY = 1000;
 
 type Props = {
   open: boolean;

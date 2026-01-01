@@ -82,12 +82,12 @@ const Members = () => {
     );
   }, [members, searchQuery]);
 
-  // 削除ハンドラー（ローカルの楽観的更新）
+  // 削除ハンドラー: SWRキャッシュを楽観的に更新後、サーバーと同期
   const handleDelete = useCallback(
     (id: number) => {
       void mutate(
         (current) => current?.filter((member) => member.id !== id),
-        false,
+        { revalidate: true },
       );
     },
     [mutate],
@@ -95,6 +95,10 @@ const Members = () => {
 
   // 編集ダイアログを開く
   const handleOpenEdit = useCallback((member: MemberStatus) => {
+    if (areasLoading) {
+      showError('エリア情報を読み込み中です。しばらくお待ちください。');
+      return;
+    }
     if (areasError) {
       logError('[MembersPage:handleOpenEdit] Edit blocked due to areas fetch failure', areasError);
       showError('エリア情報の読み込みに失敗したため、編集できません');
@@ -102,7 +106,7 @@ const Members = () => {
     }
     setEditingMember(member);
     setDialogOpen(true);
-  }, [areasError, showError]);
+  }, [areasLoading, areasError, showError]);
 
   // ダイアログを閉じる
   const handleCloseDialog = useCallback(() => {

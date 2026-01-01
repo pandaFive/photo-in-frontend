@@ -5,15 +5,10 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
+import { MAX_CAPACITY, MAX_NAME_LENGTH } from '@/src/domain/constants/account';
 import { parseErrorMessage } from '@/src/infra/http/serverClient';
 import { requireAdmin, requireAuth } from '@/src/util/route-helpers';
 import { logError } from '@/src/util/safe-logger';
-
-/** 名前の最大文字数 */
-const MAX_NAME_LENGTH = 32;
-
-/** キャパシティの最大値 */
-const MAX_CAPACITY = 1000;
 
 type UpdateBody = {
   id: number;
